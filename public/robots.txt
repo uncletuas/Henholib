@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://loopital.com/sitemap.xml
+Sitemap: https://www.loopital.com/sitemap.xml

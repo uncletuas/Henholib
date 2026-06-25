@@ -19,7 +19,6 @@ const services = [
 
 const company = [
   { label: "About Loopital", href: "/about" },
-  { label: "The Ecosystem", href: "/ecosystem" },
   { label: "News & Insights", href: "/insights" },
   { label: "Careers", href: "/careers" },
   { label: "Contact Us", href: "/contact" },
@@ -94,8 +93,7 @@ export function Navbar() {
                         </ProductLink>
                       ))}
                     </div>
-                    <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderTop: `1px solid ${colors.hairline}`, background: colors.surfaceMuted }}>
-                      <Link to="/ecosystem" className="text-xs font-medium transition-colors" style={{ color: colors.textSecondary }}>Explore the ecosystem</Link>
+                    <div className="px-5 py-3.5 flex items-center justify-end" style={{ borderTop: `1px solid ${colors.hairline}`, background: colors.surfaceMuted }}>
                       <Link to="/products" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: colors.blue }}>
                         View all products <ArrowRight size={12} />
                       </Link>

@@ -46,7 +46,7 @@ export function HomePage() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <CTAButton to="/products" size="lg" variant="gradient">Explore products <ArrowRight size={17} /></CTAButton>
-              <CTAButton to="/ecosystem" size="lg" variant="outline">See the ecosystem</CTAButton>
+              <CTAButton to="/contact" size="lg" variant="outline">Talk to us</CTAButton>
             </div>
           </motion.div>
 
@@ -65,13 +65,13 @@ export function HomePage() {
       {/* ── ECOSYSTEM TEASER ── */}
       <Section background={colors.surface} pad="lg">
         <Reveal className="text-center max-w-3xl mx-auto">
-          <p style={{ color: colors.blue, fontSize: "14px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "20px" }}>ONE CONNECTED ECOSYSTEM</p>
-          <h2 style={{ marginBottom: "24px" }}>Four products. One intelligent infrastructure.</h2>
+          <p style={{ color: colors.blue, fontSize: "14px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "20px" }}>OUR PRODUCTS</p>
+          <h2 style={{ marginBottom: "24px" }}>One intelligent infrastructure for modern organizations.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "19px", lineHeight: 1.65, marginBottom: "36px" }}>
-            Each product is a district of the same digital city — intelligence, communication, healthcare,
-            and enterprise governance, designed to work together seamlessly.
+            Purpose-built software platforms for the way modern organizations work, communicate, operate,
+            and grow — each powerful on its own and designed to work together seamlessly.
           </p>
-          <CTAButton to="/ecosystem" variant="solid">Explore the ecosystem <ArrowRight size={16} /></CTAButton>
+          <CTAButton to="/products" variant="solid">Explore all products <ArrowRight size={16} /></CTAButton>
         </Reveal>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-16">

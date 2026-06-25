@@ -8,7 +8,7 @@ const productLinks = products.map((p) => ({ label: `${p.name} — ${p.category}`
 const columns = [
   {
     title: "Products",
-    links: [...productLinks, { label: "The Ecosystem", href: "/ecosystem" }, { label: "All Products", href: "/products" }],
+    links: [...productLinks, { label: "All Products", href: "/products" }],
   },
   {
     title: "Services",
