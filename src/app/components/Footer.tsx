@@ -3,7 +3,7 @@ import loopitalLogo from "../../imports/loopital.com_logo.png";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { products } from "../config/products";
 
-const productLinks = products.map((p) => ({ label: `${p.name} — ${p.category}`, href: p.detailHref }));
+const productLinks = products.map((p) => ({ label: `${p.name} — ${p.category}`, href: p.detailHref, external: p.external }));
 
 const columns = [
   {
@@ -58,7 +58,11 @@ export function Footer() {
               <ul className="flex flex-col gap-3.5">
                 {c.links.map((l) => (
                   <li key={l.label}>
-                    <Link to={l.href} className="transition-colors hover:text-white" style={{ color: "#8A8A93", fontSize: "14px" }}>{l.label}</Link>
+                    {"external" in l && l.external ? (
+                      <a href={l.href} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white" style={{ color: "#8A8A93", fontSize: "14px" }}>{l.label}</a>
+                    ) : (
+                      <Link to={l.href} className="transition-colors hover:text-white" style={{ color: "#8A8A93", fontSize: "14px" }}>{l.label}</Link>
+                    )}
                   </li>
                 ))}
               </ul>

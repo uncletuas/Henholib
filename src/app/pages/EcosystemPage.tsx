@@ -1,10 +1,10 @@
-import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
+import { ProductLink } from "../components/ProductLink";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
@@ -121,9 +121,9 @@ export function EcosystemPage() {
               </div>
               <h2 style={{ marginBottom: "16px" }}>{p.name} powers {p.theme.replace("The Future of ", "").toLowerCase()}.</h2>
               <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.75, marginBottom: "20px" }}>{p.description}</p>
-              <Link to={p.detailHref} className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: p.accent }}>
+              <ProductLink product={p} className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: p.accent }}>
                 Explore {p.name} <ArrowRight size={14} />
-              </Link>
+              </ProductLink>
             </Reveal>
             <Reveal className="lg:col-span-4" from="right">
               <div className="flex flex-wrap gap-2">

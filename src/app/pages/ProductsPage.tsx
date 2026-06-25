@@ -62,13 +62,17 @@ export function ProductsPage() {
                     <p style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.75 }}>{p.description}</p>
                     <PlatformPills platforms={p.platforms} />
                     <div className="flex flex-wrap gap-3 mt-1">
-                      <CTAButton to={p.detailHref} variant="gradient" style={{ background: p.accent }}>
-                        Explore {p.name} <ArrowRight size={15} />
-                      </CTAButton>
                       {p.ctaType === "launch" ? (
-                        <CTAButton href={p.appHref} external variant="outline">Launch app</CTAButton>
+                        <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
+                          Open {p.name} <ArrowRight size={15} />
+                        </CTAButton>
                       ) : (
-                        <CTAButton to="/contact" variant="outline">Book a demo</CTAButton>
+                        <>
+                          <CTAButton to={p.detailHref} variant="gradient" style={{ background: p.accent }}>
+                            Explore {p.name} <ArrowRight size={15} />
+                          </CTAButton>
+                          <CTAButton to="/contact" variant="outline">Book a demo</CTAButton>
+                        </>
                       )}
                     </div>
                   </div>

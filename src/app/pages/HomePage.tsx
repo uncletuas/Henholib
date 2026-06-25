@@ -6,6 +6,7 @@ import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
+import { ProductLink } from "../components/ProductLink";
 import { PlatformPills } from "../components/PlatformPills";
 import { StoreBadges } from "../components/StoreBadges";
 import { products, productById } from "../config/products";
@@ -34,10 +35,6 @@ export function HomePage() {
 
         <div className="max-w-5xl mx-auto px-6 w-full relative text-center py-32">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm mb-8" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, color: colors.textSecondary, boxShadow: shadow.sm }}>
-              <Sparkles size={14} style={{ color: colors.blue }} />
-              An intelligent technology ecosystem
-            </span>
             <h1 style={{ marginBottom: "28px" }}>
               The infrastructure powering<br className="hidden sm:block" /> the next era of{" "}
               <GradientText>intelligent organizations</GradientText>.
@@ -55,10 +52,10 @@ export function HomePage() {
           {/* hero product strip */}
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.25 }} className="mt-20 flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
             {products.map((p) => (
-              <Link key={p.id} to={p.detailHref} className="flex items-center gap-2.5 transition-opacity hover:opacity-100" style={{ opacity: 0.75 }}>
+              <ProductLink key={p.id} product={p} className="flex items-center gap-2.5 transition-opacity hover:opacity-100" style={{ opacity: 0.75 }}>
                 <ImageWithFallback src={p.logo} alt={p.name} className="w-7 h-7 object-contain" />
                 <span style={{ color: colors.heading, fontSize: "15px", fontWeight: 600 }}>{p.name}</span>
-              </Link>
+              </ProductLink>
             ))}
           </motion.div>
         </div>
@@ -79,7 +76,7 @@ export function HomePage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
           {products.map((p, i) => (
             <Reveal key={p.id} delay={i * 0.08}>
-              <Link to={p.detailHref} className="flex flex-col gap-4 p-7 rounded-3xl h-full transition-all duration-300 hover:-translate-y-1 group" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+              <ProductLink product={p} className="flex flex-col gap-4 p-7 rounded-3xl h-full transition-all duration-300 hover:-translate-y-1 group" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: `${p.accent}12`, border: `1px solid ${p.accent}22` }}>
                   <ImageWithFallback src={p.logo} alt={p.name} className="w-8 h-8 object-contain" />
                 </div>
@@ -90,7 +87,7 @@ export function HomePage() {
                 <span className="text-sm inline-flex items-center gap-1 mt-auto transition-colors" style={{ color: colors.textSecondary }}>
                   Learn more <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
                 </span>
-              </Link>
+              </ProductLink>
             </Reveal>
           ))}
         </div>
@@ -129,12 +126,9 @@ export function HomePage() {
 
                 <div className="flex flex-wrap items-center gap-3">
                   {p.ctaType === "launch" ? (
-                    <>
-                      <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
-                        Launch {p.name} <ArrowRight size={16} />
-                      </CTAButton>
-                      <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
-                    </>
+                    <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
+                      Launch {p.name} <ArrowRight size={16} />
+                    </CTAButton>
                   ) : (
                     <>
                       <CTAButton to="/contact" variant="solid">Book a demo <ArrowRight size={16} /></CTAButton>

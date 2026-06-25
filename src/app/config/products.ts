@@ -35,11 +35,13 @@ export interface Product {
   /** Platforms the product ships on. */
   platforms: Platform[];
   accent: string;
-  /** Marketing detail page within loopital.com. */
+  /** Where "Learn more" goes. For STACK62/SART34 this is their existing
+   *  external landing page (subdomain); for HMS7/FMS13 it's the in-site page. */
   detailHref: string;
   /** The live app URL (subdomain) or undefined for demo-led products. */
   appHref?: string;
-  /** Whether the app lives on an external subdomain. */
+  /** True when the product's landing page / app lives on an external subdomain
+   *  (so links render as anchors, not in-site routes). */
   external: boolean;
   /** True when this product is tied to a unified loopital account/portal. */
   accountLinked: boolean;
@@ -63,7 +65,7 @@ export const products: Product[] = [
       "STACK62 is an AI coworker that handles research, knowledge management, content creation, and workflow automation — so your team thinks faster and works at a fundamentally higher level.",
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
-    detailHref: "/products/stack62",
+    detailHref: STACK62_URL,
     appHref: STACK62_URL,
     external: true,
     accountLinked: true,
@@ -81,7 +83,7 @@ export const products: Product[] = [
       "SART34 unifies advertising and customer relationships in one place — run AI-powered ad campaigns, manage every conversation, and grow your audience from a single intelligent workspace, on any device.",
     platforms: ["web", "desktop", "mobile"],
     accent: productAccent.sart34,
-    detailHref: "/products/sart34",
+    detailHref: SART34_URL,
     appHref: SART34_URL,
     external: true,
     accountLinked: true,
@@ -110,18 +112,18 @@ export const products: Product[] = [
     id: "fms13",
     name: "FMS13",
     logo: fms13Logo,
-    category: "Vendor & Contractor Management",
-    theme: "The Future of Enterprise Governance",
-    tagline: "Control your contractor ecosystem at scale.",
+    category: "Facility Management",
+    theme: "The Future of Facility Operations",
+    tagline: "Every facility, fully under control.",
     description:
-      "FMS13 centralizes vendor registration, contractor oversight, compliance, and performance monitoring across every location — giving large organizations the visibility and control they need.",
+      "FMS13 is a complete facility management system — managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale.",
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
     detailHref: "/products/fms13",
     external: false,
     accountLinked: false,
     ctaType: "demo",
-    highlights: ["Vendor onboarding", "Compliance tracking", "Multi-site operations", "Performance monitoring"],
+    highlights: ["Asset & maintenance", "Work orders & requests", "Vendor management", "Compliance & safety"],
   },
 ];
 

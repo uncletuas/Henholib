@@ -6,33 +6,33 @@ export function Fms13Page() {
     <ProductPageShell
       product={productById("fms13")}
       heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      heroBody="FMS13 is an enterprise vendor and contractor management platform for large organizations, corporations, and government institutions that oversee complex contractor ecosystems across multiple sites, branches, and projects."
+      heroBody="FMS13 is a complete facility management system for organizations that operate buildings and sites at scale. It brings assets, maintenance, work orders, service requests, vendors, compliance, and space into one platform — so every facility runs efficiently, safely, and on schedule."
       stats={[
-        { value: "Unlimited", label: "Sites & locations" },
-        { value: "Multi-level", label: "Approval chains" },
-        { value: "Full", label: "Audit trail" },
+        { value: "Unlimited", label: "Buildings & sites" },
+        { value: "Real-time", label: "Work-order visibility" },
+        { value: "Full", label: "Compliance audit trail" },
       ]}
-      featuresEyebrow="PLATFORM FEATURES"
-      featuresTitle="Complete oversight. Zero gaps."
+      featuresEyebrow="PLATFORM CAPABILITIES"
+      featuresTitle="Everything it takes to run a facility."
       features={[
-        { title: "Vendor Registration & Onboarding", desc: "Digitize the entire onboarding process — registration, documents, vetting, and approval — with full audit trails." },
-        { title: "Contractor Management", desc: "Track contractors across all projects and locations. Manage contracts, assign work, and document every interaction." },
-        { title: "Compliance & Documentation", desc: "Ensure every vendor meets your requirements, with automated document expiry alerts and certification renewals." },
-        { title: "Multi-Site Operations", desc: "Manage vendors across unlimited offices, branches, projects, and geographies from a single platform." },
-        { title: "Approval Workflows", desc: "Configure multi-level approval chains for registration, contracts, purchase orders, and compliance exceptions." },
-        { title: "Performance Monitoring", desc: "Score and monitor contractor performance over time to make data-driven contract decisions." },
+        { title: "Asset & Equipment Management", desc: "Track every asset, system, and piece of equipment across all buildings with full lifecycle and service history." },
+        { title: "Maintenance & Work Orders", desc: "Plan preventive maintenance and manage reactive work orders from request through completion and sign-off." },
+        { title: "Service Requests", desc: "Let occupants and staff raise, track, and resolve facility requests from any device, with clear SLAs." },
+        { title: "Vendor & Contractor Management", desc: "Onboard, vet, and oversee the vendors and contractors who service your facilities, with documentation and approvals." },
+        { title: "Compliance & Safety", desc: "Automate inspections, certifications, and safety compliance with expiry alerts and complete audit trails." },
+        { title: "Multi-Site Operations", desc: "Run unlimited buildings, branches, and locations from one platform with role-based access and reporting." },
       ]}
       splitImage="https://images.unsplash.com/photo-1531972111231-7482a960e109?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      splitTitle="Governance across every location, every contractor."
-      splitBody="Large organizations struggle with visibility into their contractor ecosystems — contracts scattered across departments, compliance gaps, and no unified record system. FMS13 centralizes every vendor interaction, document, and approval in one auditable platform."
+      splitTitle="One system for every building, asset, and team."
+      splitBody="Facilities teams juggle maintenance, vendors, compliance, and requests across scattered tools and spreadsheets. FMS13 unifies it all — giving you a single source of truth for what you own, what needs attention, and who's responsible, across your entire portfolio."
       splitBullets={[
-        "Complete contractor register with full history",
-        "Automated compliance alerts and renewals",
-        "Multi-level approval chains for every action",
-        "Real-time performance data across all sites",
+        "Preventive and reactive maintenance in one place",
+        "A complete asset and equipment register",
+        "Vendor, compliance, and safety oversight",
+        "Real-time visibility across every site",
       ]}
-      ctaTitle="Take control of your contractor ecosystem."
-      ctaBody="Talk to our team to see how FMS13 fits your organization's scale and compliance requirements."
+      ctaTitle="Run your facilities at peak efficiency."
+      ctaBody="Talk to our team to see how FMS13 fits your portfolio of buildings, assets, and sites."
     />
   );
 }

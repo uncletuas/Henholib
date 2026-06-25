@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { ProductLink } from "./ProductLink";
 import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 import loopitalLogo from "../../imports/loopital.com_logo.png";
@@ -79,7 +80,7 @@ export function Navbar() {
                   <div className="rounded-3xl overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.05)" }}>
                     <div className="p-3 grid grid-cols-2 gap-1">
                       {products.map((p) => (
-                        <Link key={p.id} to={p.detailHref} className="flex items-start gap-3.5 p-4 rounded-2xl transition-colors hover:bg-[#F5F5F7] group">
+                        <ProductLink key={p.id} product={p} className="flex items-start gap-3.5 p-4 rounded-2xl transition-colors hover:bg-[#F5F5F7] group">
                           <div className="w-11 h-11 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
                             <ImageWithFallback src={p.logo} alt={p.name} className="w-8 h-8 object-contain" />
                           </div>
@@ -90,7 +91,7 @@ export function Navbar() {
                             </div>
                             <p className="text-xs mt-1 leading-relaxed" style={{ color: colors.textSecondary }}>{p.theme}</p>
                           </div>
-                        </Link>
+                        </ProductLink>
                       ))}
                     </div>
                     <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderTop: `1px solid ${colors.hairline}`, background: colors.surfaceMuted }}>
@@ -164,7 +165,7 @@ export function Navbar() {
         <div className="lg:hidden px-6 py-4 flex flex-col gap-1" style={{ background: colors.bg, borderTop: `1px solid ${colors.hairline}`, maxHeight: "82vh", overflowY: "auto" }}>
           <p className="text-xs font-semibold px-3 py-2" style={{ color: colors.textTertiary, letterSpacing: "0.06em" }}>PRODUCTS</p>
           {products.map((p) => (
-            <Link key={p.id} to={p.detailHref} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7]">
+            <ProductLink key={p.id} product={p} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7]">
               <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
                 <ImageWithFallback src={p.logo} alt={p.name} className="w-7 h-7 object-contain" />
               </div>
@@ -172,7 +173,7 @@ export function Navbar() {
                 <p className="text-sm font-semibold" style={{ color: colors.heading }}>{p.name}</p>
                 <p className="text-xs" style={{ color: colors.textSecondary }}>{p.category}</p>
               </div>
-            </Link>
+            </ProductLink>
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
           <p className="text-xs font-semibold px-3 py-2" style={{ color: colors.textTertiary, letterSpacing: "0.06em" }}>SERVICES</p>
