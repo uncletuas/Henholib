@@ -7,6 +7,7 @@ import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
 import { ProductLink } from "../components/ProductLink";
+import { LaunchAppButton } from "../components/LaunchAppButton";
 import { PlatformPills } from "../components/PlatformPills";
 import { StoreBadges } from "../components/StoreBadges";
 import { products, productById } from "../config/products";
@@ -126,9 +127,7 @@ export function HomePage() {
 
                 <div className="flex flex-wrap items-center gap-3">
                   {p.ctaType === "launch" ? (
-                    <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
-                      Launch {p.name} <ArrowRight size={16} />
-                    </CTAButton>
+                    <LaunchAppButton product={p} background={p.accent} />
                   ) : (
                     <>
                       <CTAButton to="/contact" variant="solid">Book a demo <ArrowRight size={16} /></CTAButton>
@@ -171,7 +170,7 @@ export function HomePage() {
                 Led by STACK62, intelligence runs through everything we build — handling research,
                 content, automation, and decision support so people can focus on higher-value work.
               </p>
-              <CTAButton href={productById("stack62").appHref} external variant="gradient">Try STACK62 <ArrowRight size={16} /></CTAButton>
+              <LaunchAppButton product={productById("stack62")}>Try STACK62</LaunchAppButton>
             </Reveal>
           </div>
         </div>

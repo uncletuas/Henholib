@@ -5,6 +5,7 @@ import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
+import { LaunchAppButton } from "../components/LaunchAppButton";
 import { PlatformPills } from "../components/PlatformPills";
 import { products } from "../config/products";
 import { colors, gradientBrand, shadow } from "../lib/brand";
@@ -63,9 +64,7 @@ export function ProductsPage() {
                     <PlatformPills platforms={p.platforms} />
                     <div className="flex flex-wrap gap-3 mt-1">
                       {p.ctaType === "launch" ? (
-                        <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
-                          Open {p.name} <ArrowRight size={15} />
-                        </CTAButton>
+                        <LaunchAppButton product={p} background={p.accent}>Open {p.name}</LaunchAppButton>
                       ) : (
                         <>
                           <CTAButton to={p.detailHref} variant="gradient" style={{ background: p.accent }}>

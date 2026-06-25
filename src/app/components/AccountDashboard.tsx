@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { X, CreditCard, LogOut, ChevronRight, ArrowUpRight, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
-import { accountApi, type Subscription, type Invoice, type AccountProductId } from "../lib/api";
+import { accountApi, launchProductApp, type Subscription, type Invoice, type AccountProductId } from "../lib/api";
 import { accountProducts, productById } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 
@@ -94,9 +94,9 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                           </div>
                           <div className="flex items-center gap-3 flex-shrink-0">
                             {st && <span className="hidden sm:flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: st.color }} /><span style={{ color: colors.textSecondary, fontSize: "12px" }}>{st.label}</span></span>}
-                            <a href={p.appHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-colors hover:bg-[#F5F5F7]" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>
+                            <button onClick={() => p.appHref && launchProductApp(p.appHref, p.id as AccountProductId, token)} className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-colors hover:bg-[#F5F5F7]" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>
                               {sub ? "Open app" : "Get started"} <ArrowUpRight size={12} />
-                            </a>
+                            </button>
                           </div>
                         </div>
                       );

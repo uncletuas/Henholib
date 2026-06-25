@@ -79,3 +79,41 @@ export const accountApi = {
   getInvoices: (token: string) =>
     request<{ invoices: Invoice[] }>("/account/invoices", { headers: authHeader(token) }),
 };
+
+// ── Single sign-on ──────────────────────────────────────────────────────
+// loopital is the identity provider. To open a federated app (SART34/STACK62)
+// for a logged-in user, mint a short-lived SSO token and carry it to the app,
+// which exchanges it server-side for the loopital user.
+
+export const ssoApi = {
+  getLaunchToken: (product: AccountProductId, token: string) =>
+    request<{ ssoToken: string; expiresIn: number }>("/sso/token", {
+      method: "POST",
+      headers: authHeader(token),
+      body: JSON.stringify({ product }),
+    }),
+};
+
+/**
+ * Opens a federated product app. When the user is signed in, performs the SSO
+ * handoff (so they land already authenticated once the app integrates the
+ * receiving side); otherwise just opens the app normally.
+ */
+export async function launchProductApp(
+  appHref: string,
+  product: AccountProductId,
+  token: string | null
+): Promise<void> {
+  const base = appHref.replace(/\/$/, "");
+  if (!token) {
+    window.open(appHref, "_blank", "noopener");
+    return;
+  }
+  try {
+    const { ssoToken } = await ssoApi.getLaunchToken(product, token);
+    window.open(`${base}/sso?token=${encodeURIComponent(ssoToken)}`, "_blank", "noopener");
+  } catch {
+    // Fall back to a normal launch if SSO minting fails.
+    window.open(appHref, "_blank", "noopener");
+  }
+}

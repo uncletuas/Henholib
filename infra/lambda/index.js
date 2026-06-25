@@ -13,11 +13,16 @@
  *   GET  /api/auth/me                (Authorization: Bearer <jwt>) -> { user }
  *   GET  /api/account/subscriptions  (Bearer)  -> { subscriptions } (SART34/STACK62)
  *   GET  /api/account/invoices       (Bearer)  -> { invoices }      (SART34/STACK62)
- *   GET  /api/health                                               -> { status: "ok" }
+ *   POST /api/sso/token              (Bearer)  { product } -> { ssoToken, expiresIn }
+ *   POST /api/sso/exchange           { token, product }   -> { user }
+ *   GET  /api/health                                       -> { status: "ok" }
  *
- * The unified loopital account is the single identity; SART34 and STACK62
- * reference it for their (independent) subscriptions. HMS7 and FMS13 are
- * demo-led and never appear in the portal.
+ * The unified loopital account is the single identity provider (IdP). SART34
+ * and STACK62 federate against it: loopital mints a short-lived, audience-bound
+ * SSO token (POST /sso/token) that the user carries to the product app, whose
+ * backend exchanges it for the canonical loopital user (POST /sso/exchange) and
+ * establishes its own session — so one loopital account signs into both apps.
+ * HMS7 and FMS13 are demo-led and are never part of this federation.
  */
 
 const {
@@ -225,6 +230,64 @@ async function getInvoices(headers) {
   return json(200, { invoices });
 }
 
+// Products that federate against the loopital identity. STACK62 and SART34
+// only — HMS7/FMS13 are demo-led and excluded.
+const SSO_PRODUCTS = ["sart34", "stack62"];
+const SSO_TOKEN_TTL = "120s"; // short-lived; carried via redirect to the app
+
+/**
+ * Mint a short-lived, audience-bound SSO token for a logged-in loopital user.
+ * The user carries it to the product app (e.g. on "Launch STACK62"); the app's
+ * backend then calls /sso/exchange to resolve the canonical loopital user.
+ */
+async function issueSsoToken(headers, body) {
+  const payload = await authenticate(headers);
+  if (!payload) return json(401, { error: "Not authenticated." });
+
+  const product = String(body.product || "").toLowerCase();
+  if (!SSO_PRODUCTS.includes(product))
+    return json(400, { error: "Unknown product for SSO." });
+
+  const secret = await getJwtSecret();
+  const ssoToken = jwt.sign(
+    { sub: payload.sub, email: payload.email, typ: "sso", aud: product },
+    secret,
+    { expiresIn: SSO_TOKEN_TTL }
+  );
+  return json(200, { ssoToken, expiresIn: 120 });
+}
+
+/**
+ * Exchange a short-lived SSO token for the canonical loopital user. Called
+ * server-to-server by the product app after the user lands with the token.
+ * Validates signature, type, audience, and expiry, then returns the user so the
+ * app can provision/link its own account keyed by the loopital user id.
+ */
+async function exchangeSsoToken(body) {
+  const token = body.token;
+  const product = String(body.product || "").toLowerCase();
+  if (!token) return json(400, { error: "Missing SSO token." });
+  if (!SSO_PRODUCTS.includes(product))
+    return json(400, { error: "Unknown product for SSO." });
+
+  let payload;
+  try {
+    const secret = await getJwtSecret();
+    payload = jwt.verify(token, secret, { audience: product });
+  } catch (_) {
+    return json(401, { error: "Invalid or expired SSO token." });
+  }
+  if (payload.typ !== "sso")
+    return json(401, { error: "Not an SSO token." });
+
+  const rows = await sql(
+    "SELECT id, name, email FROM users WHERE id = :id::uuid",
+    { id: payload.sub }
+  );
+  if (rows.length === 0) return json(401, { error: "Account not found." });
+  return json(200, { user: publicUser(rows[0]) });
+}
+
 exports.handler = async (event) => {
   const method =
     event.requestContext?.http?.method || event.httpMethod || "GET";
@@ -253,6 +316,8 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/auth/me") return await me(headers);
     if (method === "GET" && route === "/account/subscriptions") return await getSubscriptions(headers);
     if (method === "GET" && route === "/account/invoices") return await getInvoices(headers);
+    if (method === "POST" && route === "/sso/token") return await issueSsoToken(headers, body);
+    if (method === "POST" && route === "/sso/exchange") return await exchangeSsoToken(body);
     return json(404, { error: "Not found." });
   } catch (err) {
     console.error("Handler error:", err);
