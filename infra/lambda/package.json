@@ -1,0 +1,13 @@
+{
+  "name": "loopital-auth-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Loopital authentication API (signup/signin/me) backed by Aurora Serverless v2 via the RDS Data API.",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-rds-data": "^3.700.0",
+    "@aws-sdk/client-secrets-manager": "^3.700.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

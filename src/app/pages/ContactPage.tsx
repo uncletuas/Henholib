@@ -34,7 +34,7 @@ export function ContactPage() {
       <section style={{ background: "#F7F7FB", padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>CONTACT US</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>CONTACT US</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               Let's talk.
             </h1>
@@ -57,7 +57,7 @@ export function ContactPage() {
                 {contactInfo.map((c) => (
                   <div key={c.label}>
                     <p style={{ fontSize: "12px", fontWeight: 600, color: "#9CA3AF", letterSpacing: "0.06em", marginBottom: "4px" }}>{c.label.toUpperCase()}</p>
-                    <a href={c.href} className="transition-colors hover:text-[#4F46E5]" style={{ fontSize: "16px", color: "#0D0D1A", fontWeight: 500 }}>
+                    <a href={c.href} className="transition-colors hover:text-[#2563EB]" style={{ fontSize: "16px", color: "#0D0D1A", fontWeight: 500 }}>
                       {c.value}
                     </a>
                   </div>
@@ -67,7 +67,7 @@ export function ContactPage() {
               {/* Office */}
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-3">
                 <h2 style={{ fontWeight: 700, fontSize: "20px", color: "#0D0D1A" }}>Our office</h2>
-                <div className="flex flex-col gap-1.5" style={{ paddingLeft: "16px", borderLeft: "3px solid #4F46E5" }}>
+                <div className="flex flex-col gap-1.5" style={{ paddingLeft: "16px", borderLeft: "3px solid #2563EB" }}>
                   <p style={{ fontWeight: 600, fontSize: "15px", color: "#0D0D1A" }}>Pyale Hub</p>
                   <p style={{ fontSize: "14px", color: "#6B7280" }}>21 Bekwere Wosu Street</p>
                   <p style={{ fontSize: "14px", color: "#6B7280" }}>D-Line, Diobu</p>
@@ -86,7 +86,7 @@ export function ContactPage() {
                   { tag: "Support", desc: "Technical support for existing products or accounts" },
                 ].map(item => (
                   <div key={item.tag} className="flex flex-col gap-1 p-4 rounded-xl" style={{ background: "#F7F7FB", border: "1px solid rgba(0,0,0,0.06)" }}>
-                    <p style={{ fontWeight: 600, fontSize: "14px", color: "#4F46E5" }}>{item.tag}</p>
+                    <p style={{ fontWeight: 600, fontSize: "14px", color: "#2563EB" }}>{item.tag}</p>
                     <p style={{ fontSize: "13px", color: "#6B7280" }}>{item.desc}</p>
                   </div>
                 ))}
@@ -112,11 +112,11 @@ export function ContactPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                           <label style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}>Full name</label>
-                          <input type="text" required placeholder="Jane Smith" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={inputStyle} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = "#4F46E5"; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
+                          <input type="text" required placeholder="Jane Smith" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={inputStyle} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = "#2563EB"; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}>Email address</label>
-                          <input type="email" required placeholder="jane@company.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={inputStyle} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = "#4F46E5"; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
+                          <input type="email" required placeholder="jane@company.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={inputStyle} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = "#2563EB"; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
@@ -133,9 +133,9 @@ export function ContactPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}>Message</label>
-                        <textarea required rows={5} placeholder="Tell us more about what you need…" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, resize: "vertical" }} onFocus={e => { (e.target as HTMLTextAreaElement).style.borderColor = "#4F46E5"; }} onBlur={e => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
+                        <textarea required rows={5} placeholder="Tell us more about what you need…" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, resize: "vertical" }} onFocus={e => { (e.target as HTMLTextAreaElement).style.borderColor = "#2563EB"; }} onBlur={e => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
                       </div>
-                      <button type="submit" disabled={loading} className="py-3.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center" style={{ background: "#4F46E5", color: "#fff" }}>
+                      <button type="submit" disabled={loading} className="py-3.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center" style={{ background: "#2563EB", color: "#fff" }}>
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Send message"}
                       </button>
                     </form>

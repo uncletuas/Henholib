@@ -16,7 +16,7 @@ export function TermsPage() {
     <div style={{ background: "#FFFFFF" }}>
       <section style={{ background: "#F7F7FB", padding: "80px 0 48px" }}>
         <div className="max-w-3xl mx-auto px-6">
-          <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>LEGAL</p>
+          <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>LEGAL</p>
           <h1 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", marginBottom: "12px" }}>Terms of Service</h1>
           <p style={{ color: "#9CA3AF", fontSize: "14px" }}>Effective date: June 9, 2026</p>
         </div>

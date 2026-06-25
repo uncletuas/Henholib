@@ -1,29 +1,78 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { authApi, AuthUser } from "../lib/api";
 
-interface User { name: string; email: string; }
+type AuthView = "none" | "signin" | "signup" | "dashboard";
 
 interface AuthContextType {
-  user: User | null;
-  signIn: (u: User) => void;
+  user: AuthUser | null;
+  /** Bearer token for authenticated API calls (e.g. the account portal). */
+  token: string | null;
+  /** True while restoring an existing session on first load. */
+  initializing: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => void;
-  showAuth: "none" | "signin" | "signup" | "dashboard";
-  setShowAuth: (v: "none" | "signin" | "signup" | "dashboard") => void;
+  showAuth: AuthView;
+  setShowAuth: (v: AuthView) => void;
 }
 
+const TOKEN_KEY = "loopital_token";
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [showAuth, setShowAuth] = useState<"none" | "signin" | "signup" | "dashboard">("none");
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [initializing, setInitializing] = useState(true);
+  const [showAuth, setShowAuth] = useState<AuthView>("none");
+
+  // Restore session from a stored token on first load.
+  useEffect(() => {
+    const stored = localStorage.getItem(TOKEN_KEY);
+    if (!stored) {
+      setInitializing(false);
+      return;
+    }
+    authApi
+      .me(stored)
+      .then((res) => { setUser(res.user); setToken(stored); })
+      .catch(() => localStorage.removeItem(TOKEN_KEY))
+      .finally(() => setInitializing(false));
+  }, []);
+
+  const persist = (t: string, u: AuthUser) => {
+    localStorage.setItem(TOKEN_KEY, t);
+    setToken(t);
+    setUser(u);
+    setShowAuth("dashboard");
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const res = await authApi.signin(email, password);
+    persist(res.token, res.user);
+  };
+
+  const signUp = async (name: string, email: string, password: string) => {
+    const res = await authApi.signup(name, email, password);
+    persist(res.token, res.user);
+  };
+
+  const signOut = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    setUser(null);
+    setShowAuth("none");
+  };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      signIn: (u) => { setUser(u); setShowAuth("dashboard"); },
-      signOut: () => { setUser(null); setShowAuth("none"); },
-      showAuth,
-      setShowAuth,
-    }}>
+    <AuthContext.Provider
+      value={{ user, token, initializing, signIn, signUp, signOut, showAuth, setShowAuth }}
+    >
       {children}
     </AuthContext.Provider>
   );

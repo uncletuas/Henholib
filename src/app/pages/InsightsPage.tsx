@@ -19,7 +19,7 @@ export function InsightsPage() {
       <section style={{ background: "#F7F7FB", padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>NEWS & INSIGHTS</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>NEWS & INSIGHTS</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               Thoughts on technology, products, and what we're building.
             </h1>
@@ -32,7 +32,7 @@ export function InsightsPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex gap-2 flex-wrap">
             {categories.map((cat, i) => (
-              <button key={cat} className="px-4 py-1.5 rounded-full text-sm transition-all" style={{ background: i === 0 ? "#4F46E5" : "#F7F7FB", color: i === 0 ? "#fff" : "#6B7280", border: "1px solid", borderColor: i === 0 ? "#4F46E5" : "rgba(0,0,0,0.07)" }}>
+              <button key={cat} className="px-4 py-1.5 rounded-full text-sm transition-all" style={{ background: i === 0 ? "#2563EB" : "#F7F7FB", color: i === 0 ? "#fff" : "#6B7280", border: "1px solid", borderColor: i === 0 ? "#2563EB" : "rgba(0,0,0,0.07)" }}>
                 {cat}
               </button>
             ))}
@@ -48,13 +48,13 @@ export function InsightsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 8px 32px rgba(0,0,0,0.06)" }}>
               <div className="relative" style={{ minHeight: "320px" }}>
                 <ImageWithFallback src={posts[0].image} alt={posts[0].title} className="w-full h-full object-cover absolute inset-0" />
-                <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "#4F46E5", color: "#fff" }}>{posts[0].category}</div>
+                <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "#2563EB", color: "#fff" }}>{posts[0].category}</div>
               </div>
               <div className="flex flex-col justify-center gap-4 p-10 bg-white">
                 <span style={{ color: "#9CA3AF", fontSize: "13px" }}>{posts[0].date}</span>
                 <h2 style={{ fontWeight: 800, fontSize: "24px", color: "#0D0D1A", letterSpacing: "-0.02em", lineHeight: 1.25 }}>{posts[0].title}</h2>
                 <p style={{ color: "#6B7280", fontSize: "15px", lineHeight: 1.75 }}>{posts[0].excerpt}</p>
-                <button className="self-start text-sm font-semibold" style={{ color: "#4F46E5" }}>Read more →</button>
+                <button className="self-start text-sm font-semibold" style={{ color: "#2563EB" }}>Read more →</button>
               </div>
             </div>
           </motion.div>
@@ -66,13 +66,13 @@ export function InsightsPage() {
                 <div className="flex flex-col rounded-2xl overflow-hidden cursor-pointer group h-full" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
                   <div className="relative overflow-hidden" style={{ aspectRatio: "3/2" }}>
                     <ImageWithFallback src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "#fff", color: "#4F46E5" }}>{post.category}</div>
+                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "#fff", color: "#2563EB" }}>{post.category}</div>
                   </div>
                   <div className="flex flex-col gap-3 p-6 flex-1 bg-white">
                     <span style={{ color: "#9CA3AF", fontSize: "12px" }}>{post.date}</span>
                     <h3 style={{ fontWeight: 700, fontSize: "17px", color: "#0D0D1A", letterSpacing: "-0.01em", lineHeight: 1.3 }}>{post.title}</h3>
                     <p style={{ color: "#6B7280", fontSize: "14px", lineHeight: 1.7 }}>{post.excerpt}</p>
-                    <button className="self-start mt-auto text-sm font-semibold" style={{ color: "#4F46E5" }}>Read more →</button>
+                    <button className="self-start mt-auto text-sm font-semibold" style={{ color: "#2563EB" }}>Read more →</button>
                   </div>
                 </div>
               </motion.div>

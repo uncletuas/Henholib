@@ -19,7 +19,7 @@ export function AboutPage() {
       <section style={{ background: "#F7F7FB", padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-3xl">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>ABOUT LOOPITAL</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>ABOUT LOOPITAL</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               A technology company building for the long run.
             </h1>
@@ -36,7 +36,7 @@ export function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-7">
               <div>
-                <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OUR MISSION</p>
+                <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OUR MISSION</p>
                 <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "20px" }}>
                   To build technology that moves organizations forward.
                 </h2>
@@ -61,7 +61,7 @@ export function AboutPage() {
       <section style={{ background: "#F7F7FB", padding: "96px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HOW WE WORK</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HOW WE WORK</p>
             <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, maxWidth: "480px" }}>
               The principles that guide everything we build.
             </h2>
@@ -88,7 +88,7 @@ export function AboutPage() {
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-6">
               <div>
-                <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HEADQUARTERED IN NIGERIA</p>
+                <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HEADQUARTERED IN NIGERIA</p>
                 <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "16px" }}>
                   Global products built from Port Harcourt.
                 </h2>
@@ -96,13 +96,13 @@ export function AboutPage() {
                   Loopital is headquartered at Pyale Hub in Port Harcourt, Rivers State, Nigeria. From here, we build software products and deliver technology services to clients and users around the world. We are proudly a Nigerian technology company with global ambition.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 pt-4 pl-4" style={{ borderLeft: "3px solid #4F46E5" }}>
+              <div className="flex flex-col gap-2 pt-4 pl-4" style={{ borderLeft: "3px solid #2563EB" }}>
                 <p style={{ fontWeight: 600, color: "#0D0D1A", fontSize: "15px" }}>Pyale Hub</p>
                 <p style={{ color: "#6B7280", fontSize: "14px" }}>21 Bekwere Wosu Street, D-Line, Diobu</p>
                 <p style={{ color: "#6B7280", fontSize: "14px" }}>Port Harcourt, Rivers State, Nigeria</p>
               </div>
               <div className="flex gap-3 mt-2">
-                <Link to="/careers" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#4F46E5", color: "#fff" }}>
+                <Link to="/careers" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#2563EB", color: "#fff" }}>
                   View open roles
                 </Link>
                 <Link to="/contact" className="inline-flex items-center px-6 py-3 rounded-xl font-medium text-sm transition-all hover:bg-gray-50" style={{ border: "1px solid rgba(0,0,0,0.1)", color: "#374151" }}>

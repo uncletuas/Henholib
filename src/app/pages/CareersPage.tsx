@@ -28,7 +28,7 @@ export function CareersPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>CAREERS</p>
+              <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>CAREERS</p>
               <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
                 Help us build what's next.
               </h1>
@@ -49,7 +49,7 @@ export function CareersPage() {
       <section style={{ background: "#FFFFFF", padding: "96px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>WHY LOOPITAL</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>WHY LOOPITAL</p>
             <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, maxWidth: "480px" }}>
               What it's like to work here.
             </h2>
@@ -69,7 +69,7 @@ export function CareersPage() {
       <section style={{ background: "#F7F7FB", padding: "96px 0" }}>
         <div className="max-w-5xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OPEN POSITIONS</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OPEN POSITIONS</p>
             <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em" }}>
               Current openings
             </h2>
@@ -81,12 +81,12 @@ export function CareersPage() {
                   <div>
                     <p style={{ fontWeight: 700, fontSize: "16px", color: "#0D0D1A", marginBottom: "4px" }}>{role.title}</p>
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-sm px-2.5 py-0.5 rounded-full" style={{ background: "#EEF2FF", color: "#4F46E5", fontSize: "12px" }}>{role.dept}</span>
+                      <span className="text-sm px-2.5 py-0.5 rounded-full" style={{ background: "#EEF4FF", color: "#2563EB", fontSize: "12px" }}>{role.dept}</span>
                       <span style={{ color: "#6B7280", fontSize: "13px" }}>{role.location}</span>
                       <span style={{ color: "#9CA3AF", fontSize: "13px" }}>{role.type}</span>
                     </div>
                   </div>
-                  <Link to="/contact" className="flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: "#4F46E5", color: "#fff" }}>
+                  <Link to="/contact" className="flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: "#2563EB", color: "#fff" }}>
                     Apply now
                   </Link>
                 </div>
@@ -94,7 +94,7 @@ export function CareersPage() {
             ))}
           </div>
           <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-8 text-center" style={{ color: "#9CA3AF", fontSize: "14px" }}>
-            Don't see the right role? <Link to="/contact" className="font-semibold" style={{ color: "#4F46E5" }}>Send us an open application.</Link>
+            Don't see the right role? <Link to="/contact" className="font-semibold" style={{ color: "#2563EB" }}>Send us an open application.</Link>
           </motion.p>
         </div>
       </section>

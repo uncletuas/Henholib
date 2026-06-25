@@ -64,7 +64,7 @@ export function ServicesPage() {
       <section style={{ background: "#F7F7FB", padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-            <p style={{ color: "#4F46E5", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>SERVICES</p>
+            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>SERVICES</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               We build technology for your business too.
             </h1>
@@ -95,9 +95,9 @@ export function ServicesPage() {
               </div>
               <div className={`flex flex-col gap-6 ${i % 2 === 1 ? "lg:order-1" : ""}`}>
                 <div>
-                  <p style={{ color: "#4F46E5", fontSize: "12px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "8px" }}>SERVICE</p>
+                  <p style={{ color: "#2563EB", fontSize: "12px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "8px" }}>SERVICE</p>
                   <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: "6px" }}>{svc.title}</h2>
-                  <p style={{ color: "#4F46E5", fontSize: "15px", fontWeight: 500, marginBottom: "14px" }}>{svc.subtitle}</p>
+                  <p style={{ color: "#2563EB", fontSize: "15px", fontWeight: 500, marginBottom: "14px" }}>{svc.subtitle}</p>
                   <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>{svc.desc}</p>
                 </div>
                 <div>
@@ -105,7 +105,7 @@ export function ServicesPage() {
                   <ul className="flex flex-col gap-2.5">
                     {svc.deliverables.map(d => (
                       <li key={d} className="flex items-start gap-3">
-                        <span className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-[#4F46E5]" />
+                        <span className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-[#2563EB]" />
                         <span style={{ color: "#374151", fontSize: "15px" }}>{d}</span>
                       </li>
                     ))}
@@ -123,7 +123,7 @@ export function ServicesPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col items-center gap-5">
             <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em" }}>Have a project in mind?</h2>
             <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8, maxWidth: "440px" }}>Tell us what you're building. We'll figure out the best way to help.</p>
-            <Link to="/contact" className="inline-flex items-center px-8 py-4 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#4F46E5", color: "#fff" }}>
+            <Link to="/contact" className="inline-flex items-center px-8 py-4 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#2563EB", color: "#fff" }}>
               Get in touch
             </Link>
           </motion.div>

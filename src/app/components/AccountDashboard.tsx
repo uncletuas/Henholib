@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { X, Download, CreditCard, Settings, LogOut, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, CreditCard, LogOut, ChevronRight, ArrowUpRight, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import fms13Logo from "../../imports/fms13_logo.png";
-import hms7Logo from "../../imports/hms7_logo.png";
+import { useAuth } from "../context/AuthContext";
+import { accountApi, type Subscription, type Invoice, type AccountProductId } from "../lib/api";
+import { accountProducts, productById } from "../config/products";
+import { colors, gradientBrand } from "../lib/brand";
 
 interface AccountDashboardProps {
   user: { name: string; email: string };
@@ -12,38 +14,54 @@ interface AccountDashboardProps {
 
 type Tab = "overview" | "billing" | "settings";
 
-const myApps = [
-  { name: "FMS13", logo: fms13Logo, plan: "Multi-Site", price: "$99/mo", nextBilling: "Jul 1, 2026", accent: "#D97706", status: "active" },
-  { name: "HMS7", logo: hms7Logo, plan: "Clinic", price: "$69/mo", nextBilling: "Jul 5, 2026", accent: "#059669", status: "active" },
-];
+const statusMeta: Record<Subscription["status"], { label: string; color: string }> = {
+  active: { label: "Active", color: "#10B981" },
+  trialing: { label: "Trial", color: "#0EA5E9" },
+  past_due: { label: "Past due", color: "#F59E0B" },
+  canceled: { label: "Canceled", color: "#9CA3AF" },
+};
 
-const invoices = [
-  { id: "INV-2026-046", date: "Jun 1, 2026", app: "FMS13", amount: "$99.00" },
-  { id: "INV-2026-045", date: "Jun 5, 2026", app: "HMS7", amount: "$69.00" },
-  { id: "INV-2026-044", date: "May 1, 2026", app: "FMS13", amount: "$99.00" },
-  { id: "INV-2026-043", date: "May 5, 2026", app: "HMS7", amount: "$69.00" },
-];
+const fmtDate = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
 
 export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardProps) {
+  const { token } = useAuth();
   const [tab, setTab] = useState<Tab>("overview");
+  const [subs, setSubs] = useState<Subscription[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!token) { setLoading(false); return; }
+    let active = true;
+    Promise.all([accountApi.getSubscriptions(token), accountApi.getInvoices(token)])
+      .then(([s, inv]) => { if (!active) return; setSubs(s.subscriptions); setInvoices(inv.invoices); })
+      .catch(() => { /* keep empty state if the portal API is unavailable */ })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [token]);
+
+  const subFor = (id: AccountProductId) => subs.find((s) => s.product === id);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(13,13,26,0.45)", backdropFilter: "blur(16px)" }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="relative w-full max-w-2xl rounded-2xl flex flex-col bg-white" style={{ border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 32px 100px rgba(0,0,0,0.18)", maxHeight: "90vh" }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.45)", backdropFilter: "blur(16px)" }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="relative w-full max-w-2xl rounded-[28px] flex flex-col" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.2)", maxHeight: "90vh" }}>
         {/* Header */}
-        <div className="flex items-center gap-4 px-8 py-6" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white flex-shrink-0" style={{ background: "#4F46E5" }}>{user.name[0].toUpperCase()}</div>
+        <div className="flex items-center gap-4 px-8 py-6" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold text-white flex-shrink-0" style={{ background: gradientBrand }}>{user.name[0].toUpperCase()}</div>
           <div className="flex-1 min-w-0">
-            <p style={{ color: "#0D0D1A", fontSize: "16px", fontWeight: 600 }}>{user.name}</p>
-            <p style={{ color: "#9CA3AF", fontSize: "13px" }}>{user.email}</p>
+            <p style={{ color: colors.heading, fontSize: "16px", fontWeight: 600 }}>{user.name}</p>
+            <p style={{ color: colors.textTertiary, fontSize: "13px" }}>{user.email}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-50 transition-colors" style={{ color: "#9CA3AF" }}><X size={18} /></button>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}><X size={18} /></button>
         </div>
 
         {/* Tabs */}
-        <div className="flex px-8 gap-6" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+        <div className="flex px-8 gap-6" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
           {(["overview", "billing", "settings"] as Tab[]).map(t => (
-            <button key={t} onClick={() => setTab(t)} className="py-4 capitalize transition-all" style={{ color: tab === t ? "#4F46E5" : "#9CA3AF", fontSize: "14px", fontWeight: tab === t ? 600 : 400, borderBottom: tab === t ? "2px solid #4F46E5" : "2px solid transparent" }}>{t}</button>
+            <button key={t} onClick={() => setTab(t)} className="py-4 capitalize transition-all" style={{ color: tab === t ? colors.heading : colors.textTertiary, fontSize: "14px", fontWeight: tab === t ? 600 : 400, borderBottom: tab === t ? `2px solid ${colors.blue}` : "2px solid transparent" }}>{t}</button>
           ))}
         </div>
 
@@ -52,28 +70,53 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
           {tab === "overview" && (
             <div className="flex flex-col gap-7">
               <div>
-                <p style={{ color: "#9CA3AF", fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "10px" }}>YOUR SUBSCRIPTIONS</p>
-                <div className="flex flex-col gap-3">
-                  {myApps.map(app => (
-                    <div key={app.name} className="flex items-center gap-4 p-5 rounded-xl" style={{ background: "#F7F7FB", border: "1px solid rgba(0,0,0,0.06)" }}>
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white flex-shrink-0" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
-                        <ImageWithFallback src={app.logo} alt={app.name} className="w-9 h-9 object-contain" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2"><span style={{ fontWeight: 600, color: "#0D0D1A", fontSize: "15px" }}>{app.name}</span><span className="px-2 py-0.5 rounded text-xs" style={{ background: `${app.accent}12`, color: app.accent }}>{app.plan}</span></div>
-                        <p style={{ color: "#9CA3AF", fontSize: "13px", marginTop: "2px" }}>{app.price} · Renews {app.nextBilling}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /><span style={{ color: "#6B7280", fontSize: "12px" }}>Active</span></div>
-                        <button className="ml-2 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium hover:bg-white transition-colors" style={{ border: "1px solid rgba(0,0,0,0.09)", color: "#374151" }}><Download size={12} />Download</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p style={{ color: colors.textTertiary, fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>YOUR PRODUCTS</p>
+                {loading ? (
+                  <div className="flex items-center justify-center py-10" style={{ color: colors.textTertiary }}><Loader2 size={20} className="animate-spin" /></div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {accountProducts.map((p) => {
+                      const sub = subFor(p.id as AccountProductId);
+                      const st = sub ? statusMeta[sub.status] : null;
+                      return (
+                        <div key={p.id} className="flex items-center gap-4 p-5 rounded-2xl" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+                            <ImageWithFallback src={p.logo} alt={p.name} className="w-9 h-9 object-contain" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span style={{ fontWeight: 600, color: colors.heading, fontSize: "15px" }}>{p.name}</span>
+                              {sub && <span className="px-2 py-0.5 rounded-md text-xs" style={{ background: `${p.accent}14`, color: p.accent }}>{sub.plan}</span>}
+                            </div>
+                            <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>
+                              {sub ? `Renews ${fmtDate(sub.currentPeriodEnd)}` : "No active subscription"}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            {st && <span className="hidden sm:flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: st.color }} /><span style={{ color: colors.textSecondary, fontSize: "12px" }}>{st.label}</span></span>}
+                            <a href={p.appHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-colors hover:bg-[#F5F5F7]" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>
+                              {sub ? "Open app" : "Get started"} <ArrowUpRight size={12} />
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <div className="p-5 rounded-xl" style={{ background: "#EEF2FF", border: "1px solid #C7D2FE" }}>
-                <p style={{ fontWeight: 600, fontSize: "14px", color: "#3730A3", marginBottom: "4px" }}>Activating inside the app</p>
-                <p style={{ color: "#4338CA", fontSize: "13px", lineHeight: 1.65 }}>Open any Loopital app and sign in with your email and password. Your subscription activates automatically — no codes needed.</p>
+
+              {/* Enterprise products are demo-led, not account-managed */}
+              <div className="p-5 rounded-2xl" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
+                <p style={{ fontWeight: 600, fontSize: "14px", color: colors.heading, marginBottom: "4px" }}>Looking for HMS7 or FMS13?</p>
+                <p style={{ color: colors.textSecondary, fontSize: "13px", lineHeight: 1.6 }}>
+                  Our enterprise platforms are set up with your team directly.{" "}
+                  <a href="/contact" onClick={onClose} style={{ color: colors.blue, fontWeight: 500 }}>Book a demo →</a>
+                </p>
+              </div>
+
+              <div className="p-5 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
+                <p style={{ fontWeight: 600, fontSize: "14px", color: "#1D4ED8", marginBottom: "4px" }}>One account, every app</p>
+                <p style={{ color: "#2563EB", fontSize: "13px", lineHeight: 1.65 }}>Sign in to SART34 or STACK62 with this same email and password — your subscription activates automatically.</p>
               </div>
             </div>
           )}
@@ -81,25 +124,40 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
           {tab === "billing" && (
             <div className="flex flex-col gap-8">
               <div>
-                <p style={{ color: "#9CA3AF", fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "10px" }}>PAYMENT METHOD</p>
-                <div className="flex items-center justify-between p-5 rounded-xl" style={{ background: "#F7F7FB", border: "1px solid rgba(0,0,0,0.06)" }}>
+                <p style={{ color: colors.textTertiary, fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>PAYMENT METHOD</p>
+                <div className="flex items-center justify-between p-5 rounded-2xl" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-8 rounded-lg flex items-center justify-center bg-white" style={{ border: "1px solid rgba(0,0,0,0.1)" }}><CreditCard size={16} style={{ color: "#4F46E5" }} /></div>
-                    <div><p style={{ color: "#0D0D1A", fontSize: "14px", fontWeight: 500 }}>Visa ending in 4242</p><p style={{ color: "#9CA3AF", fontSize: "12px" }}>Expires 12/28</p></div>
+                    <div className="w-12 h-8 rounded-lg flex items-center justify-center bg-white" style={{ border: `1px solid ${colors.hairline}` }}><CreditCard size={16} style={{ color: colors.blue }} /></div>
+                    <div><p style={{ color: colors.heading, fontSize: "14px", fontWeight: 500 }}>Visa ending in 4242</p><p style={{ color: colors.textTertiary, fontSize: "12px" }}>Expires 12/28</p></div>
                   </div>
-                  <button className="flex items-center gap-1 text-sm hover:text-[#3730A3] transition-colors" style={{ color: "#4F46E5" }}>Update <ChevronRight size={14} /></button>
+                  <button className="flex items-center gap-1 text-sm" style={{ color: colors.blue }}>Update <ChevronRight size={14} /></button>
                 </div>
               </div>
               <div>
-                <p style={{ color: "#9CA3AF", fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "10px" }}>INVOICE HISTORY</p>
-                <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
-                  {invoices.map((inv, i) => (
-                    <div key={inv.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors bg-white" style={{ borderBottom: i < invoices.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
-                      <div><div className="flex items-center gap-2"><p style={{ color: "#0D0D1A", fontSize: "14px", fontWeight: 500 }}>{inv.app}</p><p style={{ color: "#9CA3AF", fontSize: "12px" }}>· {inv.id}</p></div><p style={{ color: "#9CA3AF", fontSize: "12px" }}>{inv.date}</p></div>
-                      <div className="flex items-center gap-4"><span style={{ color: "#0D0D1A", fontSize: "14px", fontWeight: 500 }}>{inv.amount}</span><span className="px-2 py-0.5 rounded text-xs" style={{ background: "rgba(5,150,105,0.1)", color: "#059669" }}>Paid</span><button className="text-sm hover:text-[#4F46E5] transition-colors" style={{ color: "#9CA3AF" }}>PDF</button></div>
-                    </div>
-                  ))}
-                </div>
+                <p style={{ color: colors.textTertiary, fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>INVOICE HISTORY</p>
+                {loading ? (
+                  <div className="flex items-center justify-center py-10" style={{ color: colors.textTertiary }}><Loader2 size={20} className="animate-spin" /></div>
+                ) : invoices.length === 0 ? (
+                  <p style={{ color: colors.textTertiary, fontSize: "14px" }}>No invoices yet.</p>
+                ) : (
+                  <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${colors.hairline}` }}>
+                    {invoices.map((inv, i) => {
+                      const p = productById(inv.product);
+                      return (
+                        <div key={inv.id} className="flex items-center justify-between px-5 py-4 hover:bg-[#F5F5F7] transition-colors" style={{ background: colors.surface, borderBottom: i < invoices.length - 1 ? `1px solid ${colors.hairline}` : "none" }}>
+                          <div>
+                            <div className="flex items-center gap-2"><p style={{ color: colors.heading, fontSize: "14px", fontWeight: 500 }}>{p.name}</p><p style={{ color: colors.textTertiary, fontSize: "12px" }}>· {inv.id}</p></div>
+                            <p style={{ color: colors.textTertiary, fontSize: "12px" }}>{fmtDate(inv.issuedAt)}</p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span style={{ color: colors.heading, fontSize: "14px", fontWeight: 500 }}>{inv.amount}</span>
+                            <span className="px-2 py-0.5 rounded-md text-xs capitalize" style={{ background: "rgba(16,185,129,0.1)", color: "#10B981" }}>{inv.status}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -108,13 +166,13 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
             <div className="flex flex-col gap-6">
               {[{ label: "Full name", val: user.name, type: "text" }, { label: "Email address", val: user.email, type: "email" }].map(f => (
                 <div key={f.label} className="flex flex-col gap-2">
-                  <label style={{ color: "#374151", fontSize: "13px", fontWeight: 500 }}>{f.label}</label>
-                  <input type={f.type} defaultValue={f.val} className="w-full px-4 py-3 rounded-xl outline-none" style={{ background: "#F7F7FB", border: "1px solid rgba(0,0,0,0.10)", color: "#0D0D1A", fontSize: "15px" }} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = "#4F46E5"; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.10)"; }} />
+                  <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>{f.label}</label>
+                  <input type={f.type} defaultValue={f.val} className="w-full px-4 py-3 rounded-2xl outline-none" style={{ background: colors.bg, border: "1px solid rgba(0,0,0,0.10)", color: colors.heading, fontSize: "15px" }} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = colors.blue; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.10)"; }} />
                 </div>
               ))}
-              <button className="self-start px-6 py-2.5 rounded-xl font-semibold text-sm hover:opacity-90" style={{ background: "#4F46E5", color: "#fff" }}>Save changes</button>
-              <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: "24px" }}>
-                <button onClick={onSignOut} className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors text-sm"><LogOut size={15} />Sign out of all devices</button>
+              <button className="self-start px-6 py-2.5 rounded-full font-semibold text-sm text-white hover:opacity-95" style={{ background: gradientBrand }}>Save changes</button>
+              <div style={{ borderTop: `1px solid ${colors.hairline}`, paddingTop: "24px" }}>
+                <button onClick={onSignOut} className="flex items-center gap-2 transition-colors text-sm" style={{ color: colors.textTertiary }}><LogOut size={15} />Sign out of all devices</button>
               </div>
             </div>
           )}

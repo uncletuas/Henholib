@@ -1,0 +1,84 @@
+/* App-level polish layered on top of the design tokens in theme.css.
+   Site-wide niceties: smoother type rendering, branded selection + scrollbar,
+   visible keyboard focus, and graceful reduced-motion handling. */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* Accessible, branded focus ring for keyboard users only. */
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Brand helpers ──────────────────────────────────────────────────── */
+
+/* Signature blue→green gradient painted onto text. */
+.brand-gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Slow, ambient drift for hero aura backgrounds. */
+@keyframes brand-aura-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(2%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.brand-aura {
+  animation: brand-aura-drift 18s ease-in-out infinite;
+}
+
+/* Slim, unobtrusive scrollbar that matches the brand. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c5c5cd transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #c7c7d8;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #a5a5bd;
+  background-clip: content-box;
+}
+
+img {
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

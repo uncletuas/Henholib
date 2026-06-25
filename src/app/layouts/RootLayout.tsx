@@ -3,13 +3,15 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { AuthModal } from "../components/AuthModal";
 import { AccountDashboard } from "../components/AccountDashboard";
+import { ScrollToTop } from "../components/ScrollToTop";
 import { useAuth } from "../context/AuthContext";
 
 export function RootLayout() {
-  const { showAuth, setShowAuth, signIn, signOut, user } = useAuth();
+  const { showAuth, setShowAuth, signOut, user } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col" style={{ background: "#FBFBFD" }}>
+      <ScrollToTop />
       <Navbar />
       <main className="flex-1 pt-16">
         <Outlet />
@@ -20,7 +22,6 @@ export function RootLayout() {
         <AuthModal
           mode={showAuth}
           onClose={() => setShowAuth("none")}
-          onSuccess={signIn}
           onToggleMode={() => setShowAuth(showAuth === "signin" ? "signup" : "signin")}
         />
       )}
