@@ -6,7 +6,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ProductLink } from "./ProductLink";
 import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
-import loopitalLogo from "../../imports/loopital.com_logo.png";
+import loopitalLogo from "../../imports/loopital-logo.svg";
 
 const services = [
   { label: "Web Development", href: "/services#web" },

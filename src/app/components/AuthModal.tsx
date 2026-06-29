@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
-import loopitalLogo from "../../imports/loopital.com_logo.png";
+import loopitalLogo from "../../imports/loopital-logo.svg";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
 import { colors, gradientBrand } from "../lib/brand";
