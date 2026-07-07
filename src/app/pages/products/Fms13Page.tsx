@@ -6,11 +6,11 @@ export function Fms13Page() {
     <ProductPageShell
       product={productById("fms13")}
       heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      heroBody="FMS13 is a complete facility management system for organizations that operate buildings and sites at scale. It brings assets, maintenance, work orders, service requests, vendors, compliance, and space into one platform — so every facility runs efficiently, safely, and on schedule."
+      heroBody="FMS13 is a complete facility management system for organizations that operate buildings and sites at scale. It brings assets, maintenance, work orders, service requests, vendors, compliance, and space into one platform — so every facility runs efficiently, safely, and on schedule. Open it and get started right away, free for the first 3 months."
       stats={[
+        { value: "3 months", label: "Free to start" },
         { value: "Unlimited", label: "Buildings & sites" },
         { value: "Real-time", label: "Work-order visibility" },
-        { value: "Full", label: "Compliance audit trail" },
       ]}
       featuresEyebrow="PLATFORM CAPABILITIES"
       featuresTitle="Everything it takes to run a facility."
@@ -32,7 +32,7 @@ export function Fms13Page() {
         "Real-time visibility across every site",
       ]}
       ctaTitle="Run your facilities at peak efficiency."
-      ctaBody="Talk to our team to see how FMS13 fits your portfolio of buildings, assets, and sites."
+      ctaBody="Open FMS13 and get started free for the first 3 months — or talk to our team about a rollout across your portfolio of buildings, assets, and sites."
     />
   );
 }

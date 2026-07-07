@@ -6,6 +6,7 @@ import { ProductsPage } from "./pages/ProductsPage";
 import { Stack62Page } from "./pages/products/Stack62Page";
 import { Sart34Page } from "./pages/products/Sart34Page";
 import { Hms7Page } from "./pages/products/Hms7Page";
+import { HenholibPage } from "./pages/products/HenholibPage";
 import { Fms13Page } from "./pages/products/Fms13Page";
 import { ServicesPage } from "./pages/ServicesPage";
 import { CareersPage } from "./pages/CareersPage";
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "products/stack62", Component: Stack62Page },
       { path: "products/sart34", Component: Sart34Page },
       { path: "products/hms7", Component: Hms7Page },
+      { path: "products/henholib", Component: HenholibPage },
       { path: "products/fms13", Component: Fms13Page },
       { path: "services", Component: ServicesPage },
       { path: "careers", Component: CareersPage },

@@ -6,6 +6,8 @@
 import {
   STACK62_URL,
   SART34_URL,
+  FMS13_URL,
+  HENHOLIB_URL,
   SART34_APP_STORE_URL,
   SART34_PLAY_STORE_URL,
 } from "./site";
@@ -14,10 +16,11 @@ import type { Platform } from "../components/PlatformPills";
 
 import stack62Logo from "../../imports/stack62_logo.png";
 import sart34Logo from "../../imports/sart34_logo.png";
-import hms7Logo from "../../imports/hms7_logo.png";
+import hms7Logo from "../../imports/hms7-logo.svg";
+import henholibLogo from "../../imports/henholib-logo.svg";
 import fms13Logo from "../../imports/fms13_logo.png";
 
-export type ProductId = "stack62" | "sart34" | "hms7" | "fms13";
+export type ProductId = "stack62" | "sart34" | "hms7" | "henholib" | "fms13";
 export type CtaType = "launch" | "demo";
 
 export interface Product {
@@ -47,6 +50,8 @@ export interface Product {
   accountLinked: boolean;
   /** Primary call to action: launch the app, or book a demo. */
   ctaType: CtaType;
+  /** Optional launch offer, e.g. "Free for the first 3 months". */
+  offer?: string;
   /** Mobile store links (SART34 only). */
   mobile?: { appStore: string; playStore: string };
   /** A few proof points used on story blocks. */
@@ -95,18 +100,37 @@ export const products: Product[] = [
     id: "hms7",
     name: "HMS7",
     logo: hms7Logo,
-    category: "Hospital Management",
+    category: "Hospital Management System",
     theme: "The Future of Healthcare Operations",
-    tagline: "Built for the complexity of modern healthcare.",
+    tagline: "The operating system for the modern hospital.",
     description:
-      "HMS7 gives hospitals, clinics, and health networks one platform for patient records, appointments, billing, staff, and compliance — reducing administrative burden and improving care delivery.",
+      "HMS7 runs the hospital side of care — patient records, appointments, billing, pharmacy, staff, and compliance in one platform — and connects directly to Henholib, so the patients your hospital serves book, message, and get alerts from the very system you run. Hospitals get access free after a short demo.",
     platforms: ["web", "desktop"],
     accent: productAccent.hms7,
     detailHref: "/products/hms7",
     external: false,
     accountLinked: false,
     ctaType: "demo",
-    highlights: ["Patient records (EMR)", "Billing & insurance", "Staff administration", "Operational reporting"],
+    offer: "Free for the first 3 months",
+    highlights: ["Patient records (EMR)", "Billing & insurance", "Connected to Henholib", "Staff & pharmacy"],
+  },
+  {
+    id: "henholib",
+    name: "Henholib",
+    logo: henholibLogo,
+    category: "Personal Health App",
+    theme: "The Future of Patient Care",
+    tagline: "Your hospital and your health, in your pocket.",
+    description:
+      "Henholib puts your whole health experience on your phone — find and search hospitals, book consultations with doctors, message your care team, and trigger emergency alerts when it matters most. It's the patient side of the HMS7 network, and anyone can sign up in minutes.",
+    platforms: ["web", "mobile"],
+    accent: productAccent.henholib,
+    detailHref: "/products/henholib",
+    appHref: HENHOLIB_URL,
+    external: false,
+    accountLinked: false,
+    ctaType: "launch",
+    highlights: ["Book consultations", "Hospital search", "Emergency alerts", "Chat with your care team"],
   },
   {
     id: "fms13",
@@ -116,13 +140,15 @@ export const products: Product[] = [
     theme: "The Future of Facility Operations",
     tagline: "Every facility, fully under control.",
     description:
-      "FMS13 is a complete facility management system — managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale.",
+      "FMS13 is a complete facility management system — managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale. Open it and get started right away, or talk to us about a rollout.",
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
     detailHref: "/products/fms13",
+    appHref: FMS13_URL,
     external: false,
     accountLinked: false,
-    ctaType: "demo",
+    ctaType: "launch",
+    offer: "Free for the first 3 months",
     highlights: ["Asset & maintenance", "Work orders & requests", "Vendor management", "Compliance & safety"],
   },
 ];

@@ -9,6 +9,8 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 // Externally-hosted product apps (their own landing pages live on subdomains).
 export const STACK62_URL = "https://stack62.loopital.com";
 export const SART34_URL = "https://sart34.loopital.com";
+export const FMS13_URL = "https://fms13.loopital.com";
+export const HENHOLIB_URL = "https://henholib.loopital.com";
 
 // SART34 is the only product with a mobile app. Replace these placeholders
 // with the real store listings when available.

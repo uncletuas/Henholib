@@ -30,7 +30,8 @@ export const gradientBrandSoft =
 export const productAccent = {
   stack62: "#6D6AF0",
   sart34: "#0EA5E9",
-  hms7: "#10B981",
+  hms7: "#14B58A",
+  henholib: "#F97316",
   fms13: "#0891B2",
 } as const;
 

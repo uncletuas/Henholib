@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { Section } from "../Section";
 import { Reveal } from "../Reveal";
@@ -36,7 +36,7 @@ export interface ProductPageContent {
 }
 
 /**
- * Apple-style marketing template shared by all four product detail pages.
+ * Apple-style marketing template shared by the product detail pages.
  * The hero CTAs and mobile store badges are derived from the product catalog
  * so launch-vs-demo and account-linking rules stay consistent everywhere.
  */
@@ -63,12 +63,23 @@ export function ProductPageShell(c: ProductPageContent) {
               </div>
               <h1 style={{ fontSize: "clamp(2.2rem,4.6vw,3.8rem)", marginBottom: "22px" }}>{c.headline ?? p.tagline}</h1>
               <p style={{ color: colors.textSecondary, fontSize: "19px", lineHeight: 1.7, maxWidth: "500px", marginBottom: "26px" }}>{c.heroBody ?? p.description}</p>
+              {p.offer && (
+                <div className="mb-6">
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full" style={{ background: `${p.accent}14`, color: p.accent, fontSize: "13.5px", fontWeight: 600 }}>
+                    <Sparkles size={14} /> {p.offer}
+                  </span>
+                </div>
+              )}
               <div className="mb-7"><PlatformPills platforms={p.platforms} /></div>
               <div className="flex flex-wrap items-center gap-3">
                 {launch ? (
                   <>
-                    <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>Launch {p.name} <ArrowRight size={16} /></CTAButton>
-                    <CTAButton href={p.appHref} external variant="outline">Sign in</CTAButton>
+                    <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>{p.accountLinked ? `Launch ${p.name}` : `Open ${p.name}`} <ArrowRight size={16} /></CTAButton>
+                    {p.accountLinked ? (
+                      <CTAButton href={p.appHref} external variant="outline">Sign in</CTAButton>
+                    ) : (
+                      <CTAButton to="/contact" variant="outline">Contact us</CTAButton>
+                    )}
                   </>
                 ) : (
                   <>
@@ -163,7 +174,7 @@ export function ProductPageShell(c: ProductPageContent) {
           <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "18px", lineHeight: 1.65, marginBottom: "32px" }}>{c.ctaBody}</p>
           <div className="flex flex-wrap gap-3 justify-center">
             {launch ? (
-              <CTAButton href={p.appHref} external variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>Launch {p.name}</CTAButton>
+              <CTAButton href={p.appHref} external variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>{p.accountLinked ? `Launch ${p.name}` : `Open ${p.name}`}</CTAButton>
             ) : (
               <CTAButton to="/contact" variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>Book a demo</CTAButton>
             )}

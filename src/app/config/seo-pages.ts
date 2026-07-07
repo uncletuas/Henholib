@@ -23,13 +23,13 @@ export const pageSeo: Record<string, PageSeo> = {
   "/": {
     title: "Loopital — Software, AI & Enterprise Platforms",
     description:
-      "Loopital builds software products, AI solutions, and enterprise platforms — STACK62 (AI coworker), SART34 (AI ads & CRM), HMS7 (hospital management) and FMS13 (facility management) — helping organizations operate more intelligently.",
+      "Loopital builds software products, AI, and enterprise platforms — STACK62 (AI coworker), SART34 (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and FMS13 (facility management) — helping organizations and people operate more intelligently.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
     title: "Products — AI, Healthcare & Enterprise Software",
     description:
-      "Explore Loopital's software products: STACK62 AI coworker platform, SART34 AI ads & CRM, HMS7 hospital management system, and FMS13 facility management software — built for businesses and institutions.",
+      "Explore Loopital's products: STACK62 AI coworker, SART34 AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software — for businesses, hospitals, and individuals.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/services": {
@@ -41,22 +41,37 @@ export const pageSeo: Record<string, PageSeo> = {
   "/products/hms7": {
     title: "HMS7 — Hospital Management System Software",
     description:
-      "HMS7 is an enterprise hospital management system for patient records (EMR), appointments, billing, insurance, staff, pharmacy, and compliance — one platform for hospitals, clinics, and health networks. Book a demo.",
+      "HMS7 is an enterprise hospital management system for patient records (EMR), appointments, billing, insurance, staff, pharmacy, and compliance — the hospital side of the Henholib care network. Free for the first 3 months; request access via a quick demo.",
     jsonLd: [
       softwareApplicationLd({
         name: "HMS7",
         category: "HealthApplication",
         description:
-          "Enterprise hospital management system for patient records, appointments, billing, staff, pharmacy, and compliance.",
+          "Enterprise hospital management system for patient records, appointments, billing, staff, pharmacy, and compliance — connected to the Henholib patient app.",
         path: "/products/hms7",
       }),
       productCrumb("HMS7", "/products/hms7"),
     ],
   },
+  "/products/henholib": {
+    title: "Henholib — Book Doctors, Hospital Search & Emergency Alerts",
+    description:
+      "Henholib is a personal health app to search hospitals, book doctor consultations, message your care team, and raise emergency alerts — the patient side of the HMS7 hospital network. Sign up free at henholib.loopital.com.",
+    jsonLd: [
+      softwareApplicationLd({
+        name: "Henholib",
+        category: "HealthApplication",
+        description:
+          "Personal health app for hospital search, doctor consultations, care-team messaging, and emergency alerts — connected to hospitals running HMS7.",
+        path: "/products/henholib",
+      }),
+      productCrumb("Henholib", "/products/henholib"),
+    ],
+  },
   "/products/fms13": {
     title: "FMS13 — Facility Management System Software",
     description:
-      "FMS13 is a complete facility management system for assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site. Run your facilities at scale — book a demo.",
+      "FMS13 is a complete facility management system for assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site. Open it at fms13.loopital.com — free for the first 3 months.",
     jsonLd: [
       softwareApplicationLd({
         name: "FMS13",

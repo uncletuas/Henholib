@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
@@ -14,6 +14,7 @@ const imagery: Record<string, string> = {
   stack62: "https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
   sart34: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
   hms7: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  henholib: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
   fms13: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
 };
 
@@ -62,9 +63,25 @@ export function ProductsPage() {
                     <h2 style={{ fontSize: "clamp(1.6rem,2.6vw,2.2rem)" }}>{p.tagline}</h2>
                     <p style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.75 }}>{p.description}</p>
                     <PlatformPills platforms={p.platforms} />
+                    {p.offer && (
+                      <div>
+                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full" style={{ background: `${p.accent}14`, color: p.accent, fontSize: "13px", fontWeight: 600 }}>
+                          <Sparkles size={13} /> {p.offer}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-3 mt-1">
                       {p.ctaType === "launch" ? (
-                        <LaunchAppButton product={p} background={p.accent}>Open {p.name}</LaunchAppButton>
+                        p.accountLinked ? (
+                          <LaunchAppButton product={p} background={p.accent}>Open {p.name}</LaunchAppButton>
+                        ) : (
+                          <>
+                            <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
+                              Open {p.name} <ArrowRight size={15} />
+                            </CTAButton>
+                            <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
+                          </>
+                        )
                       ) : (
                         <>
                           <CTAButton to={p.detailHref} variant="gradient" style={{ background: p.accent }}>

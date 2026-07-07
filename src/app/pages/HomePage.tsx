@@ -18,6 +18,7 @@ const imagery: Record<string, string> = {
   stack62: "https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
   sart34: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
   hms7: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  henholib: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
   fms13: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
 };
 const aiImg = "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200";
@@ -125,9 +126,24 @@ export function HomePage() {
 
                 <div className="mb-6"><PlatformPills platforms={p.platforms} /></div>
 
+                {p.offer && (
+                  <div className="mb-5">
+                    <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full" style={{ background: `${p.accent}14`, color: p.accent, fontSize: "13.5px", fontWeight: 600 }}>
+                      <Sparkles size={14} /> {p.offer}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap items-center gap-3">
                   {p.ctaType === "launch" ? (
-                    <LaunchAppButton product={p} background={p.accent} />
+                    p.accountLinked ? (
+                      <LaunchAppButton product={p} background={p.accent} />
+                    ) : (
+                      <>
+                        <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>Open {p.name} <ArrowRight size={16} /></CTAButton>
+                        <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
+                      </>
+                    )
                   ) : (
                     <>
                       <CTAButton to="/contact" variant="solid">Book a demo <ArrowRight size={16} /></CTAButton>
