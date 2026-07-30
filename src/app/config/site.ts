@@ -23,6 +23,11 @@ export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || "/api"
 ).replace(/\/$/, "");
 
+// Founder portrait, used on the founder profile page and Academy instructor
+// blocks. Swap this single constant (and the file in /public) to change it
+// everywhere. Currently an on-brand monogram; replace with a raster headshot.
+export const FOUNDER_IMAGE = "/tuamene.svg";
+
 export const CONTACT_EMAIL = "contact@loopital.com";
 export const COMPANY_ADDRESS =
   "Pyale Hub, 21 Bekwere Wosu Street, D-Line, Diobu, Port Harcourt, Rivers State, Nigeria";

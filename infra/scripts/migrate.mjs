@@ -91,6 +91,57 @@ const statements = [
      UNIQUE (email, product)
    )`,
   `CREATE INDEX IF NOT EXISTS waitlist_email_idx ON waitlist (email)`,
+
+  // ── Loopital Academy ──────────────────────────────────────────────────
+  // Course catalog for the Academy training arm. Content is DB-backed (not
+  // hardcoded) so it can be managed from the admin portal without a deploy.
+  // JSON-shaped fields (who_for, curriculum, format) are stored as TEXT
+  // holding a JSON string, parsed by the API — avoids Data API jsonb quirks.
+  `CREATE TABLE IF NOT EXISTS academy_courses (
+     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     slug             TEXT NOT NULL UNIQUE,
+     title            TEXT NOT NULL,
+     track            TEXT NOT NULL DEFAULT 'technical',
+     short_desc       TEXT,
+     full_desc        TEXT,
+     who_for          TEXT,
+     curriculum       TEXT,
+     format           TEXT,
+     price_cents      INTEGER NOT NULL DEFAULT 0,
+     currency         TEXT NOT NULL DEFAULT 'USD',
+     status           TEXT NOT NULL DEFAULT 'coming_soon'
+                        CHECK (status IN ('enrolling','coming_soon')),
+     published        BOOLEAN NOT NULL DEFAULT true,
+     sort_order       INTEGER NOT NULL DEFAULT 0,
+     instructor_name  TEXT,
+     instructor_title TEXT,
+     instructor_bio   TEXT,
+     created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+     updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_courses_track_idx ON academy_courses (track)`,
+
+  // Applications / expressions of interest submitted from a course page.
+  `CREATE TABLE IF NOT EXISTS academy_applications (
+     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_slug  TEXT NOT NULL,
+     course_title TEXT,
+     name         TEXT NOT NULL,
+     email        TEXT NOT NULL,
+     phone        TEXT,
+     motivation   TEXT,
+     heard_from   TEXT,
+     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_applications_course_idx ON academy_applications (course_slug)`,
+
+  // Single-row admin credential for the Academy management portal. Password is
+  // set once via self-service bootstrap (first run), then used to log in.
+  `CREATE TABLE IF NOT EXISTS academy_admin (
+     id            INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+     password_hash TEXT NOT NULL,
+     updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
 ];
 
 async function run() {

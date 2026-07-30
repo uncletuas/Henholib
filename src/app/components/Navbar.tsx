@@ -19,7 +19,6 @@ const services = [
 const company = [
   { label: "About Loopital", href: "/about" },
   { label: "News & Insights", href: "/insights" },
-  { label: "Careers", href: "/careers" },
   { label: "Contact Us", href: "/contact" },
 ];
 
@@ -117,6 +116,11 @@ export function Navbar() {
               )}
             </div>
 
+            {/* Academy */}
+            <Link to="/academy" className="px-4 py-2 rounded-lg text-sm transition-colors" style={{ color: colors.textSecondary }}>
+              Academy
+            </Link>
+
             {/* Company */}
             <div onMouseEnter={() => openMenu("company")} onMouseLeave={closeMenu} className="relative">
               <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-colors" style={{ color: linkColor("company") }}>
@@ -167,6 +171,7 @@ export function Navbar() {
             <Link key={s.label} to={s.href} className="block px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{s.label}</Link>
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
+          <Link to="/academy" className="block px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F5F5F7]" style={{ color: colors.heading }}>Academy</Link>
           {company.map((c) => (
             <Link key={c.label} to={c.href} className="block px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
           ))}

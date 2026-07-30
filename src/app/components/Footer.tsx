@@ -17,15 +17,15 @@ const columns = [
       { label: "Mobile Applications", href: "/services#mobile" },
       { label: "AI Solutions", href: "/services#ai" },
       { label: "Enterprise Platforms", href: "/services#enterprise" },
-      { label: "Digital Systems", href: "/services#digital" },
+      { label: "Loopital Academy", href: "/academy" },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "About Loopital", href: "/about" },
+      { label: "Loopital Academy", href: "/academy" },
       { label: "News & Insights", href: "/insights" },
-      { label: "Careers", href: "/careers" },
       { label: "Contact Us", href: "/contact" },
     ],
   },

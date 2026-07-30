@@ -5,7 +5,7 @@ import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
 import { colors, gradientBrand, shadow } from "../lib/brand";
-import { CONTACT_EMAIL } from "../config/site";
+import { CONTACT_EMAIL, FOUNDER_IMAGE } from "../config/site";
 
 const impactAreas = [
   "Innovation",
@@ -45,7 +45,7 @@ export function FounderPage() {
             <Reveal from="right">
               <div className="relative mx-auto" style={{ maxWidth: "460px" }}>
                 <div className="rounded-[28px] overflow-hidden" style={{ aspectRatio: "4/5", boxShadow: shadow.lg, border: `1px solid ${colors.hairline}`, background: colors.surfaceMuted }}>
-                  <ImageWithFallback src="/tuamene.svg" alt="Tuamene Bestgod, Founder & CEO of Loopital" className="w-full h-full object-cover" />
+                  <ImageWithFallback src={FOUNDER_IMAGE} alt="Tuamene Bestgod, Founder & CEO of Loopital" className="w-full h-full object-cover" />
                 </div>
               </div>
             </Reveal>

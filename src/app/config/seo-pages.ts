@@ -2,7 +2,8 @@
 // Keeping it centralized means titles/descriptions/structured-data live in one
 // place and unknown paths (404s) default to noindex.
 
-import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd } from "./structured-data";
+import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd, academyLd, courseLd } from "./structured-data";
+import { FOUNDER_IMAGE } from "./site";
 
 export interface PageSeo {
   title: string;
@@ -20,6 +21,48 @@ const productCrumb = (name: string, path: string) =>
     { name: "Products", path: "/products" },
     { name, path },
   ]);
+
+const academyCrumb = (name: string, path: string) =>
+  breadcrumbLd([
+    { name: "Home", path: "/" },
+    { name: "Academy", path: "/academy" },
+    { name, path },
+  ]);
+
+// SEO for the launch course pages. Course *content* is DB-backed and editable
+// from the admin portal, but titles/descriptions for the known launch courses
+// are kept static here so each page is indexable with tailored metadata.
+// Courses added later via the portal fall back to a generic (still indexable)
+// academy entry in getPageSeo().
+interface CourseSeo {
+  slug: string;
+  name: string;
+  price: number;
+  desc: string;
+}
+const academyCourses: CourseSeo[] = [
+  { slug: "generative-ai-masterclass", name: "Generative AI Masterclass", price: 100, desc: "Go from zero to confidently using generative AI in your work — a hands-on 4-week live course for professionals, entrepreneurs, and students. No prior experience needed." },
+  { slug: "software-development-with-ai", name: "Software Development with AI", price: 100, desc: "Make AI a dependable part of your development workflow — generating, reviewing, and shipping code. A 4-week live course for developers and engineers." },
+  { slug: "application-development-with-ai", name: "Application Development with AI", price: 100, desc: "Turn an idea into a working app with AI, no engineering background required. A 4-week live course for founders, product people, and non-technical builders." },
+  { slug: "ai-for-business-executives", name: "AI for Business Executives", price: 200, desc: "Lead AI adoption with clarity — spot real opportunities, evaluate vendors, and drive responsible adoption. A 3-week live course for leaders and decision-makers." },
+  { slug: "ai-for-marketing", name: "AI for Marketing", price: 200, desc: "Build a practical AI marketing workflow — content at scale, AI creative, and data-driven campaigns. A 4-week live course for marketers and brand teams." },
+  { slug: "ai-for-research-and-planning", name: "AI for Research & Planning", price: 200, desc: "Use AI to research, analyze, and plan responsibly — without fabricated findings. A 4-week live course for analysts, planners, and academics." },
+  { slug: "ai-for-governance", name: "AI for Governance", price: 300, desc: "Help the public sector adopt AI to improve service delivery, responsibly and accountably. A 3-week live course for government officials and administrators." },
+];
+
+const academyCourseSeo: Record<string, PageSeo> = Object.fromEntries(
+  academyCourses.map((c) => [
+    `/academy/${c.slug}`,
+    {
+      title: `${c.name} | Loopital Academy`,
+      description: c.desc,
+      jsonLd: [
+        courseLd({ name: c.name, description: c.desc, path: `/academy/${c.slug}`, price: c.price }),
+        academyCrumb(c.name, `/academy/${c.slug}`),
+      ],
+    } as PageSeo,
+  ])
+);
 
 export const pageSeo: Record<string, PageSeo> = {
   "/": {
@@ -115,6 +158,16 @@ export const pageSeo: Record<string, PageSeo> = {
       productCrumb("SART34", "/products/sart34"),
     ],
   },
+  "/academy": {
+    title: "Loopital Academy — Practical AI Training Courses",
+    description:
+      "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector — across a Technical Track, a Business & Leadership Track, and a Public Sector Track. Live cohorts, real-world projects.",
+    jsonLd: [
+      academyLd,
+      breadcrumbLd([{ name: "Home", path: "/" }, { name: "Academy", path: "/academy" }]),
+    ],
+  },
+  ...academyCourseSeo,
   "/about": {
     title: "About Loopital",
     description:
@@ -126,11 +179,6 @@ export const pageSeo: Record<string, PageSeo> = {
     description:
       "Product news, engineering, and perspectives from Loopital on software, AI, healthcare technology, and enterprise platforms.",
   },
-  "/careers": {
-    title: "Careers at Loopital",
-    description:
-      "Join Loopital and help build the software, AI, and enterprise platforms powering the next generation of organizations. See open roles.",
-  },
   "/contact": {
     title: "Contact Loopital",
     description:
@@ -140,13 +188,13 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "Tuamene Bestgod — Founder & CEO of Loopital",
     description:
       "Tuamene Bestgod is the founder and CEO of Loopital, building AI and software for businesses and governments across Africa — and Henholib, connecting Nigeria's hospitals with a single patient health identity. Speaker, volunteer, and advocate for impact.",
-    image: "/tuamene.svg",
+    image: FOUNDER_IMAGE,
     jsonLd: [
       personLd({
         name: "Tuamene Bestgod",
         jobTitle: "Founder & CEO of Loopital",
         path: "/tuamene.bestgod",
-        image: "/tuamene.svg",
+        image: FOUNDER_IMAGE,
         description:
           "Founder and CEO of Loopital, a technology company building AI and software for businesses, corporations, and governments across Africa. Building Henholib to connect hospitals and give patients a single health identity. Public speaker and volunteer across innovation, education, environment, climate, and healthcare.",
         alumniOf: "Rivers State University",
@@ -178,5 +226,25 @@ const NOT_FOUND: PageSeo = {
 /** Resolve SEO config for a pathname; unknown paths get a noindex 404 default. */
 export function getPageSeo(pathname: string): PageSeo {
   const key = pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
-  return pageSeo[key] ?? NOT_FOUND;
+  if (pageSeo[key]) return pageSeo[key];
+
+  // Academy: application forms and the admin portal stay out of the index.
+  if (key === "/academy/admin" || key.startsWith("/academy/apply")) {
+    return {
+      title: key.startsWith("/academy/apply") ? "Apply — Loopital Academy" : "Academy Admin — Loopital",
+      description: "Loopital Academy.",
+      noindex: true,
+    };
+  }
+  // A course added later via the admin portal (not in the static map): still
+  // indexable, with generic-but-relevant metadata.
+  if (key.startsWith("/academy/")) {
+    return {
+      title: "Loopital Academy — AI Training Course",
+      description:
+        "A practical, hands-on AI training course from Loopital Academy. Learn to apply AI in your work through live cohorts and real-world projects.",
+      jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Academy", path: "/academy" }]),
+    };
+  }
+  return NOT_FOUND;
 }

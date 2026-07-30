@@ -117,6 +117,35 @@ export function ServicesPage() {
         </div>
       </section>
 
+      {/* Academy */}
+      <section style={{ background: "#FFFFFF", padding: "0 0 80px" }}>
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center gap-10 p-10 lg:p-14"
+            style={{ background: "linear-gradient(120deg, #2563EB 0%, #0EA5E9 45%, #10B981 100%)" }}
+          >
+            <div>
+              <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "12px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>LOOPITAL ACADEMY</p>
+              <h2 style={{ color: "#fff", fontSize: "clamp(1.7rem,3vw,2.4rem)", fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1.15, marginBottom: "14px" }}>
+                Practical AI training for your team.
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px", lineHeight: 1.75 }}>
+                Beyond building software, we teach AI. Loopital Academy runs hands-on, live courses for individuals, businesses, and the public sector — across technical, business & leadership, and public sector tracks.
+              </p>
+            </div>
+            <div className="flex lg:justify-end">
+              <Link to="/academy" className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-sm transition-all hover:-translate-y-0.5" style={{ background: "#fff", color: "#2563EB" }}>
+                Explore Loopital Academy
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section style={{ background: "#F7F7FB", padding: "80px 0" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">

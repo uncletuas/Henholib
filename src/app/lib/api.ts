@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../config/site";
+import type { Course } from "../config/academy";
 
 export interface AuthUser {
   id: string;
@@ -55,6 +56,91 @@ export const waitlistApi = {
     request<{ ok: boolean }>("/waitlist", {
       method: "POST",
       body: JSON.stringify({ product, email, name }),
+    }),
+};
+
+// ── Loopital Academy ───────────────────────────────────────────────────
+// Public: course catalog + application capture. Admin: management portal
+// (single shared credential set via self-service bootstrap on first run).
+
+export interface AcademyApplicationInput {
+  courseSlug: string;
+  name: string;
+  email: string;
+  phone?: string;
+  motivation?: string;
+  heardFrom?: string;
+}
+
+export interface AcademyApplication {
+  id: string;
+  courseSlug: string;
+  courseTitle: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  motivation: string | null;
+  heardFrom: string | null;
+  createdAt: string;
+}
+
+const adminHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
+
+export const academyApi = {
+  listCourses: () => request<{ courses: Course[] }>("/academy/courses"),
+
+  getCourse: (slug: string) =>
+    request<{ course: Course }>(`/academy/courses/${encodeURIComponent(slug)}`),
+
+  apply: (input: AcademyApplicationInput) =>
+    request<{ ok: boolean }>("/academy/apply", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+};
+
+export const academyAdminApi = {
+  status: () => request<{ initialized: boolean }>("/academy/admin/status"),
+
+  bootstrap: (password: string) =>
+    request<{ token: string }>("/academy/admin/bootstrap", {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    }),
+
+  login: (password: string) =>
+    request<{ token: string }>("/academy/admin/login", {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    }),
+
+  changePassword: (token: string, current: string, next: string) =>
+    request<{ ok: boolean }>("/academy/admin/password", {
+      method: "POST",
+      headers: adminHeader(token),
+      body: JSON.stringify({ current, next }),
+    }),
+
+  listCourses: (token: string) =>
+    request<{ courses: Course[] }>("/academy/admin/courses", { headers: adminHeader(token) }),
+
+  saveCourse: (token: string, course: Partial<Course>) =>
+    request<{ course: Course }>("/academy/admin/courses", {
+      method: "POST",
+      headers: adminHeader(token),
+      body: JSON.stringify(course),
+    }),
+
+  deleteCourse: (token: string, id: string) =>
+    request<{ ok: boolean }>("/academy/admin/courses/delete", {
+      method: "POST",
+      headers: adminHeader(token),
+      body: JSON.stringify({ id }),
+    }),
+
+  listApplications: (token: string) =>
+    request<{ applications: AcademyApplication[] }>("/academy/admin/applications", {
+      headers: adminHeader(token),
     }),
 };
 

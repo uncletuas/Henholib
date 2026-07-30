@@ -8,7 +8,8 @@
     "synth": "cdk synth",
     "deploy": "cdk deploy --require-approval never --outputs-file outputs.json",
     "destroy": "cdk destroy --force",
-    "migrate": "node scripts/migrate.mjs"
+    "migrate": "node scripts/migrate.mjs",
+    "seed": "node scripts/seed-academy.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-rds-data": "^3.700.0",
