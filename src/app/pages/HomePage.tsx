@@ -5,22 +5,28 @@ import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
-import { ProductLink } from "../components/ProductLink";
 import { GlassCard } from "../components/GlassCard";
-import { CountUp } from "../components/CountUp";
 import { TypingChat } from "../components/TypingChat";
+import { TypeCycle } from "../components/TypeCycle";
 import { ProductPostCard } from "../components/ProductPostCard";
-import { ProductSwitcher } from "../components/ProductSwitcher";
+import { AcademyShowcase } from "../components/AcademyShowcase";
 import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 import { useAuth } from "../context/AuthContext";
 
 const servicesImg = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200";
 
-const stats = [
-  { to: products.length, label: "Products in the ecosystem" },
-  { to: 7, label: "Academy courses" },
-  { to: 3, suffix: "mo", label: "Free to get started" },
+// Rotating audiences for the hero headline — the kinds of people, organizations,
+// industries, and governments Loopital builds for.
+const AUDIENCES = [
+  "modern organizations",
+  "growing businesses",
+  "hospitals & clinics",
+  "government & public service",
+  "banks & fintechs",
+  "schools & universities",
+  "ambitious startups",
+  "enterprises across Africa",
 ];
 
 const services = ["Web Development", "Mobile Apps", "AI Solutions", "Enterprise Systems", "Digital Transformation", "Tech Consulting"];
@@ -29,61 +35,37 @@ export function HomePage() {
   const { setWaitlist } = useAuth();
   return (
     <div>
-      {/* ── HERO ── */}
+      {/* ── HERO (centered) ── */}
       <section className="relative overflow-hidden" style={{ background: colors.bg }}>
-        {/* live mesh backdrop */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="brand-aura absolute" style={{ top: "-18%", right: "-8%", width: "58vw", height: "58vw", background: "radial-gradient(circle at 50% 50%, rgba(14,165,233,0.18), rgba(16,185,129,0.10) 42%, transparent 70%)", filter: "blur(30px)" }} />
-          <div className="brand-aura-2 absolute" style={{ bottom: "-28%", left: "-14%", width: "50vw", height: "50vw", background: "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.16), transparent 70%)", filter: "blur(34px)" }} />
-          <div className="brand-aura absolute" style={{ top: "20%", left: "38%", width: "34vw", height: "34vw", background: "radial-gradient(circle at 50% 50%, rgba(109,106,240,0.12), transparent 72%)", filter: "blur(40px)", animationDelay: "-9s" }} />
+          <div className="brand-aura absolute" style={{ top: "-20%", right: "2%", width: "52vw", height: "52vw", background: "radial-gradient(circle at 50% 50%, rgba(14,165,233,0.18), rgba(16,185,129,0.10) 42%, transparent 70%)", filter: "blur(34px)" }} />
+          <div className="brand-aura-2 absolute" style={{ bottom: "-26%", left: "0%", width: "48vw", height: "48vw", background: "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.15), transparent 70%)", filter: "blur(38px)" }} />
+          <div className="brand-aura absolute" style={{ top: "8%", left: "34%", width: "36vw", height: "36vw", background: "radial-gradient(circle at 50% 50%, rgba(109,106,240,0.12), transparent 72%)", filter: "blur(44px)", animationDelay: "-9s" }} />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 relative" style={{ padding: "clamp(56px,7vw,96px) 24px clamp(40px,5vw,64px)" }}>
-          <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-14 items-center">
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass" style={{ fontSize: "12.5px" }}>
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: gradientBrand }} />
-                <span style={{ color: colors.heading, fontWeight: 600, letterSpacing: "0.02em" }}>Software · AI · Enterprise platforms</span>
-              </span>
-              <h1 style={{ marginBottom: "18px" }}>
-                The intelligent infrastructure for <GradientText>modern organizations</GradientText>.
-              </h1>
-              <p style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.6, maxWidth: "500px", marginBottom: "26px" }}>
-                Loopital builds products, AI, and platforms that help businesses and institutions
-                operate at a fundamentally higher level.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <CTAButton to="/products" size="md" variant="gradient">Explore products <ArrowRight size={16} /></CTAButton>
-                <CTAButton to="/contact" size="md" variant="outline">Talk to us</CTAButton>
-              </div>
+        <div className="max-w-7xl mx-auto px-6 relative" style={{ padding: "clamp(64px,8vw,110px) 24px clamp(56px,7vw,90px)" }}>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="max-w-3xl mx-auto text-center">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass" style={{ fontSize: "12.5px" }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: gradientBrand }} />
+              <span style={{ color: colors.heading, fontWeight: 600, letterSpacing: "0.02em" }}>Software · AI · Enterprise platforms</span>
+            </span>
+            <h1 style={{ marginBottom: "18px" }}>
+              The intelligent infrastructure for<br />
+              <TypeCycle phrases={AUDIENCES} />
+            </h1>
+            <p className="mx-auto" style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.6, maxWidth: "540px", marginBottom: "28px" }}>
+              Loopital builds products, AI, and platforms that help businesses and institutions
+              operate at a fundamentally higher level.
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <CTAButton to="/products" size="md" variant="gradient">Explore products <ArrowRight size={16} /></CTAButton>
+              <CTAButton to="/contact" size="md" variant="outline">Talk to us</CTAButton>
+            </div>
+          </motion.div>
 
-              {/* logo strip */}
-              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
-                {products.map((p) => (
-                  <ProductLink key={p.id} product={p} className="flex items-center gap-2 transition-opacity hover:opacity-100" style={{ opacity: 0.72 }}>
-                    <ImageWithFallback src={p.logo} alt={p.name} className="w-6 h-6 object-contain" />
-                    <span style={{ color: colors.heading, fontSize: "14px", fontWeight: 600 }}>{p.name}</span>
-                  </ProductLink>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}>
-              <TypingChat />
-            </motion.div>
-          </div>
-
-          {/* stats */}
-          <div className="mt-12 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
-            {stats.map((s) => (
-              <div key={s.label} className="glass rounded-2xl px-4 py-4 text-center">
-                <p style={{ fontSize: "clamp(1.5rem,3vw,2rem)", fontWeight: 800, letterSpacing: "-0.02em", color: colors.heading }}>
-                  <GradientText><CountUp to={s.to} suffix={s.suffix} /></GradientText>
-                </p>
-                <p style={{ fontSize: "12.5px", color: colors.textSecondary, marginTop: "2px", lineHeight: 1.3 }}>{s.label}</p>
-              </div>
-            ))}
-          </div>
+          <motion.div initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }} className="max-w-xl mx-auto" style={{ marginTop: "clamp(40px,5vw,64px)" }}>
+            <TypingChat />
+          </motion.div>
         </div>
       </section>
 
@@ -96,7 +78,7 @@ export function HomePage() {
             Each powerful on its own, designed to work together — for the way modern organizations work, communicate, operate, and grow.
           </p>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {products.map((p, i) => (
             <Reveal key={p.id} delay={i * 0.06}>
               <ProductPostCard product={p} />
@@ -105,13 +87,16 @@ export function HomePage() {
         </div>
       </Section>
 
-      {/* ── INTERACTIVE SWITCHER ── */}
+      {/* ── ACADEMY showcase ── */}
       <Section background={colors.bg} pad="md">
         <Reveal className="max-w-2xl mb-8">
-          <p style={{ color: colors.green, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>EXPLORE THE LINEUP</p>
-          <h2>See each product in action.</h2>
+          <p style={{ color: colors.green, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>LOOPITAL ACADEMY</p>
+          <h2 style={{ marginBottom: "12px" }}>Practical AI training, built for real work.</h2>
+          <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
+            We teach individuals, businesses, and the public sector to use AI well — hands-on live cohorts and real projects, online or in-house for your team.
+          </p>
         </Reveal>
-        <Reveal><ProductSwitcher /></Reveal>
+        <Reveal><AcademyShowcase /></Reveal>
       </Section>
 
       {/* ── AI AT THE CORE (compact glass beat) ── */}
@@ -172,7 +157,7 @@ export function HomePage() {
       </Section>
 
       {/* ── CLOSING CTA ── */}
-      <section style={{ background: gradientBrand, padding: "clamp(64px,8vw,96px) 0" }}>
+      <section style={{ background: gradientBrand, padding: "clamp(72px,9vw,110px) 0" }}>
         <Reveal className="max-w-3xl mx-auto px-6 text-center">
           <h2 style={{ color: "#fff", marginBottom: "16px" }}>See what Loopital can do for your organization.</h2>
           <p style={{ color: "rgba(255,255,255,0.88)", fontSize: "17px", lineHeight: 1.6, marginBottom: "30px" }}>

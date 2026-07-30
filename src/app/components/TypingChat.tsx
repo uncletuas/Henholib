@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { productById } from "../config/products";
+import { Smile } from "lucide-react";
 import { colors, gradientBrand } from "../lib/brand";
 
 const PAIRS = [
@@ -10,7 +9,17 @@ const PAIRS = [
   { q: "Where are we losing users in onboarding?", a: "Four drop-off points. The biggest is step 3 — it asks for too much. I've proposed fixes." },
 ];
 
-const stack62 = productById("stack62");
+/** Smiley "AI coworker" avatar (gradient chip + white smile + green status dot). */
+function Smiley({ size = 36, dot = true }: { size?: number; dot?: boolean }) {
+  return (
+    <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+      <div className="w-full h-full rounded-[30%] flex items-center justify-center" style={{ background: gradientBrand }}>
+        <Smile size={Math.round(size * 0.62)} color="#fff" strokeWidth={2.4} />
+      </div>
+      {dot && <span className="absolute rounded-full" style={{ width: size * 0.28, height: size * 0.28, top: -size * 0.06, right: -size * 0.06, background: colors.green, border: "2px solid #fff" }} />}
+    </div>
+  );
+}
 
 export function TypingChat() {
   const reduce = useReducedMotion();
@@ -46,12 +55,10 @@ export function TypingChat() {
   }, [i, reduce]);
 
   return (
-    <div className="glass-panel relative overflow-hidden" style={{ borderRadius: "26px", padding: "18px" }}>
+    <div className="glass-panel relative overflow-hidden text-left" style={{ borderRadius: "26px", padding: "18px" }}>
       {/* header */}
       <div className="flex items-center gap-2.5 pb-3.5 mb-3.5" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
-          <ImageWithFallback src={stack62.logo} alt="STACK62" className="w-5 h-5 object-contain" />
-        </div>
+        <Smiley size={36} />
         <div className="flex-1">
           <p style={{ fontSize: "13px", fontWeight: 700, color: colors.heading, lineHeight: 1.1 }}>STACK62</p>
           <p style={{ fontSize: "11px", color: colors.textTertiary }}>AI coworker</p>
@@ -64,18 +71,14 @@ export function TypingChat() {
 
       {/* conversation */}
       <div className="flex flex-col gap-3" style={{ minHeight: "150px" }}>
-        {/* user */}
         <div className="self-end max-w-[86%] px-3.5 py-2.5 rounded-2xl rounded-br-md" style={{ background: colors.surfaceMuted }}>
           <p style={{ fontSize: "13.5px", color: colors.heading, lineHeight: 1.5 }}>
             {prompt}{phase === "prompt" && <span className="type-caret">▋</span>}
           </p>
         </div>
-        {/* assistant */}
         {(phase === "think" || phase === "answer" || phase === "hold") && (
           <div className="self-start flex items-end gap-2 max-w-[92%]">
-            <div className="w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center" style={{ background: gradientBrand }}>
-              <ImageWithFallback src={stack62.logo} alt="" className="w-4 h-4 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
-            </div>
+            <Smiley size={24} dot={false} />
             <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-md" style={{ background: "rgba(37,99,235,0.08)", border: "1px solid rgba(37,99,235,0.12)" }}>
               {phase === "think" ? (
                 <span className="inline-flex gap-1 py-1">
