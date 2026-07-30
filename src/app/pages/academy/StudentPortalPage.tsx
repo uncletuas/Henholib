@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import type { CSSProperties, FormEvent } from "react";
-import { Link } from "react-router";
-import { LogOut, ArrowLeft, ArrowRight, CheckCircle2, Circle, FileText, Download, CalendarDays, PlayCircle, Award, GraduationCap } from "lucide-react";
+import { Link, useSearchParams } from "react-router";
+import { LogOut, ArrowLeft, ArrowRight, CheckCircle2, Circle, FileText, Download, CalendarDays, PlayCircle, Award, GraduationCap, LifeBuoy } from "lucide-react";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 import { VideoEmbed } from "../../components/academy/VideoEmbed";
@@ -266,7 +266,10 @@ function Dashboard({ token, user, onLogout, onOpen }: { token: string; user: Aut
             <p style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "0.08em", color: colors.blue }}>MY LEARNING</p>
             <p style={{ fontSize: "13px", color: colors.textTertiary }}>Welcome, {user.name.split(" ")[0]}</p>
           </div>
-          <button onClick={onLogout} style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px" }}><LogOut size={15} /> Log out</button>
+          <div className="flex items-center gap-2">
+            <Link to="/contact" style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px" }}><LifeBuoy size={15} /> Support</Link>
+            <button onClick={onLogout} style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px" }}><LogOut size={15} /> Log out</button>
+          </div>
         </div>
       </div>
 
@@ -333,11 +336,31 @@ export function StudentPortalPage() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [restoring, setRestoring] = useState(true);
   const [view, setView] = useState<{ name: "dashboard" } | { name: "learn"; courseId: string }>({ name: "dashboard" });
+  const [params, setParams] = useSearchParams();
+  const enrollId = params.get("enroll");
 
   useEffect(() => {
     if (!token) { setRestoring(false); return; }
     studentApi.me(token).then((r) => setUser(r.user)).catch(() => { localStorage.removeItem(TOKEN_KEY); setToken(null); }).finally(() => setRestoring(false));
   }, [token]);
+
+  // Post-registration: a course id in ?enroll= auto-enrolls the signed-in
+  // student and opens the course, then clears the param.
+  useEffect(() => {
+    if (!token || !user || !enrollId) return;
+    let cancelled = false;
+    studentApi.enroll(token, enrollId)
+      .then(() => { if (!cancelled) setView({ name: "learn", courseId: enrollId }); })
+      .catch(() => {})
+      .finally(() => {
+        if (cancelled) return;
+        const next = new URLSearchParams(params);
+        next.delete("enroll");
+        setParams(next, { replace: true });
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, user, enrollId]);
 
   const onAuthed = (t: string, u: AuthUser) => { localStorage.setItem(TOKEN_KEY, t); setToken(t); setUser(u); setRestoring(false); };
   const logout = () => { localStorage.removeItem(TOKEN_KEY); setToken(null); setUser(null); setView({ name: "dashboard" }); };

@@ -80,7 +80,7 @@ export function ContactPage() {
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-4">
                 <h2 style={{ fontWeight: 700, fontSize: "20px", color: "#0D0D1A" }}>What we help with</h2>
                 {[
-                  { tag: "Product inquiries", desc: "Questions about STACK62, SART34, HMS7, or FMS13" },
+                  { tag: "Product inquiries", desc: "Questions about Pal, Swift, HMS7, or FMS13" },
                   { tag: "Partnership opportunities", desc: "Business partnerships, reseller arrangements, and integrations" },
                   { tag: "Services & projects", desc: "Web, mobile, AI, or enterprise development projects" },
                   { tag: "Support", desc: "Technical support for existing products or accounts" },

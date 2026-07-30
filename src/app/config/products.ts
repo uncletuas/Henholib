@@ -15,8 +15,9 @@ import sart34Logo from "../../imports/sart34_logo.png";
 import hms7Logo from "../../imports/hms7-logo.svg";
 import henholibLogo from "../../imports/henholib-logo.svg";
 import fms13Logo from "../../imports/fms13_logo.png";
+import edm73Logo from "../../imports/edm73-logo.svg";
 
-export type ProductId = "stack62" | "sart34" | "hms7" | "henholib" | "fms13";
+export type ProductId = "stack62" | "sart34" | "hms7" | "henholib" | "fms13" | "edm73";
 export type CtaType = "launch" | "demo" | "waitlist";
 
 export interface Product {
@@ -47,7 +48,7 @@ export interface Product {
   ctaType: CtaType;
   /** Optional launch offer, e.g. "Free for the first 3 months". */
   offer?: string;
-  /** Mobile store links (SART34 only). */
+  /** Mobile store links (Swift only). */
   mobile?: { appStore: string; playStore: string };
   /** A few proof points used on story blocks. */
   highlights: string[];
@@ -56,13 +57,13 @@ export interface Product {
 export const products: Product[] = [
   {
     id: "stack62",
-    name: "STACK62",
+    name: "Pal",
     logo: stack62Logo,
     category: "AI Coworker Platform",
     theme: "The Future of Work",
     tagline: "Your team's most intelligent member.",
     description:
-      "STACK62 is an AI coworker that handles research, knowledge management, content creation, and workflow automation — so your team thinks faster and works at a fundamentally higher level.",
+      "Pal is an AI coworker that handles research, knowledge management, content creation, and workflow automation — so your team thinks faster and works at a fundamentally higher level.",
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
     detailHref: "/products/stack62",
@@ -73,13 +74,13 @@ export const products: Product[] = [
   },
   {
     id: "sart34",
-    name: "SART34",
+    name: "Swift",
     logo: sart34Logo,
     category: "AI Ads & CRM",
     theme: "The Future of Communication",
     tagline: "AI ads & CRM for growing businesses.",
     description:
-      "SART34 unifies advertising and customer relationships in one place — run AI-powered ad campaigns, manage every conversation, and grow your audience from a single intelligent workspace, on any device.",
+      "Swift unifies advertising and customer relationships in one place — run AI-powered ad campaigns, manage every conversation, and grow your audience from a single intelligent workspace, on any device.",
     platforms: ["web", "desktop", "mobile"],
     accent: productAccent.sart34,
     detailHref: "/products/sart34",
@@ -143,9 +144,26 @@ export const products: Product[] = [
     offer: "Free for the first 3 months",
     highlights: ["Asset & maintenance", "Work orders & requests", "Vendor management", "Compliance & safety"],
   },
+  {
+    id: "edm73",
+    name: "EDM73",
+    logo: edm73Logo,
+    category: "Education Management",
+    theme: "The Future of Education Operations",
+    tagline: "The operating system for schools and training institutions.",
+    description:
+      "EDM73 is a complete educational-organization management system — admissions, students, staff, classes, timetables, grades, fees, and communication in one platform — so schools, colleges, and training institutions run smoothly end to end. Not open to the public yet; join the waitlist for early access.",
+    platforms: ["web", "desktop"],
+    accent: productAccent.edm73,
+    detailHref: "/products/edm73",
+    external: false,
+    accountLinked: false,
+    ctaType: "waitlist",
+    highlights: ["Admissions & enrollment", "Students & staff", "Grades & timetables", "Fees & communication"],
+  },
 ];
 
 export const productById = (id: ProductId) => products.find((p) => p.id === id)!;
 
-/** Products tied to the unified loopital account/portal (SART34 + STACK62). */
+/** Products tied to the unified loopital account/portal (Swift + Pal). */
 export const accountProducts = products.filter((p) => p.accountLinked);

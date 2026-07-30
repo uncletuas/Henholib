@@ -70,7 +70,7 @@ export function AuthModal({ mode, onClose, onToggleMode }: AuthModalProps) {
           <div className="text-center">
             <h2 style={{ fontSize: "24px" }}>{mode === "signin" ? "Welcome back" : "Create your account"}</h2>
             <p style={{ color: colors.textSecondary, fontSize: "14px", marginTop: "6px" }}>
-              {mode === "signin" ? "Sign in to manage your products and subscriptions." : "One account for SART34, STACK62, and everything Loopital."}
+              {mode === "signin" ? "Sign in to manage your products and subscriptions." : "One account for Swift, Pal, and everything Loopital."}
             </p>
           </div>
         </div>

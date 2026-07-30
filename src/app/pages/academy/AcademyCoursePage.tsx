@@ -41,8 +41,8 @@ export function AcademyCoursePage() {
 
   const accent = trackMeta(course.track).accent;
   const enrolling = course.status === "enrolling";
-  const applyHref = `/academy/apply/${course.slug}`;
-  const applyLabel = enrolling ? "Apply now" : "Join the waitlist";
+  const registerHref = `/academy/learn?enroll=${course.id}`;
+  const registerLabel = enrolling ? "Register" : "Register interest";
 
   const facts = [
     { icon: Clock, label: "Duration", value: course.format?.duration },
@@ -97,7 +97,7 @@ export function AcademyCoursePage() {
                   <span style={{ color: colors.textTertiary, fontSize: "14px" }}>· {trackMeta(course.track).name.replace(" Track", "")}</span>
                 </div>
                 <p style={{ color: colors.textSecondary, fontSize: "14px", marginBottom: "20px" }}>
-                  {enrolling ? "Enrolling for the next live cohort." : "Not open yet — join the waitlist to be first to know."}
+                  {enrolling ? "Enrolling for the next live cohort." : "Not open yet — register your interest to be first to know."}
                 </p>
                 <div className="flex flex-col gap-3">
                   {facts.slice(0, 4).map((f) => (
@@ -109,13 +109,11 @@ export function AcademyCoursePage() {
                   ))}
                 </div>
                 <div className="mt-6">
-                  <CTAButton to={applyHref} variant="gradient" size="lg" className="w-full">{applyLabel} <ArrowRight size={16} /></CTAButton>
+                  <CTAButton to={registerHref} variant="gradient" size="lg" className="w-full">{registerLabel} <ArrowRight size={16} /></CTAButton>
                 </div>
-                {enrolling && (
-                  <div className="mt-3 text-center">
-                    <Link to="/academy/learn" style={{ color: colors.blue, fontSize: "13.5px", fontWeight: 600 }}>Enroll & start learning now →</Link>
-                  </div>
-                )}
+                <div className="mt-3 text-center">
+                  <Link to="/academy/learn" style={{ color: colors.blue, fontSize: "13.5px", fontWeight: 600 }}>Already registered? Go to My Learning →</Link>
+                </div>
               </div>
             </div>
           </Reveal>
@@ -217,10 +215,10 @@ export function AcademyCoursePage() {
           <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "18px", lineHeight: 1.65, marginBottom: "30px" }}>
             {enrolling
               ? "Secure your place in the next live cohort — it's a small group, and spots are limited."
-              : "Join the waitlist and we'll let you know the moment enrollment opens."}
+              : "Register your interest and we'll let you know the moment enrollment opens."}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <CTAButton to={applyHref} variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>{applyLabel}</CTAButton>
+            <CTAButton to={registerHref} variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>{registerLabel}</CTAButton>
             <CTAButton to="/academy" variant="ghost-light" size="lg">Browse other courses</CTAButton>
           </div>
         </Reveal>

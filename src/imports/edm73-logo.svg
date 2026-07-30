@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="EDM73">
+  <defs>
+    <linearGradient id="edm73" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A61E36"/>
+      <stop offset="1" stop-color="#6E0E1E"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#edm73)">
+    <rect x="15" y="14" width="23" height="72" rx="11"/>
+    <rect x="15" y="14" width="62" height="22" rx="11"/>
+    <rect x="15" y="39" width="50" height="22" rx="11"/>
+    <rect x="15" y="64" width="62" height="22" rx="11"/>
+  </g>
+</svg>

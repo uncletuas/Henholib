@@ -111,10 +111,10 @@ export function HomePage() {
                 </span>
                 <h2 style={{ marginBottom: "14px" }}>AI built in from day one — <GradientText>not bolted on later</GradientText>.</h2>
                 <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.7, marginBottom: "22px", maxWidth: "560px" }}>
-                  Led by STACK62, intelligence runs through everything we build — research, content,
+                  Led by Pal, intelligence runs through everything we build — research, content,
                   automation, and decision support, so your people focus on higher-value work.
                 </p>
-                <button onClick={() => setWaitlist("stack62")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5" style={{ background: gradientBrand, fontSize: "14px" }}>Join the STACK62 waitlist <ArrowRight size={15} /></button>
+                <button onClick={() => setWaitlist("stack62")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5" style={{ background: gradientBrand, fontSize: "14px" }}>Join the Pal waitlist <ArrowRight size={15} /></button>
               </div>
               <div className="flex flex-wrap gap-2 lg:justify-end">
                 {["Research & synthesis", "Content generation", "Workflow automation", "Decision support"].map((h) => (

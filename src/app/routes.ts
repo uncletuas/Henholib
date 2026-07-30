@@ -8,6 +8,7 @@ import { Sart34Page } from "./pages/products/Sart34Page";
 import { Hms7Page } from "./pages/products/Hms7Page";
 import { HenholibPage } from "./pages/products/HenholibPage";
 import { Fms13Page } from "./pages/products/Fms13Page";
+import { Edm73Page } from "./pages/products/Edm73Page";
 import { ServicesPage } from "./pages/ServicesPage";
 import { AcademyPage } from "./pages/academy/AcademyPage";
 import { AcademyCoursePage } from "./pages/academy/AcademyCoursePage";
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: "products/hms7", Component: Hms7Page },
       { path: "products/henholib", Component: HenholibPage },
       { path: "products/fms13", Component: Fms13Page },
+      { path: "products/edm73", Component: Edm73Page },
       { path: "services", Component: ServicesPage },
       { path: "academy", Component: AcademyPage },
       { path: "academy/admin", Component: AcademyAdminPage },

@@ -5,7 +5,7 @@ import { colors, gradientBrand } from "../lib/brand";
 
 const PAIRS = [
   { q: "Summarize the Q3 board deck", a: "Done — 5 key takeaways, 3 risks, and a one-line recommendation. Want the email draft too?" },
-  { q: "Draft a launch post for SART34", a: "Here's a punchy 3-line post with a clear CTA and 5 on-brand hashtags, ready to publish." },
+  { q: "Draft a launch post for Swift", a: "Here's a punchy 3-line post with a clear CTA and 5 on-brand hashtags, ready to publish." },
   { q: "Where are we losing users in onboarding?", a: "Four drop-off points. The biggest is step 3 — it asks for too much. I've proposed fixes." },
 ];
 
@@ -60,7 +60,7 @@ export function TypingChat() {
       <div className="flex items-center gap-2.5 pb-3.5 mb-3.5" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
         <Smiley size={36} />
         <div className="flex-1">
-          <p style={{ fontSize: "13px", fontWeight: 700, color: colors.heading, lineHeight: 1.1 }}>STACK62</p>
+          <p style={{ fontSize: "13px", fontWeight: 700, color: colors.heading, lineHeight: 1.1 }}>Pal</p>
           <p style={{ fontSize: "11px", color: colors.textTertiary }}>AI coworker</p>
         </div>
         <span className="inline-flex items-center gap-1.5">

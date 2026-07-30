@@ -116,7 +116,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
 
               <div className="p-5 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
                 <p style={{ fontWeight: 600, fontSize: "14px", color: "#1D4ED8", marginBottom: "4px" }}>One account, every app</p>
-                <p style={{ color: "#2563EB", fontSize: "13px", lineHeight: 1.65 }}>Sign in to SART34 or STACK62 with this same email and password — your subscription activates automatically.</p>
+                <p style={{ color: "#2563EB", fontSize: "13px", lineHeight: 1.65 }}>Sign in to Swift or Pal with this same email and password — your subscription activates automatically.</p>
               </div>
             </div>
           )}

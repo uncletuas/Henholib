@@ -33,6 +33,7 @@ export const productAccent = {
   hms7: "#14B58A",
   henholib: "#F97316",
   fms13: "#0891B2",
+  edm73: "#A61E36",
 } as const;
 
 // Soft, low-contrast elevation used across cards and panels.

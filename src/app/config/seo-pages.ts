@@ -68,13 +68,13 @@ export const pageSeo: Record<string, PageSeo> = {
   "/": {
     title: "Loopital — Software, AI & Enterprise Platforms",
     description:
-      "Loopital builds software products, AI, and enterprise platforms — STACK62 (AI coworker), SART34 (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and FMS13 (facility management) — helping organizations and people operate more intelligently.",
+      "Loopital builds software products, AI, and enterprise platforms — Pal (AI coworker), Swift (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and FMS13 (facility management) — helping organizations and people operate more intelligently.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
     title: "Products — AI, Healthcare & Enterprise Software",
     description:
-      "Explore Loopital's products: STACK62 AI coworker, SART34 AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software — for businesses, hospitals, and individuals.",
+      "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software — for businesses, hospitals, and individuals.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/services": {
@@ -129,33 +129,48 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/stack62": {
-    title: "STACK62 — AI Coworker Platform | Join the Waitlist",
+    title: "Pal — AI Coworker Platform | Join the Waitlist",
     description:
-      "STACK62 is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet — join the waitlist for early access.",
+      "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet — join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
-        name: "STACK62",
+        name: "Pal",
         category: "BusinessApplication",
         description:
           "AI coworker platform for research, knowledge management, content generation, and workflow automation.",
         path: "/products/stack62",
       }),
-      productCrumb("STACK62", "/products/stack62"),
+      productCrumb("Pal", "/products/stack62"),
+    ],
+  },
+  "/products/edm73": {
+    title: "EDM73 — Education Management System | Join the Waitlist",
+    description:
+      "EDM73 is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication — for schools, colleges, and training institutions. Not public yet — join the waitlist for early access.",
+    jsonLd: [
+      softwareApplicationLd({
+        name: "EDM73",
+        category: "BusinessApplication",
+        description:
+          "Educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication.",
+        path: "/products/edm73",
+      }),
+      productCrumb("EDM73", "/products/edm73"),
     ],
   },
   "/products/sart34": {
-    title: "SART34 — AI Ads & CRM | Join the Waitlist",
+    title: "Swift — AI Ads & CRM | Join the Waitlist",
     description:
-      "SART34 unifies AI-powered advertising and CRM in one workspace — run campaigns, manage every conversation, and grow your audience. Not public yet — join the waitlist for early access.",
+      "Swift unifies AI-powered advertising and CRM in one workspace — run campaigns, manage every conversation, and grow your audience. Not public yet — join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
-        name: "SART34",
+        name: "Swift",
         category: "BusinessApplication",
         description:
           "AI ads and CRM platform to run campaigns, manage conversations, and grow audiences from one workspace.",
         path: "/products/sart34",
       }),
-      productCrumb("SART34", "/products/sart34"),
+      productCrumb("Swift", "/products/sart34"),
     ],
   },
   "/academy": {
