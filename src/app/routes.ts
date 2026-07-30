@@ -14,6 +14,7 @@ import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
+import { FounderPage } from "./pages/FounderPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 export const router = createBrowserRouter([
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: "insights", Component: InsightsPage },
       { path: "privacy", Component: PrivacyPage },
       { path: "terms", Component: TermsPage },
+      { path: "tuamene.bestgod", Component: FounderPage },
       { path: "*", Component: NotFoundPage },
     ],
   },

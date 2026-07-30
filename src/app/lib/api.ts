@@ -48,6 +48,16 @@ export const authApi = {
     }),
 };
 
+// ── Waitlist ───────────────────────────────────────────────────────────
+// Public capture for products not yet open to the public (STACK62, SART34).
+export const waitlistApi = {
+  join: (product: string, email: string, name?: string) =>
+    request<{ ok: boolean }>("/waitlist", {
+      method: "POST",
+      body: JSON.stringify({ product, email, name }),
+    }),
+};
+
 // ── Unified account portal ─────────────────────────────────────────────
 // loopital.com is the single portal for the account-linked products
 // (SART34 + STACK62). Subscriptions are kept separate per product. HMS7 and

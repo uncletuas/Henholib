@@ -52,6 +52,34 @@ export function softwareApplicationLd(input: {
   };
 }
 
+/** Person schema for a profile page (e.g. the founder). */
+export function personLd(input: {
+  name: string;
+  jobTitle: string;
+  path: string;
+  image: string;
+  description: string;
+  sameAs?: string[];
+  alumniOf?: string;
+  homeLocation?: string;
+  knowsAbout?: string[];
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: input.name,
+    jobTitle: input.jobTitle,
+    url: `${SITE_URL}${input.path}`,
+    image: input.image.startsWith("http") ? input.image : `${SITE_URL}${input.image}`,
+    description: input.description,
+    worksFor: { "@type": "Organization", name: "Loopital", url: SITE_URL },
+    ...(input.alumniOf ? { alumniOf: { "@type": "CollegeOrUniversity", name: input.alumniOf } } : {}),
+    ...(input.homeLocation ? { homeLocation: { "@type": "Place", name: input.homeLocation } } : {}),
+    ...(input.knowsAbout ? { knowsAbout: input.knowsAbout } : {}),
+    ...(input.sameAs && input.sameAs.length ? { sameAs: input.sameAs } : {}),
+  };
+}
+
 /** BreadcrumbList for a page nested under the site root. */
 export function breadcrumbLd(trail: Array<{ name: string; path: string }>): Record<string, unknown> {
   return {

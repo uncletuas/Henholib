@@ -1,8 +1,38 @@
-import { ExternalRedirect } from "../../components/ExternalRedirect";
-import { STACK62_URL } from "../../config/site";
+import { ProductPageShell } from "../../components/product/ProductPageShell";
+import { productById } from "../../config/products";
 
-// STACK62 has its own landing page on stack62.loopital.com. We don't host a
-// separate page here — this legacy route just forwards visitors to it.
 export function Stack62Page() {
-  return <ExternalRedirect to={STACK62_URL} name="STACK62" />;
+  return (
+    <ProductPageShell
+      product={productById("stack62")}
+      heroImage="https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+      heroBody="STACK62 is an AI coworker that handles research, knowledge management, content, and workflow automation — so your team thinks faster and works at a fundamentally higher level. It's not open to the public yet; join the waitlist to be first in line for early access."
+      stats={[
+        { value: "AI-native", label: "Built from day one" },
+        { value: "Web + Desktop", label: "Works where you do" },
+        { value: "Early access", label: "Join the waitlist" },
+      ]}
+      featuresEyebrow="WHAT STACK62 DOES"
+      featuresTitle="An AI coworker for the whole team."
+      features={[
+        { title: "Research & Synthesis", desc: "Ask a question and get a sourced, structured answer — STACK62 reads, compares, and summarizes so you don't have to." },
+        { title: "Knowledge Management", desc: "Turn scattered documents and conversations into a living, searchable memory your whole team can draw on." },
+        { title: "Content Generation", desc: "Draft, rewrite, and polish documents, posts, and communications in your voice, grounded in your context." },
+        { title: "Workflow Automation", desc: "Hand off repetitive, multi-step work — STACK62 executes the busywork so people focus on judgment and craft." },
+        { title: "Decision Support", desc: "Weigh options, surface trade-offs, and pressure-test ideas with an assistant that thinks alongside you." },
+        { title: "Works Across Your Stack", desc: "Designed to plug into the tools your team already uses, on web and desktop." },
+      ]}
+      splitImage="https://images.unsplash.com/photo-1531403009284-440f080d1e12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+      splitTitle="Your team's most intelligent member."
+      splitBody="STACK62 is built to work the way a great colleague does — proactive, context-aware, and reliable. It carries your team's knowledge, takes on the heavy lifting, and raises the ceiling on what a small team can accomplish."
+      splitBullets={[
+        "Research, writing, and automation in one place",
+        "Grounded in your team's own knowledge",
+        "AI at the core — not bolted on later",
+        "Web and desktop, wherever you work",
+      ]}
+      ctaTitle="Be first in line for STACK62."
+      ctaBody="STACK62 isn't public yet. Join the waitlist and we'll let you know the moment early access opens."
+    />
+  );
 }

@@ -5,10 +5,10 @@ import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
-import { LaunchAppButton } from "../components/LaunchAppButton";
 import { PlatformPills } from "../components/PlatformPills";
 import { products } from "../config/products";
 import { colors, gradientBrand, shadow } from "../lib/brand";
+import { useAuth } from "../context/AuthContext";
 
 const imagery: Record<string, string> = {
   stack62: "https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
@@ -19,6 +19,7 @@ const imagery: Record<string, string> = {
 };
 
 export function ProductsPage() {
+  const { setWaitlist } = useAuth();
   return (
     <div>
       {/* Header */}
@@ -71,17 +72,20 @@ export function ProductsPage() {
                       </div>
                     )}
                     <div className="flex flex-wrap gap-3 mt-1">
-                      {p.ctaType === "launch" ? (
-                        p.accountLinked ? (
-                          <LaunchAppButton product={p} background={p.accent}>Open {p.name}</LaunchAppButton>
-                        ) : (
-                          <>
-                            <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
-                              Open {p.name} <ArrowRight size={15} />
-                            </CTAButton>
-                            <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
-                          </>
-                        )
+                      {p.ctaType === "waitlist" ? (
+                        <>
+                          <button onClick={() => setWaitlist(p.id)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: p.accent, fontSize: "15px" }}>
+                            Join the waitlist <ArrowRight size={15} />
+                          </button>
+                          <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
+                        </>
+                      ) : p.ctaType === "launch" ? (
+                        <>
+                          <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>
+                            Open {p.name} <ArrowRight size={15} />
+                          </CTAButton>
+                          <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
+                        </>
                       ) : (
                         <>
                           <CTAButton to={p.detailHref} variant="gradient" style={{ background: p.accent }}>

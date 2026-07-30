@@ -3,13 +3,14 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { AuthModal } from "../components/AuthModal";
 import { AccountDashboard } from "../components/AccountDashboard";
+import { WaitlistModal } from "../components/WaitlistModal";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { Seo } from "../components/Seo";
 import { getPageSeo } from "../config/seo-pages";
 import { useAuth } from "../context/AuthContext";
 
 export function RootLayout() {
-  const { showAuth, setShowAuth, signOut, user } = useAuth();
+  const { showAuth, setShowAuth, signOut, user, waitlist, setWaitlist } = useAuth();
   const location = useLocation();
   const seo = getPageSeo(location.pathname);
 
@@ -36,6 +37,9 @@ export function RootLayout() {
           onClose={() => setShowAuth("none")}
           onSignOut={signOut}
         />
+      )}
+      {waitlist && (
+        <WaitlistModal product={waitlist} onClose={() => setWaitlist(null)} />
       )}
     </div>
   );

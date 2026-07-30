@@ -127,6 +127,25 @@ async function signup(body) {
   return json(201, { token, user: publicUser(user) });
 }
 
+// Public waitlist capture for products not yet open to the public (STACK62, SART34).
+// No account or auth required; idempotent per (email, product).
+async function joinWaitlist(body) {
+  const email = (body.email || "").trim().toLowerCase();
+  const product = String(body.product || "").trim().toLowerCase();
+  const name = (body.name || "").trim() || null;
+
+  if (!EMAIL_RE.test(email)) return json(400, { error: "Please enter a valid email address." });
+  if (!product) return json(400, { error: "Missing product." });
+
+  await sql(
+    `INSERT INTO waitlist (email, product, name)
+     VALUES (:email, :product, :name)
+     ON CONFLICT (email, product) DO NOTHING`,
+    { email, product, name }
+  );
+  return json(201, { ok: true });
+}
+
 async function signin(body) {
   const email = (body.email || "").trim().toLowerCase();
   const password = body.password || "";
@@ -313,6 +332,7 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/health") return json(200, { status: "ok" });
     if (method === "POST" && route === "/auth/signup") return await signup(body);
     if (method === "POST" && route === "/auth/signin") return await signin(body);
+    if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
     if (method === "GET" && route === "/auth/me") return await me(headers);
     if (method === "GET" && route === "/account/subscriptions") return await getSubscriptions(headers);
     if (method === "GET" && route === "/account/invoices") return await getInvoices(headers);

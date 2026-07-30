@@ -7,11 +7,11 @@ import { Reveal } from "../components/Reveal";
 import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
 import { ProductLink } from "../components/ProductLink";
-import { LaunchAppButton } from "../components/LaunchAppButton";
 import { PlatformPills } from "../components/PlatformPills";
 import { StoreBadges } from "../components/StoreBadges";
-import { products, productById } from "../config/products";
+import { products } from "../config/products";
 import { colors, gradientBrand, shadow } from "../lib/brand";
+import { useAuth } from "../context/AuthContext";
 
 // Tasteful imagery per product theme, unified by gradient overlays.
 const imagery: Record<string, string> = {
@@ -25,6 +25,7 @@ const aiImg = "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?crop
 const servicesImg = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200";
 
 export function HomePage() {
+  const { setWaitlist } = useAuth();
   return (
     <div>
       {/* ── IMMERSIVE HERO ── */}
@@ -135,15 +136,16 @@ export function HomePage() {
                 )}
 
                 <div className="flex flex-wrap items-center gap-3">
-                  {p.ctaType === "launch" ? (
-                    p.accountLinked ? (
-                      <LaunchAppButton product={p} background={p.accent} />
-                    ) : (
-                      <>
-                        <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>Open {p.name} <ArrowRight size={16} /></CTAButton>
-                        <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
-                      </>
-                    )
+                  {p.ctaType === "waitlist" ? (
+                    <>
+                      <button onClick={() => setWaitlist(p.id)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: p.accent, fontSize: "15px" }}>Join the waitlist <ArrowRight size={16} /></button>
+                      <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
+                    </>
+                  ) : p.ctaType === "launch" ? (
+                    <>
+                      <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>Open {p.name} <ArrowRight size={16} /></CTAButton>
+                      <CTAButton to={p.detailHref} variant="outline">Learn more</CTAButton>
+                    </>
                   ) : (
                     <>
                       <CTAButton to="/contact" variant="solid">Book a demo <ArrowRight size={16} /></CTAButton>
@@ -186,7 +188,7 @@ export function HomePage() {
                 Led by STACK62, intelligence runs through everything we build — handling research,
                 content, automation, and decision support so people can focus on higher-value work.
               </p>
-              <LaunchAppButton product={productById("stack62")}>Try STACK62</LaunchAppButton>
+              <button onClick={() => setWaitlist("stack62")} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand, fontSize: "15px" }}>Join the STACK62 waitlist <ArrowRight size={16} /></button>
             </Reveal>
           </div>
         </div>

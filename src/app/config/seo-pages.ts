@@ -2,13 +2,15 @@
 // Keeping it centralized means titles/descriptions/structured-data live in one
 // place and unknown paths (404s) default to noindex.
 
-import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd } from "./structured-data";
+import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd } from "./structured-data";
 
 export interface PageSeo {
   title: string;
   description: string;
   noindex?: boolean;
   type?: "website" | "article";
+  /** Optional per-page OG/Twitter image (absolute or site-relative). */
+  image?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -83,17 +85,35 @@ export const pageSeo: Record<string, PageSeo> = {
       productCrumb("FMS13", "/products/fms13"),
     ],
   },
-  // External product apps live on their own subdomains — keep the in-site
-  // redirect routes out of the index.
   "/products/stack62": {
-    title: "STACK62 — AI Coworker Platform",
-    description: "STACK62 is an AI coworker for research, knowledge management, content, and workflow automation. Visit stack62.loopital.com.",
-    noindex: true,
+    title: "STACK62 — AI Coworker Platform | Join the Waitlist",
+    description:
+      "STACK62 is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet — join the waitlist for early access.",
+    jsonLd: [
+      softwareApplicationLd({
+        name: "STACK62",
+        category: "BusinessApplication",
+        description:
+          "AI coworker platform for research, knowledge management, content generation, and workflow automation.",
+        path: "/products/stack62",
+      }),
+      productCrumb("STACK62", "/products/stack62"),
+    ],
   },
   "/products/sart34": {
-    title: "SART34 — AI Ads & CRM",
-    description: "SART34 unifies AI-powered advertising and CRM in one workspace. Visit sart34.loopital.com.",
-    noindex: true,
+    title: "SART34 — AI Ads & CRM | Join the Waitlist",
+    description:
+      "SART34 unifies AI-powered advertising and CRM in one workspace — run campaigns, manage every conversation, and grow your audience. Not public yet — join the waitlist for early access.",
+    jsonLd: [
+      softwareApplicationLd({
+        name: "SART34",
+        category: "BusinessApplication",
+        description:
+          "AI ads and CRM platform to run campaigns, manage conversations, and grow audiences from one workspace.",
+        path: "/products/sart34",
+      }),
+      productCrumb("SART34", "/products/sart34"),
+    ],
   },
   "/about": {
     title: "About Loopital",
@@ -115,6 +135,29 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "Contact Loopital",
     description:
       "Get in touch with Loopital to explore our products or discuss a custom software, AI, or enterprise platform project. Book a demo or talk to our team.",
+  },
+  "/tuamene.bestgod": {
+    title: "Tuamene Bestgod — Founder & CEO of Loopital",
+    description:
+      "Tuamene Bestgod is the founder and CEO of Loopital, building AI and software for businesses and governments across Africa — and Henholib, connecting Nigeria's hospitals with a single patient health identity. Speaker, volunteer, and advocate for impact.",
+    image: "/tuamene.svg",
+    jsonLd: [
+      personLd({
+        name: "Tuamene Bestgod",
+        jobTitle: "Founder & CEO of Loopital",
+        path: "/tuamene.bestgod",
+        image: "/tuamene.svg",
+        description:
+          "Founder and CEO of Loopital, a technology company building AI and software for businesses, corporations, and governments across Africa. Building Henholib to connect hospitals and give patients a single health identity. Public speaker and volunteer across innovation, education, environment, climate, and healthcare.",
+        alumniOf: "Rivers State University",
+        homeLocation: "Rivers State, Nigeria",
+        knowsAbout: ["Artificial Intelligence", "Software Engineering", "Healthcare Technology", "Leadership", "Public Policy", "Innovation"],
+      }),
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Tuamene Bestgod", path: "/tuamene.bestgod" },
+      ]),
+    ],
   },
   "/privacy": {
     title: "Privacy Policy",

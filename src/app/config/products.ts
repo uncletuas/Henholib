@@ -4,12 +4,8 @@
 // account-linking rules stay consistent everywhere.
 
 import {
-  STACK62_URL,
-  SART34_URL,
   FMS13_URL,
   HENHOLIB_URL,
-  SART34_APP_STORE_URL,
-  SART34_PLAY_STORE_URL,
 } from "./site";
 import { productAccent } from "../lib/brand";
 import type { Platform } from "../components/PlatformPills";
@@ -21,7 +17,7 @@ import henholibLogo from "../../imports/henholib-logo.svg";
 import fms13Logo from "../../imports/fms13_logo.png";
 
 export type ProductId = "stack62" | "sart34" | "hms7" | "henholib" | "fms13";
-export type CtaType = "launch" | "demo";
+export type CtaType = "launch" | "demo" | "waitlist";
 
 export interface Product {
   id: ProductId;
@@ -38,10 +34,9 @@ export interface Product {
   /** Platforms the product ships on. */
   platforms: Platform[];
   accent: string;
-  /** Where "Learn more" goes. For STACK62/SART34 this is their existing
-   *  external landing page (subdomain); for HMS7/FMS13 it's the in-site page. */
+  /** Where "Learn more" goes — the in-site product landing page. */
   detailHref: string;
-  /** The live app URL (subdomain) or undefined for demo-led products. */
+  /** The live app URL (subdomain), or undefined for demo-led / waitlist products. */
   appHref?: string;
   /** True when the product's landing page / app lives on an external subdomain
    *  (so links render as anchors, not in-site routes). */
@@ -70,11 +65,10 @@ export const products: Product[] = [
       "STACK62 is an AI coworker that handles research, knowledge management, content creation, and workflow automation — so your team thinks faster and works at a fundamentally higher level.",
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
-    detailHref: STACK62_URL,
-    appHref: STACK62_URL,
-    external: true,
-    accountLinked: true,
-    ctaType: "launch",
+    detailHref: "/products/stack62",
+    external: false,
+    accountLinked: false,
+    ctaType: "waitlist",
     highlights: ["Research & synthesis", "Content generation", "Workflow automation", "Decision support"],
   },
   {
@@ -88,12 +82,10 @@ export const products: Product[] = [
       "SART34 unifies advertising and customer relationships in one place — run AI-powered ad campaigns, manage every conversation, and grow your audience from a single intelligent workspace, on any device.",
     platforms: ["web", "desktop", "mobile"],
     accent: productAccent.sart34,
-    detailHref: SART34_URL,
-    appHref: SART34_URL,
-    external: true,
-    accountLinked: true,
-    ctaType: "launch",
-    mobile: { appStore: SART34_APP_STORE_URL, playStore: SART34_PLAY_STORE_URL },
+    detailHref: "/products/sart34",
+    external: false,
+    accountLinked: false,
+    ctaType: "waitlist",
     highlights: ["AI ad campaigns", "Unified CRM", "Audience engagement", "Cross-platform publishing"],
   },
   {

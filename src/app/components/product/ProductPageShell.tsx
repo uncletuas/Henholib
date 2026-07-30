@@ -8,6 +8,7 @@ import { PlatformPills } from "../PlatformPills";
 import { StoreBadges } from "../StoreBadges";
 import type { Product } from "../../config/products";
 import { colors, shadow } from "../../lib/brand";
+import { useAuth } from "../../context/AuthContext";
 
 export interface ProductFeature {
   title: string;
@@ -43,6 +44,8 @@ export interface ProductPageContent {
 export function ProductPageShell(c: ProductPageContent) {
   const p = c.product;
   const launch = p.ctaType === "launch";
+  const waitlist = p.ctaType === "waitlist";
+  const { setWaitlist } = useAuth();
 
   return (
     <div>
@@ -72,7 +75,12 @@ export function ProductPageShell(c: ProductPageContent) {
               )}
               <div className="mb-7"><PlatformPills platforms={p.platforms} /></div>
               <div className="flex flex-wrap items-center gap-3">
-                {launch ? (
+                {waitlist ? (
+                  <>
+                    <button onClick={() => setWaitlist(p.id)} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: p.accent, fontSize: "15px" }}>Join the waitlist <ArrowRight size={16} /></button>
+                    <CTAButton to="/contact" variant="outline">Contact us</CTAButton>
+                  </>
+                ) : launch ? (
                   <>
                     <CTAButton href={p.appHref} external variant="gradient" style={{ background: p.accent }}>{p.accountLinked ? `Launch ${p.name}` : `Open ${p.name}`} <ArrowRight size={16} /></CTAButton>
                     {p.accountLinked ? (
@@ -173,7 +181,9 @@ export function ProductPageShell(c: ProductPageContent) {
           <h2 style={{ color: "#fff", marginBottom: "18px" }}>{c.ctaTitle}</h2>
           <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "18px", lineHeight: 1.65, marginBottom: "32px" }}>{c.ctaBody}</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            {launch ? (
+            {waitlist ? (
+              <button onClick={() => setWaitlist(p.id)} className="inline-flex items-center justify-center px-8 py-4 rounded-full font-semibold transition-all hover:opacity-95 active:scale-[0.98]" style={{ background: "#fff", color: p.accent, fontSize: "16px" }}>Join the waitlist</button>
+            ) : launch ? (
               <CTAButton href={p.appHref} external variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>{p.accountLinked ? `Launch ${p.name}` : `Open ${p.name}`}</CTAButton>
             ) : (
               <CTAButton to="/contact" variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>Book a demo</CTAButton>

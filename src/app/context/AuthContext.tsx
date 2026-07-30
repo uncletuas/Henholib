@@ -6,6 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { authApi, AuthUser } from "../lib/api";
+import type { ProductId } from "../config/products";
 
 type AuthView = "none" | "signin" | "signup" | "dashboard";
 
@@ -20,6 +21,9 @@ interface AuthContextType {
   signOut: () => void;
   showAuth: AuthView;
   setShowAuth: (v: AuthView) => void;
+  /** The product whose waitlist modal is open, or null when closed. */
+  waitlist: ProductId | null;
+  setWaitlist: (p: ProductId | null) => void;
 }
 
 const TOKEN_KEY = "loopital_token";
@@ -30,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [initializing, setInitializing] = useState(true);
   const [showAuth, setShowAuth] = useState<AuthView>("none");
+  const [waitlist, setWaitlist] = useState<ProductId | null>(null);
 
   // Restore session from a stored token on first load.
   useEffect(() => {
@@ -71,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, initializing, signIn, signUp, signOut, showAuth, setShowAuth }}
+      value={{ user, token, initializing, signIn, signUp, signOut, showAuth, setShowAuth, waitlist, setWaitlist }}
     >
       {children}
     </AuthContext.Provider>

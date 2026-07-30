@@ -79,6 +79,18 @@ const statements = [
      created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
      PRIMARY KEY (user_id, product)
    )`,
+
+  // Public waitlist capture for products that aren't open to the public yet
+  // (STACK62, SART34). No account required; one row per (email, product).
+  `CREATE TABLE IF NOT EXISTS waitlist (
+     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     email      TEXT NOT NULL,
+     product    TEXT NOT NULL,
+     name       TEXT,
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+     UNIQUE (email, product)
+   )`,
+  `CREATE INDEX IF NOT EXISTS waitlist_email_idx ON waitlist (email)`,
 ];
 
 async function run() {
