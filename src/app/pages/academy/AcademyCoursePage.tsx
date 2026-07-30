@@ -111,6 +111,11 @@ export function AcademyCoursePage() {
                 <div className="mt-6">
                   <CTAButton to={applyHref} variant="gradient" size="lg" className="w-full">{applyLabel} <ArrowRight size={16} /></CTAButton>
                 </div>
+                {enrolling && (
+                  <div className="mt-3 text-center">
+                    <Link to="/academy/learn" style={{ color: colors.blue, fontSize: "13.5px", fontWeight: 600 }}>Enroll & start learning now →</Link>
+                  </div>
+                )}
               </div>
             </div>
           </Reveal>

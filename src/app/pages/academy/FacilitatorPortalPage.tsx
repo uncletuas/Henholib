@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { Link } from "react-router";
-import { LogOut, FileText, PlayCircle, Download, KeyRound } from "lucide-react";
+import { LogOut, FileText, PlayCircle, Download, KeyRound, Award, Users, ChevronDown } from "lucide-react";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
-import { facilitatorApi, type FacilitatorCourse, type FacilitatorProfile } from "../../lib/api";
+import { facilitatorApi, type FacilitatorCourse, type FacilitatorProfile, type RosterStudent } from "../../lib/api";
 import { trackMeta } from "../../config/academy";
 
 const TOKEN_KEY = "loopital_academy_facilitator";
@@ -77,6 +77,54 @@ function ChangePassword({ token }: { token: string }) {
   );
 }
 
+function CourseRoster({ token, courseId }: { token: string; courseId: string }) {
+  const [open, setOpen] = useState(false);
+  const [students, setStudents] = useState<RosterStudent[] | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const load = useCallback(() => { facilitatorApi.roster(token, courseId).then((r) => setStudents(r.students)).catch(() => setStudents([])); }, [token, courseId]);
+  const toggle = () => { const n = !open; setOpen(n); if (n && !students) load(); };
+
+  const gen = async (s: RosterStudent) => {
+    if (!window.confirm(`Generate a certificate for ${s.name} and mark the course complete?`)) return;
+    setMsg(null);
+    try { const r = await facilitatorApi.generateCertificate(token, s.enrollmentId); setMsg(r.emailed ? `Certificate issued and emailed to ${s.email}.` : `Certificate ${r.serial} issued (email pending SES setup). The student can download it from their portal.`); load(); }
+    catch (e) { setMsg(e instanceof Error ? e.message : "Couldn't generate certificate."); }
+  };
+
+  return (
+    <div className="px-6 py-4" style={{ borderTop: `1px solid ${colors.hairline}` }}>
+      <button onClick={toggle} className="inline-flex items-center gap-2" style={{ background: "none", border: "none", cursor: "pointer", color: colors.heading, fontWeight: 600, fontSize: "13.5px" }}>
+        <Users size={15} style={{ color: colors.blue }} /> Students {students ? `(${students.length})` : ""}
+        <ChevronDown size={15} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+      </button>
+      {open && (
+        <div className="mt-3">
+          {msg && <p style={{ fontSize: "12.5px", color: colors.green, marginBottom: "10px" }}>{msg}</p>}
+          {!students ? <p style={{ fontSize: "13px", color: colors.textTertiary }}>Loading…</p> : students.length === 0 ? (
+            <p style={{ fontSize: "13px", color: colors.textTertiary }}>No students enrolled yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {students.map((s) => (
+                <div key={s.enrollmentId} className="flex items-center gap-3 px-3 py-2.5 rounded-xl flex-wrap" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+                  <div className="flex-1 min-w-[150px]">
+                    <p style={{ fontSize: "13.5px", fontWeight: 600, color: colors.heading }}>{s.name}</p>
+                    <p style={{ fontSize: "12px", color: colors.textSecondary }}>{s.email}</p>
+                  </div>
+                  <span style={{ fontSize: "12.5px", fontWeight: 600, color: colors.heading }}>{s.progress}%</span>
+                  {s.certSerial
+                    ? <span style={{ fontSize: "11px", padding: "3px 9px", borderRadius: "999px", background: `${colors.green}16`, color: colors.green }}>Certified</span>
+                    : <button onClick={() => gen(s)} style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: gradientBrand, color: "#fff", border: "none", borderRadius: "999px", padding: "7px 12px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" }}><Award size={13} /> Certificate</button>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Dashboard({ token, onLogout }: { token: string; onLogout: () => void }) {
   const [profile, setProfile] = useState<FacilitatorProfile | null>(null);
   const [courses, setCourses] = useState<FacilitatorCourse[] | null>(null);
@@ -143,6 +191,7 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
                     </div>
                   )}
                 </div>
+                <CourseRoster token={token} courseId={c.id} />
               </div>
             ))}
           </div>

@@ -54,10 +54,11 @@ export function AcademyPage() {
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <CTAButton href="#tracks" variant="gradient" size="lg">Browse courses <ArrowRight size={16} /></CTAButton>
-              <CTAButton href="#organizations" variant="outline" size="lg">Train your team</CTAButton>
+              <CTAButton to="/academy/learn" variant="outline" size="lg">My Learning</CTAButton>
             </div>
             <p style={{ color: colors.textTertiary, fontSize: "14px", marginTop: "22px" }}>
-              🌍 All courses run online as live cohorts · 🏢 In-house training available for organizations on request
+              🌍 All courses run online as live cohorts · 🏢{" "}
+              <a href="#organizations" style={{ color: colors.blue, fontWeight: 600 }}>In-house training</a> for organizations on request
             </p>
           </Reveal>
         </div>

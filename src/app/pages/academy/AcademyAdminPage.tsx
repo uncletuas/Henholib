@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { Link } from "react-router";
-import { Plus, Trash2, Pencil, LogOut, X, GripVertical, Upload, UserPlus, KeyRound } from "lucide-react";
+import { Plus, Trash2, Pencil, LogOut, X, GripVertical, Upload, UserPlus, KeyRound, Award, CalendarDays } from "lucide-react";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
-import { academyAdminApi, uploadToS3, type AcademyApplication } from "../../lib/api";
-import { type Course, type Material, type Facilitator, TRACKS, formatPrice, statusLabel } from "../../config/academy";
+import { academyAdminApi, uploadToS3, type AcademyApplication, type AdminEnrollment } from "../../lib/api";
+import { type Course, type Material, type Facilitator, type CourseSession, TRACKS, formatPrice, statusLabel } from "../../config/academy";
 
 const TOKEN_KEY = "loopital_academy_admin";
 
@@ -300,6 +300,25 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
             <input style={input} value={d.introVideoUrl} onChange={(e) => set("introVideoUrl", e.target.value)} placeholder="https://youtu.be/…" />
           </div>
 
+          {d.courseType === "self_paced" && (
+            <div className="rounded-2xl p-4" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+              <div className="flex items-center justify-between mb-2">
+                <p style={label}>Self-paced videos <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(Coursera-style lessons)</span></p>
+                <button type="button" onClick={() => set("selfPacedVideos", [...d.selfPacedVideos, { title: "", url: "" }])} style={{ ...btnGhost, padding: "6px 12px", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "5px" }}><Plus size={14} /> Add video</button>
+              </div>
+              <div className="flex flex-col gap-2">
+                {d.selfPacedVideos.map((v, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input style={{ ...input, flex: "0 0 34%", padding: "8px 10px" }} value={v.title} onChange={(e) => set("selfPacedVideos", d.selfPacedVideos.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} placeholder={`Video ${i + 1} title`} />
+                    <input style={{ ...input, flex: 1, padding: "8px 10px" }} value={v.url} onChange={(e) => set("selfPacedVideos", d.selfPacedVideos.map((x, j) => j === i ? { ...x, url: e.target.value } : x))} placeholder="https://youtu.be/…" />
+                    <button type="button" onClick={() => set("selfPacedVideos", d.selfPacedVideos.filter((_, j) => j !== i))} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={16} /></button>
+                  </div>
+                ))}
+                {d.selfPacedVideos.length === 0 && <p style={{ fontSize: "12.5px", color: colors.textTertiary }}>No videos yet — add lessons students can watch on their own.</p>}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
               <label style={label}>Track</label>
@@ -424,7 +443,7 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
 
 // ── Dashboard ───────────────────────────────────────────────────────────
 function Dashboard({ token, onLogout }: { token: string; onLogout: () => void }) {
-  const [tab, setTab] = useState<"courses" | "facilitators" | "applications" | "settings">("courses");
+  const [tab, setTab] = useState<"courses" | "facilitators" | "students" | "applications" | "settings">("courses");
   const [courses, setCourses] = useState<Course[] | null>(null);
   const [apps, setApps] = useState<AcademyApplication[] | null>(null);
   const [editing, setEditing] = useState<{ course?: Course } | null>(null);
@@ -473,6 +492,7 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
           <div className="flex items-center gap-2">
             {tabBtn("courses", "Courses")}
             {tabBtn("facilitators", "Facilitators")}
+            {tabBtn("students", "Students")}
             {tabBtn("applications", "Applications")}
             {tabBtn("settings", "Settings")}
             <button onClick={onLogout} title="Log out" style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 14px" }}><LogOut size={15} /> Log out</button>
@@ -550,6 +570,8 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
         )}
 
         {tab === "facilitators" && <FacilitatorsTab token={token} courses={courses} onGuard={guard} />}
+
+        {tab === "students" && <StudentsTab token={token} courses={courses} onGuard={guard} />}
 
         {tab === "settings" && <SettingsTab token={token} onLogout={onLogout} />}
       </div>
@@ -665,6 +687,120 @@ function FacilitatorsTab({ token, courses, onGuard }: { token: string; courses: 
           ))}
         </div>
       )}
+    </>
+  );
+}
+
+function fmtDT(iso: string) {
+  try { return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }); } catch { return iso; }
+}
+
+function StudentsTab({ token, courses, onGuard }: { token: string; courses: Course[] | null; onGuard: (e: unknown) => void }) {
+  const [courseId, setCourseId] = useState("");
+  const [enrollments, setEnrollments] = useState<AdminEnrollment[] | null>(null);
+  const [sessions, setSessions] = useState<CourseSession[] | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [sess, setSess] = useState({ title: "", startsAt: "", endsAt: "", location: "" });
+
+  useEffect(() => { if (!courseId && courses && courses.length) setCourseId(courses[0].id); }, [courses, courseId]);
+
+  const load = useCallback(() => {
+    if (!courseId) return;
+    academyAdminApi.listEnrollments(token, courseId).then((r) => setEnrollments(r.enrollments)).catch(onGuard);
+    academyAdminApi.listSessions(token, courseId).then((r) => setSessions(r.sessions)).catch(onGuard);
+  }, [token, courseId, onGuard]);
+  useEffect(() => { setEnrollments(null); setSessions(null); load(); }, [load]);
+
+  const genCert = async (e: AdminEnrollment) => {
+    if (!window.confirm(`Generate a certificate for ${e.name} and mark the course complete?`)) return;
+    setMsg(null);
+    try {
+      const r = await academyAdminApi.generateCertificate(token, e.id);
+      setMsg(r.emailed ? `Certificate ${r.serial} issued and emailed to ${e.email}.` : `Certificate ${r.serial} issued. Email not sent (${r.emailError || "SES not configured"}). The student can still download it from their portal.`);
+      load();
+    } catch (err) { onGuard(err); }
+  };
+  const removeEnr = async (e: AdminEnrollment) => {
+    if (!window.confirm(`Remove ${e.name} from this course?`)) return;
+    try { await academyAdminApi.removeEnrollment(token, e.id); load(); } catch (err) { onGuard(err); }
+  };
+  const addSession = async (ev: FormEvent) => {
+    ev.preventDefault();
+    if (!sess.startsAt) return;
+    try {
+      await academyAdminApi.createSession(token, { courseId, title: sess.title, startsAt: new Date(sess.startsAt).toISOString(), endsAt: sess.endsAt ? new Date(sess.endsAt).toISOString() : undefined, location: sess.location });
+      setSess({ title: "", startsAt: "", endsAt: "", location: "" });
+      load();
+    } catch (err) { onGuard(err); }
+  };
+  const delSession = async (id: string) => { try { await academyAdminApi.deleteSession(token, id); load(); } catch (err) { onGuard(err); } };
+
+  return (
+    <>
+      <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Students &amp; Schedule</h2>
+        <select style={{ ...input, maxWidth: "320px" }} value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+          {(courses ?? []).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+          {(!courses || courses.length === 0) && <option>Create a course first</option>}
+        </select>
+      </div>
+      {msg && <p style={{ fontSize: "13.5px", color: colors.green, marginBottom: "16px" }}>{msg}</p>}
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8">
+        {/* Enrollments */}
+        <div>
+          <h3 style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "12px" }}>Enrolled students {enrollments && <span style={{ color: colors.textTertiary, fontWeight: 500 }}>({enrollments.length})</span>}</h3>
+          {!enrollments ? <p style={{ color: colors.textTertiary }}>Loading…</p> : enrollments.length === 0 ? (
+            <p style={{ color: colors.textTertiary, fontSize: "14px" }}>No students enrolled in this course yet.</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {enrollments.map((e) => (
+                <div key={e.id} className="rounded-2xl px-4 py-3.5" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex-1 min-w-[160px]">
+                      <p style={{ fontWeight: 700, color: colors.heading, fontSize: "14.5px" }}>{e.name}</p>
+                      <p style={{ fontSize: "12.5px", color: colors.textSecondary }}>{e.email}</p>
+                    </div>
+                    <span style={{ fontSize: "12.5px", color: colors.heading, fontWeight: 600 }}>{e.progress}%</span>
+                    {e.certSerial
+                      ? <span style={{ fontSize: "11px", padding: "3px 9px", borderRadius: "999px", background: `${colors.green}16`, color: colors.green }} title={e.certSerial}>Certified</span>
+                      : <button onClick={() => genCert(e)} style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "5px", padding: "7px 12px", fontSize: "12.5px" }}><Award size={13} /> Certificate</button>}
+                    <button onClick={() => removeEnr(e)} title="Remove" style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={15} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Sessions / calendar */}
+        <div>
+          <h3 style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "12px" }}>Schedule</h3>
+          {sessions && sessions.length > 0 && (
+            <div className="flex flex-col gap-2 mb-4">
+              {sessions.map((s) => (
+                <div key={s.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+                  <CalendarDays size={15} style={{ color: colors.blue, flexShrink: 0 }} />
+                  <div className="flex-1">
+                    <p style={{ fontSize: "13.5px", fontWeight: 600, color: colors.heading }}>{s.title || "Session"}</p>
+                    <p style={{ fontSize: "12px", color: colors.textSecondary }}>{fmtDT(s.startsAt)}{s.location ? ` · ${s.location}` : ""}</p>
+                  </div>
+                  <button onClick={() => delSession(s.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={14} /></button>
+                </div>
+              ))}
+            </div>
+          )}
+          <form onSubmit={addSession} className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+            <input style={input} value={sess.title} onChange={(e) => setSess({ ...sess, title: e.target.value })} placeholder="Session title (e.g. Week 1 Live)" />
+            <div className="grid grid-cols-2 gap-3">
+              <div><label style={{ ...label, fontSize: "11.5px" }}>Starts</label><input type="datetime-local" style={input} value={sess.startsAt} onChange={(e) => setSess({ ...sess, startsAt: e.target.value })} required /></div>
+              <div><label style={{ ...label, fontSize: "11.5px" }}>Ends</label><input type="datetime-local" style={input} value={sess.endsAt} onChange={(e) => setSess({ ...sess, endsAt: e.target.value })} /></div>
+            </div>
+            <input style={input} value={sess.location} onChange={(e) => setSess({ ...sess, location: e.target.value })} placeholder="Location or meeting link" />
+            <button type="submit" style={{ ...btnPrimary, alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "6px" }}><Plus size={15} /> Add session</button>
+          </form>
+        </div>
+      </div>
     </>
   );
 }

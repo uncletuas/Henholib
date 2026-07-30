@@ -59,6 +59,30 @@ export interface Facilitator {
   createdAt: string;
 }
 
+export interface CourseSession {
+  id: string;
+  courseId: string;
+  title: string;
+  startsAt: string;
+  endsAt: string | null;
+  location: string;
+}
+
+export interface CourseItem {
+  key: string;
+  label: string;
+  type: "video" | "lesson";
+  url?: string;
+}
+
+export interface Enrollment {
+  enrollmentId: string;
+  status: "active" | "completed" | "withdrawn";
+  progress: number;
+  completedAt: string | null;
+  course: Course;
+}
+
 export type MaterialKind = "manual" | "slides" | "resource";
 
 export interface Material {

@@ -40,14 +40,17 @@ const {
   DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { SESv2Client, SendEmailCommand } = require("@aws-sdk/client-sesv2");
+const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const rds = new RDSDataClient({});
 const sm = new SecretsManagerClient({});
 const s3 = new S3Client({});
+const ses = new SESv2Client({});
 
-const { CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN, MATERIALS_BUCKET } = process.env;
+const { CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN, MATERIALS_BUCKET, SES_FROM } = process.env;
 const TOKEN_TTL = "7d";
 
 let cachedJwtSecret;
@@ -792,6 +795,315 @@ async function facilitatorChangePassword(headers, body) {
   return json(200, { ok: true });
 }
 
+// ── Academy LMS: students, enrolments, sessions, certificates ──────────────
+
+// A student token is an ordinary user JWT ({ sub, email }, no role).
+async function studentAuth(headers) {
+  const p = await authenticate(headers);
+  if (!p || p.role || !p.sub) return null;
+  return p;
+}
+
+function sessionOut(r) {
+  return { id: r.id, courseId: r.course_id, title: r.title || "", startsAt: r.starts_at, endsAt: r.ends_at, location: r.location || "" };
+}
+
+// The trackable items of a course: intro video, curriculum weeks, self-paced videos.
+function courseItems(course) {
+  const items = [];
+  if (course.introVideoUrl) items.push({ key: "intro", label: "Intro video", type: "video" });
+  (course.curriculum || []).forEach((w, i) => items.push({ key: `week-${w.week || i + 1}`, label: `Week ${w.week || i + 1}: ${w.title || ""}`.trim(), type: "lesson" }));
+  (course.selfPacedVideos || []).forEach((v, i) => items.push({ key: `spv-${i + 1}`, label: v.title || `Video ${i + 1}`, type: "video", url: v.url }));
+  return items;
+}
+function totalItems(row) {
+  let n = 0;
+  if (row.intro_video_url) n += 1;
+  n += parseJsonField(row.curriculum, []).length;
+  n += parseJsonField(row.self_paced_videos, []).length;
+  return Math.max(n, 1);
+}
+
+const ENROLL_COURSE_COLS = COURSE_COLS.split(", ").map((c) => "c." + c).join(", ");
+
+// ---- Student portal ----
+async function studentCourses(headers) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  const rows = await sql(
+    `SELECT e.id AS enrollment_id, e.status AS e_status, e.progress AS e_progress, e.completed_at AS e_completed_at, ${ENROLL_COURSE_COLS}
+       FROM academy_enrollments e JOIN academy_courses c ON c.id = e.course_id
+      WHERE e.user_id = :uid::uuid ORDER BY e.created_at DESC`,
+    { uid: p.sub }
+  );
+  const courses = rows.map((r) => ({
+    enrollmentId: r.enrollment_id, status: r.e_status, progress: Number(r.e_progress) || 0, completedAt: r.e_completed_at, course: courseOut(r),
+  }));
+  return json(200, { courses });
+}
+
+async function studentEnroll(headers, body) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  if (!body.courseId) return json(400, { error: "Missing course." });
+  const c = await sql("SELECT id FROM academy_courses WHERE id = :id::uuid AND published = true", { id: body.courseId });
+  if (!c.length) return json(404, { error: "Course not found." });
+  await sql("INSERT INTO academy_enrollments (course_id, user_id) VALUES (:c::uuid, :u::uuid) ON CONFLICT (course_id, user_id) DO NOTHING", { c: body.courseId, u: p.sub });
+  return json(201, { ok: true });
+}
+
+async function studentUnenroll(headers, body) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  if (!body.courseId) return json(400, { error: "Missing course." });
+  await sql("DELETE FROM academy_enrollments WHERE course_id = :c::uuid AND user_id = :u::uuid", { c: body.courseId, u: p.sub });
+  return json(200, { ok: true });
+}
+
+async function studentCourseDetail(headers, courseId) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  const er = await sql("SELECT id, status, progress, completed_at FROM academy_enrollments WHERE course_id = :c::uuid AND user_id = :u::uuid", { c: courseId, u: p.sub });
+  if (!er.length) return json(403, { error: "You're not enrolled in this course." });
+  const enrollmentId = er[0].id;
+  const cr = await sql(`SELECT ${COURSE_COLS} FROM academy_courses WHERE id = :c::uuid`, { c: courseId });
+  if (!cr.length) return json(404, { error: "Course not found." });
+  const course = courseOut(cr[0]);
+  const mats = await sql(`SELECT ${MATERIAL_COLS} FROM academy_materials WHERE course_id = :c::uuid AND student_visible = true ORDER BY created_at`, { c: courseId });
+  const sessions = await sql("SELECT id, course_id, title, starts_at, ends_at, location FROM academy_sessions WHERE course_id = :c::uuid ORDER BY starts_at", { c: courseId });
+  const prog = await sql("SELECT item_key FROM academy_progress WHERE enrollment_id = :e::uuid", { e: enrollmentId });
+  const cert = await sql("SELECT id, serial, issued_at, file_key FROM academy_certificates WHERE course_id = :c::uuid AND user_id = :u::uuid ORDER BY issued_at DESC LIMIT 1", { c: courseId, u: p.sub });
+  return json(200, {
+    enrollment: { id: enrollmentId, status: er[0].status, progress: Number(er[0].progress) || 0, completedAt: er[0].completed_at },
+    course,
+    items: courseItems(course),
+    completed: prog.map((x) => x.item_key),
+    materials: mats.map(materialOut),
+    sessions: sessions.map(sessionOut),
+    certificate: cert.length ? { id: cert[0].id, serial: cert[0].serial, issuedAt: cert[0].issued_at, hasFile: !!cert[0].file_key } : null,
+  });
+}
+
+async function studentProgress(headers, body) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  const { courseId, itemKey } = body;
+  if (!courseId || !itemKey) return json(400, { error: "Missing fields." });
+  const er = await sql("SELECT id FROM academy_enrollments WHERE course_id = :c::uuid AND user_id = :u::uuid", { c: courseId, u: p.sub });
+  if (!er.length) return json(403, { error: "Not enrolled." });
+  const eid = er[0].id;
+  if (body.completed === false) {
+    await sql("DELETE FROM academy_progress WHERE enrollment_id = :e::uuid AND item_key = :k", { e: eid, k: itemKey });
+  } else {
+    await sql("INSERT INTO academy_progress (enrollment_id, item_key) VALUES (:e::uuid, :k) ON CONFLICT DO NOTHING", { e: eid, k: itemKey });
+  }
+  const cr = await sql("SELECT curriculum, self_paced_videos, intro_video_url FROM academy_courses WHERE id = :c::uuid", { c: courseId });
+  const total = cr.length ? totalItems(cr[0]) : 1;
+  const done = (await sql("SELECT COUNT(*) AS n FROM academy_progress WHERE enrollment_id = :e::uuid", { e: eid }))[0].n;
+  const pct = Math.min(100, Math.round((Number(done) / total) * 100));
+  const status = pct >= 100 ? "completed" : "active";
+  await sql("UPDATE academy_enrollments SET progress = :p::int, status = :st WHERE id = :e::uuid", { p: pct, st: status, e: eid });
+  return json(200, { progress: pct, status });
+}
+
+async function studentMaterialDownloadUrl(headers, id) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  if (!id) return json(400, { error: "Missing id." });
+  const rows = await sql(
+    `SELECT m.file_key, m.file_name FROM academy_materials m
+       JOIN academy_enrollments e ON e.course_id = m.course_id AND e.user_id = :u::uuid
+      WHERE m.id = :id::uuid AND m.student_visible = true`,
+    { id, u: p.sub }
+  );
+  if (!rows.length) return json(404, { error: "Not available." });
+  return json(200, { url: await presignGet(rows[0].file_key, rows[0].file_name) });
+}
+
+async function studentCertificateDownloadUrl(headers, id) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  if (!id) return json(400, { error: "Missing id." });
+  const rows = await sql("SELECT file_key, serial FROM academy_certificates WHERE id = :id::uuid AND user_id = :u::uuid", { id, u: p.sub });
+  if (!rows.length || !rows[0].file_key) return json(404, { error: "Not found." });
+  return json(200, { url: await presignGet(rows[0].file_key, `Loopital-Academy-Certificate-${rows[0].serial}.pdf`) });
+}
+
+// ---- Sessions (calendar) — admin managed ----
+async function adminListSessions(headers, courseId) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  const rows = await sql("SELECT id, course_id, title, starts_at, ends_at, location FROM academy_sessions WHERE course_id = :c::uuid ORDER BY starts_at", { c: courseId });
+  return json(200, { sessions: rows.map(sessionOut) });
+}
+async function adminCreateSession(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.courseId || !body.startsAt) return json(400, { error: "Course and start time are required." });
+  const rows = await sql(
+    `INSERT INTO academy_sessions (course_id, title, starts_at, ends_at, location)
+     VALUES (:c::uuid, :title, :starts::timestamptz, :ends::timestamptz, :loc)
+     RETURNING id, course_id, title, starts_at, ends_at, location`,
+    { c: body.courseId, title: (body.title || "").trim() || null, starts: body.startsAt, ends: body.endsAt || null, loc: (body.location || "").trim() || null }
+  );
+  return json(201, { session: sessionOut(rows[0]) });
+}
+async function adminDeleteSession(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.id) return json(400, { error: "Missing id." });
+  await sql("DELETE FROM academy_sessions WHERE id = :id::uuid", { id: body.id });
+  return json(200, { ok: true });
+}
+
+// ---- Enrolments — admin managed ----
+async function adminListEnrollments(headers, courseId) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  const rows = await sql(
+    `SELECT e.id, e.status, e.progress, e.completed_at, e.created_at, u.id AS user_id, u.name, u.email, cert.serial AS cert_serial
+       FROM academy_enrollments e JOIN users u ON u.id = e.user_id
+       LEFT JOIN academy_certificates cert ON cert.course_id = e.course_id AND cert.user_id = e.user_id
+      WHERE e.course_id = :c::uuid ORDER BY e.created_at DESC`,
+    { c: courseId }
+  );
+  const enrollments = rows.map((r) => ({ id: r.id, userId: r.user_id, name: r.name, email: r.email, status: r.status, progress: Number(r.progress) || 0, completedAt: r.completed_at, certSerial: r.cert_serial }));
+  return json(200, { enrollments });
+}
+async function adminRemoveEnrollment(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.id) return json(400, { error: "Missing id." });
+  await sql("DELETE FROM academy_enrollments WHERE id = :id::uuid", { id: body.id });
+  return json(200, { ok: true });
+}
+
+// ---- Certificates: PDF + email ----
+async function buildCertificatePdf({ name, course, serial, date }) {
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([842, 595]); // A4 landscape
+  const { width, height } = page.getSize();
+  const helv = await doc.embedFont(StandardFonts.Helvetica);
+  const helvB = await doc.embedFont(StandardFonts.HelveticaBold);
+  const blue = rgb(0.145, 0.388, 0.922), green = rgb(0.063, 0.725, 0.506), ink = rgb(0.11, 0.11, 0.12), gray = rgb(0.43, 0.43, 0.45);
+  page.drawRectangle({ x: 22, y: 22, width: width - 44, height: height - 44, borderColor: blue, borderWidth: 2.5 });
+  page.drawRectangle({ x: 30, y: 30, width: width - 60, height: height - 60, borderColor: green, borderWidth: 0.8 });
+  const center = (text, font, size, y, color) => {
+    const w = font.widthOfTextAtSize(text, size);
+    page.drawText(text, { x: (width - w) / 2, y, size, font, color });
+  };
+  center("LOOPITAL ACADEMY", helvB, 15, height - 92, blue);
+  center("Certificate of Completion", helvB, 33, height - 150, ink);
+  page.drawRectangle({ x: width / 2 - 40, y: height - 168, width: 80, height: 3, color: green });
+  center("This certificate is proudly presented to", helv, 13, height - 205, gray);
+  center(name, helvB, 30, height - 250, ink);
+  center("for successfully completing the course", helv, 13, height - 290, gray);
+  center(course, helvB, 20, height - 322, blue);
+  const dstr = date.toISOString().slice(0, 10);
+  page.drawText(`Issued: ${dstr}`, { x: 78, y: 92, size: 11, font: helv, color: gray });
+  page.drawText(`Certificate ID: ${serial}`, { x: 78, y: 74, size: 10, font: helv, color: gray });
+  center("Tuamene Bestgod", helvB, 15, 108, ink);
+  center("Founder & CEO, Loopital", helv, 10, 90, gray);
+  const bytes = await doc.save();
+  return Buffer.from(bytes);
+}
+
+async function emailCertificate(to, name, course, pdfBytes, serial) {
+  if (!SES_FROM) throw new Error("SES_FROM not configured.");
+  const boundary = "LOOPITAL_" + Date.now().toString(36);
+  const subject = `Your Loopital Academy certificate — ${course}`;
+  const body = `Congratulations, ${name}!\r\n\r\nYou have successfully completed "${course}" at Loopital Academy. Your Certificate of Completion (ID ${serial}) is attached to this email as a PDF.\r\n\r\nWe are proud of what you've accomplished — keep learning and keep building.\r\n\r\nWarm regards,\r\nThe Loopital Academy Team`;
+  const b64 = pdfBytes.toString("base64").replace(/(.{76})/g, "$1\r\n");
+  const raw =
+    `From: ${SES_FROM}\r\n` +
+    `To: ${to}\r\n` +
+    `Subject: ${subject}\r\n` +
+    `MIME-Version: 1.0\r\n` +
+    `Content-Type: multipart/mixed; boundary="${boundary}"\r\n\r\n` +
+    `--${boundary}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${body}\r\n\r\n` +
+    `--${boundary}\r\nContent-Type: application/pdf; name="Loopital-Academy-Certificate.pdf"\r\n` +
+    `Content-Transfer-Encoding: base64\r\n` +
+    `Content-Disposition: attachment; filename="Loopital-Academy-Certificate-${serial}.pdf"\r\n\r\n${b64}\r\n\r\n--${boundary}--`;
+  await ses.send(new SendEmailCommand({ Content: { Raw: { Data: Buffer.from(raw) } } }));
+}
+
+async function generateCertificateForEnrollment(enrollmentId) {
+  const er = await sql(
+    `SELECT e.id, e.course_id, e.user_id, u.name, u.email, c.title AS course_title
+       FROM academy_enrollments e JOIN users u ON u.id = e.user_id JOIN academy_courses c ON c.id = e.course_id
+      WHERE e.id = :id::uuid`,
+    { id: enrollmentId }
+  );
+  if (!er.length) return json(404, { error: "Enrolment not found." });
+  const row = er[0];
+  const existing = await sql("SELECT id, serial, file_key FROM academy_certificates WHERE course_id = :c::uuid AND user_id = :u::uuid", { c: row.course_id, u: row.user_id });
+  let serial, fileKey, pdfBuffer = null;
+  if (existing.length && existing[0].file_key) {
+    serial = existing[0].serial; fileKey = existing[0].file_key;
+  } else {
+    serial = "LA-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
+    pdfBuffer = await buildCertificatePdf({ name: row.name, course: row.course_title, serial, date: new Date() });
+    fileKey = `certificates/${serial}.pdf`;
+    await s3.send(new PutObjectCommand({ Bucket: MATERIALS_BUCKET, Key: fileKey, Body: pdfBuffer, ContentType: "application/pdf" }));
+    if (existing.length) {
+      await sql("UPDATE academy_certificates SET serial = :s, file_key = :fk, issued_at = now() WHERE id = :id::uuid", { s: serial, fk: fileKey, id: existing[0].id });
+    } else {
+      await sql(
+        `INSERT INTO academy_certificates (course_id, user_id, student_name, student_email, course_title, serial, file_key)
+         VALUES (:cid::uuid, :uid::uuid, :name, :email, :ctitle, :serial, :fk)`,
+        { cid: row.course_id, uid: row.user_id, name: row.name, email: row.email, ctitle: row.course_title, serial, fk: fileKey }
+      );
+    }
+  }
+  await sql("UPDATE academy_enrollments SET status = 'completed', progress = 100, completed_at = now() WHERE id = :id::uuid", { id: enrollmentId });
+  let emailed = false, emailError = null;
+  try {
+    if (!pdfBuffer) {
+      const g = await s3.send(new GetObjectCommand({ Bucket: MATERIALS_BUCKET, Key: fileKey }));
+      const chunks = []; for await (const ch of g.Body) chunks.push(ch); pdfBuffer = Buffer.concat(chunks);
+    }
+    await emailCertificate(row.email, row.name, row.course_title, pdfBuffer, serial);
+    emailed = true;
+  } catch (e) {
+    emailError = String((e && e.message) || e);
+  }
+  return json(200, { ok: true, serial, emailed, emailError });
+}
+
+async function adminGenerateCertificate(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.enrollmentId) return json(400, { error: "Missing enrolment." });
+  return generateCertificateForEnrollment(body.enrollmentId);
+}
+
+// ---- Facilitator: roster + certificate ----
+async function facilitatorRoster(headers, courseId) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  const a = await sql("SELECT 1 AS ok FROM academy_course_facilitators WHERE course_id = :c::uuid AND facilitator_id = :f::uuid", { c: courseId, f: p.sub });
+  if (!a.length) return json(403, { error: "Not your course." });
+  const rows = await sql(
+    `SELECT e.id, e.status, e.progress, e.completed_at, u.name, u.email, cert.serial AS cert_serial
+       FROM academy_enrollments e JOIN users u ON u.id = e.user_id
+       LEFT JOIN academy_certificates cert ON cert.course_id = e.course_id AND cert.user_id = e.user_id
+      WHERE e.course_id = :c::uuid ORDER BY e.created_at DESC`,
+    { c: courseId }
+  );
+  const students = rows.map((r) => ({ enrollmentId: r.id, name: r.name, email: r.email, status: r.status, progress: Number(r.progress) || 0, completedAt: r.completed_at, certSerial: r.cert_serial }));
+  return json(200, { students });
+}
+async function facilitatorGenerateCertificate(headers, body) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  if (!body.enrollmentId) return json(400, { error: "Missing enrolment." });
+  const chk = await sql(
+    `SELECT 1 AS ok FROM academy_enrollments e JOIN academy_course_facilitators cf ON cf.course_id = e.course_id
+      WHERE e.id = :id::uuid AND cf.facilitator_id = :f::uuid`,
+    { id: body.enrollmentId, f: p.sub }
+  );
+  if (!chk.length) return json(403, { error: "Not your student." });
+  return generateCertificateForEnrollment(body.enrollmentId);
+}
+
 exports.handler = async (event) => {
   const method =
     event.requestContext?.http?.method || event.httpMethod || "GET";
@@ -861,6 +1173,25 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/academy/facilitator/me") return await facilitatorMe(headers);
     if (method === "POST" && route === "/academy/facilitator/password") return await facilitatorChangePassword(headers, body);
     if (method === "GET" && route === "/academy/facilitator/materials/download") return await facilitatorMaterialDownloadUrl(headers, qs("id"));
+    if (method === "GET" && route === "/academy/facilitator/roster") return await facilitatorRoster(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/facilitator/certificate") return await facilitatorGenerateCertificate(headers, body);
+
+    // Academy — student portal (uses the standard user JWT)
+    if (method === "GET" && route === "/academy/student/courses") return await studentCourses(headers);
+    if (method === "POST" && route === "/academy/student/enroll") return await studentEnroll(headers, body);
+    if (method === "POST" && route === "/academy/student/unenroll") return await studentUnenroll(headers, body);
+    if (method === "GET" && route === "/academy/student/course") return await studentCourseDetail(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/student/progress") return await studentProgress(headers, body);
+    if (method === "GET" && route === "/academy/student/materials/download") return await studentMaterialDownloadUrl(headers, qs("id"));
+    if (method === "GET" && route === "/academy/student/certificate/download") return await studentCertificateDownloadUrl(headers, qs("id"));
+
+    // Academy — admin: sessions, enrolments, certificates
+    if (method === "GET" && route === "/academy/admin/sessions") return await adminListSessions(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/admin/sessions/delete") return await adminDeleteSession(headers, body);
+    if (method === "POST" && route === "/academy/admin/sessions") return await adminCreateSession(headers, body);
+    if (method === "GET" && route === "/academy/admin/enrollments") return await adminListEnrollments(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/admin/enrollments/remove") return await adminRemoveEnrollment(headers, body);
+    if (method === "POST" && route === "/academy/admin/certificate") return await adminGenerateCertificate(headers, body);
 
     return json(404, { error: "Not found." });
   } catch (err) {

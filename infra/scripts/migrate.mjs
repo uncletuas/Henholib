@@ -227,6 +227,17 @@ const statements = [
   // list of self-paced videos (Coursera-style, tutor-optional).
   `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS intro_video_url TEXT`,
   `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS self_paced_videos TEXT`,
+
+  // Per-enrolment lesson/video completion, for progress tracking.
+  `CREATE TABLE IF NOT EXISTS academy_progress (
+     enrollment_id UUID NOT NULL REFERENCES academy_enrollments (id) ON DELETE CASCADE,
+     item_key      TEXT NOT NULL,
+     completed_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+     PRIMARY KEY (enrollment_id, item_key)
+   )`,
+
+  // Link a certificate to its stored PDF key (added additively).
+  `ALTER TABLE academy_certificates ADD COLUMN IF NOT EXISTS file_key TEXT`,
 ];
 
 async function run() {

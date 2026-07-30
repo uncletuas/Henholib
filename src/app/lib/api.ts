@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../config/site";
-import type { Course, Facilitator, Material } from "../config/academy";
+import type { Course, Facilitator, Material, CourseSession, CourseItem, Enrollment } from "../config/academy";
 
 export interface AuthUser {
   id: string;
@@ -188,6 +188,67 @@ export const academyAdminApi = {
 
   materialDownloadUrl: (token: string, id: string) =>
     request<{ url: string }>(`/academy/admin/materials/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
+
+  // Sessions (calendar)
+  listSessions: (token: string, courseId: string) =>
+    request<{ sessions: CourseSession[] }>(`/academy/admin/sessions?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  createSession: (token: string, input: { courseId: string; title: string; startsAt: string; endsAt?: string; location?: string }) =>
+    request<{ session: CourseSession }>("/academy/admin/sessions", { method: "POST", headers: adminHeader(token), body: JSON.stringify(input) }),
+  deleteSession: (token: string, id: string) =>
+    request<{ ok: boolean }>("/academy/admin/sessions/delete", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ id }) }),
+
+  // Enrollments + certificates
+  listEnrollments: (token: string, courseId: string) =>
+    request<{ enrollments: AdminEnrollment[] }>(`/academy/admin/enrollments?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  removeEnrollment: (token: string, id: string) =>
+    request<{ ok: boolean }>("/academy/admin/enrollments/remove", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ id }) }),
+  generateCertificate: (token: string, enrollmentId: string) =>
+    request<{ ok: boolean; serial: string; emailed: boolean; emailError: string | null }>("/academy/admin/certificate", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ enrollmentId }) }),
+};
+
+export interface AdminEnrollment {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  status: string;
+  progress: number;
+  completedAt: string | null;
+  certSerial: string | null;
+}
+
+export interface RosterStudent {
+  enrollmentId: string;
+  name: string;
+  email: string;
+  status: string;
+  progress: number;
+  completedAt: string | null;
+  certSerial: string | null;
+}
+
+export interface StudentCourseDetail {
+  enrollment: { id: string; status: string; progress: number; completedAt: string | null };
+  course: Course;
+  items: CourseItem[];
+  completed: string[];
+  materials: Material[];
+  sessions: CourseSession[];
+  certificate: { id: string; serial: string; issuedAt: string; hasFile: boolean } | null;
+}
+
+// Student portal uses the standard Loopital user account (JWT).
+export const studentApi = {
+  signup: (name: string, email: string, password: string) => authApi.signup(name, email, password),
+  signin: (email: string, password: string) => authApi.signin(email, password),
+  me: (token: string) => authApi.me(token),
+  courses: (token: string) => request<{ courses: Enrollment[] }>("/academy/student/courses", { headers: adminHeader(token) }),
+  enroll: (token: string, courseId: string) => request<{ ok: boolean }>("/academy/student/enroll", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId }) }),
+  unenroll: (token: string, courseId: string) => request<{ ok: boolean }>("/academy/student/unenroll", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId }) }),
+  course: (token: string, courseId: string) => request<StudentCourseDetail>(`/academy/student/course?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  progress: (token: string, courseId: string, itemKey: string, completed: boolean) => request<{ progress: number; status: string }>("/academy/student/progress", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId, itemKey, completed }) }),
+  materialDownloadUrl: (token: string, id: string) => request<{ url: string }>(`/academy/student/materials/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
+  certificateDownloadUrl: (token: string, id: string) => request<{ url: string }>(`/academy/student/certificate/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
 };
 
 // ── Academy facilitator portal ─────────────────────────────────────────
@@ -226,6 +287,12 @@ export const facilitatorApi = {
 
   materialDownloadUrl: (token: string, id: string) =>
     request<{ url: string }>(`/academy/facilitator/materials/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
+
+  roster: (token: string, courseId: string) =>
+    request<{ students: RosterStudent[] }>(`/academy/facilitator/roster?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+
+  generateCertificate: (token: string, enrollmentId: string) =>
+    request<{ ok: boolean; serial: string; emailed: boolean; emailError: string | null }>("/academy/facilitator/certificate", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ enrollmentId }) }),
 };
 
 /** Upload a file to S3 via a presigned PUT URL. */

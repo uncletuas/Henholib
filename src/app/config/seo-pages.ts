@@ -230,9 +230,9 @@ export function getPageSeo(pathname: string): PageSeo {
   if (pageSeo[key]) return pageSeo[key];
 
   // Academy: application forms and the private portals stay out of the index.
-  if (key === "/academy/admin" || key === "/academy/portal" || key.startsWith("/academy/apply")) {
+  if (key === "/academy/admin" || key === "/academy/portal" || key === "/academy/learn" || key.startsWith("/academy/apply")) {
     return {
-      title: key.startsWith("/academy/apply") ? "Apply — Loopital Academy" : "Academy Portal — Loopital",
+      title: key === "/academy/learn" ? "My Learning — Loopital Academy" : key.startsWith("/academy/apply") ? "Apply — Loopital Academy" : "Academy Portal — Loopital",
       description: "Loopital Academy.",
       noindex: true,
     };
