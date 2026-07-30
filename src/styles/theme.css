@@ -161,28 +161,28 @@
     font-size: var(--font-size);
   }
 
-  /* Apple-grade display scale. Headings default to a tight, confident
-     display setting; Tailwind text-* utilities still override per element. */
+  /* Compact, restrained display scale. Kept tight and confident, not oversized;
+     Tailwind text-* utilities still override per element. */
   h1 {
-    font-size: clamp(2.6rem, 6vw, 5rem);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.05;
-    letter-spacing: -0.035em;
-    color: var(--heading);
-  }
-
-  h2 {
     font-size: clamp(2rem, 4vw, 3.25rem);
     font-weight: var(--font-weight-semibold);
-    line-height: 1.1;
+    line-height: 1.08;
     letter-spacing: -0.03em;
     color: var(--heading);
   }
 
-  h3 {
-    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  h2 {
+    font-size: clamp(1.55rem, 2.8vw, 2.3rem);
     font-weight: var(--font-weight-semibold);
-    line-height: 1.2;
+    line-height: 1.14;
+    letter-spacing: -0.025em;
+    color: var(--heading);
+  }
+
+  h3 {
+    font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.25;
     letter-spacing: -0.02em;
     color: var(--heading);
   }

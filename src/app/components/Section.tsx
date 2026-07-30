@@ -15,9 +15,9 @@ interface SectionProps {
 }
 
 const padMap = {
-  sm: "clamp(56px, 7vw, 88px)",
-  md: "clamp(80px, 10vw, 128px)",
-  lg: "clamp(96px, 12vw, 160px)",
+  sm: "clamp(44px, 5vw, 64px)",
+  md: "clamp(56px, 6vw, 88px)",
+  lg: "clamp(72px, 8vw, 112px)",
 };
 
 const widthMap = {

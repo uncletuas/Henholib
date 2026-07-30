@@ -45,6 +45,52 @@ body {
 .brand-aura {
   animation: brand-aura-drift 18s ease-in-out infinite;
 }
+/* A second, wider drift so the mesh backdrop feels alive without repeating. */
+@keyframes brand-aura-drift-2 {
+  0%   { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%  { transform: translate3d(-3%, 4%, 0) scale(1.15); }
+  100% { transform: translate3d(0, 0, 0) scale(1.05); }
+}
+.brand-aura-2 {
+  animation: brand-aura-drift-2 24s ease-in-out infinite;
+}
+
+/* ── Frosted glass ──────────────────────────────────────────────────────
+   Canonical translucent surface used across the landing (mirrors the navbar
+   blur recipe). .glass for cards over the light mesh; .glass-panel is a hair
+   more opaque for content-dense panels. */
+.glass {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 34px rgba(15, 23, 42, 0.06);
+}
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+/* Cursor-tracked spotlight glow for interactive glass cards.
+   The card sets --mx/--my (0–100%) and --glow (an rgba) on mouse move. */
+.glass-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 0%), var(--glow, rgba(37, 99, 235, 0.14)), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.glass-spotlight:hover::before { opacity: 1; }
+
+/* Blinking caret for the hero typing demo. */
+@keyframes caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.type-caret { animation: caret-blink 1s step-end infinite; }
 
 /* Slim, unobtrusive scrollbar that matches the brand. */
 * {
