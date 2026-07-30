@@ -229,10 +229,10 @@ export function getPageSeo(pathname: string): PageSeo {
   const key = pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
   if (pageSeo[key]) return pageSeo[key];
 
-  // Academy: application forms and the admin portal stay out of the index.
-  if (key === "/academy/admin" || key.startsWith("/academy/apply")) {
+  // Academy: application forms and the private portals stay out of the index.
+  if (key === "/academy/admin" || key === "/academy/portal" || key.startsWith("/academy/apply")) {
     return {
-      title: key.startsWith("/academy/apply") ? "Apply — Loopital Academy" : "Academy Admin — Loopital",
+      title: key.startsWith("/academy/apply") ? "Apply — Loopital Academy" : "Academy Portal — Loopital",
       description: "Loopital Academy.",
       noindex: true,
     };

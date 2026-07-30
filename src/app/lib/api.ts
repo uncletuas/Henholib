@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../config/site";
-import type { Course } from "../config/academy";
+import type { Course, Facilitator, Material } from "../config/academy";
 
 export interface AuthUser {
   id: string;
@@ -142,7 +142,97 @@ export const academyAdminApi = {
     request<{ applications: AcademyApplication[] }>("/academy/admin/applications", {
       headers: adminHeader(token),
     }),
+
+  // Facilitators
+  listFacilitators: (token: string) =>
+    request<{ facilitators: Facilitator[] }>("/academy/admin/facilitators", { headers: adminHeader(token) }),
+
+  createFacilitator: (token: string, input: { name: string; email: string; password: string; title?: string; bio?: string }) =>
+    request<{ facilitator: Facilitator }>("/academy/admin/facilitators", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify(input),
+    }),
+
+  deleteFacilitator: (token: string, id: string) =>
+    request<{ ok: boolean }>("/academy/admin/facilitators/delete", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify({ id }),
+    }),
+
+  assignFacilitator: (token: string, facilitatorId: string, courseId: string, assigned: boolean) =>
+    request<{ ok: boolean }>("/academy/admin/facilitators/assign", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify({ facilitatorId, courseId, assigned }),
+    }),
+
+  setFacilitatorPassword: (token: string, id: string, password: string) =>
+    request<{ ok: boolean }>("/academy/admin/facilitators/password", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify({ id, password }),
+    }),
+
+  // Materials
+  listMaterials: (token: string, courseId: string) =>
+    request<{ materials: Material[] }>(`/academy/admin/materials?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+
+  materialUploadUrl: (token: string, input: { courseId: string; fileName: string; contentType: string }) =>
+    request<{ uploadUrl: string; fileKey: string }>("/academy/admin/materials/upload-url", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify(input),
+    }),
+
+  createMaterial: (token: string, input: { courseId: string; title: string; kind: string; fileKey: string; fileName: string; contentType: string; sizeBytes: number; studentVisible: boolean }) =>
+    request<{ material: Material }>("/academy/admin/materials", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify(input),
+    }),
+
+  deleteMaterial: (token: string, id: string) =>
+    request<{ ok: boolean }>("/academy/admin/materials/delete", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify({ id }),
+    }),
+
+  materialDownloadUrl: (token: string, id: string) =>
+    request<{ url: string }>(`/academy/admin/materials/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
 };
+
+// ── Academy facilitator portal ─────────────────────────────────────────
+export interface FacilitatorCourse {
+  id: string;
+  slug: string;
+  title: string;
+  image: string;
+  track: string;
+  status: string;
+  introVideoUrl: string;
+  materials: Material[];
+}
+
+export interface FacilitatorProfile {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
+  bio: string;
+}
+
+export const facilitatorApi = {
+  login: (email: string, password: string) =>
+    request<{ token: string; facilitator: { id: string; name: string; email: string } }>("/academy/facilitator/login", {
+      method: "POST", body: JSON.stringify({ email, password }),
+    }),
+
+  me: (token: string) =>
+    request<{ facilitator: FacilitatorProfile; courses: FacilitatorCourse[] }>("/academy/facilitator/me", { headers: adminHeader(token) }),
+
+  changePassword: (token: string, current: string, next: string) =>
+    request<{ ok: boolean }>("/academy/facilitator/password", {
+      method: "POST", headers: adminHeader(token), body: JSON.stringify({ current, next }),
+    }),
+
+  materialDownloadUrl: (token: string, id: string) =>
+    request<{ url: string }>(`/academy/facilitator/materials/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
+};
+
+/** Upload a file to S3 via a presigned PUT URL. */
+export async function uploadToS3(uploadUrl: string, file: File): Promise<void> {
+  const res = await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type || "application/octet-stream" } });
+  if (!res.ok) throw new Error("Upload failed. Please try again.");
+}
 
 // ── Unified account portal ─────────────────────────────────────────────
 // loopital.com is the single portal for the account-linked products

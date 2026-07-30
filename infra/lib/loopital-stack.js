@@ -5,6 +5,7 @@ const cdk = require("aws-cdk-lib");
 const ec2 = require("aws-cdk-lib/aws-ec2");
 const rds = require("aws-cdk-lib/aws-rds");
 const lambda = require("aws-cdk-lib/aws-lambda");
+const iam = require("aws-cdk-lib/aws-iam");
 const secretsmanager = require("aws-cdk-lib/aws-secretsmanager");
 const s3 = require("aws-cdk-lib/aws-s3");
 const s3deploy = require("aws-cdk-lib/aws-s3-deployment");
@@ -90,6 +91,46 @@ class LoopitalStack extends cdk.Stack {
     dbCluster.grantDataApiAccess(authFn);
     jwtSecret.grantRead(authFn);
 
+    // ── Academy materials bucket (private; browser up/downloads via presigned URLs) ──
+    // Manuals, slides, and other course files. Never public — the Lambda mints
+    // short-lived presigned PUT/GET URLs. CORS allows direct browser uploads
+    // from the site origins.
+    const materialsBucket = new s3.Bucket(this, "MaterialsBucket", {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      cors: [
+        {
+          allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET, s3.HttpMethods.HEAD],
+          allowedOrigins: [
+            "https://www.loopital.com",
+            "https://loopital.com",
+            "http://localhost:5173",
+          ],
+          allowedHeaders: ["*"],
+          exposedHeaders: ["ETag"],
+          maxAge: 3000,
+        },
+      ],
+    });
+    materialsBucket.grantReadWrite(authFn);
+    authFn.addEnvironment("MATERIALS_BUCKET", materialsBucket.bucketName);
+
+    // ── Email (SES) — used for certificates and confirmations ─────────────
+    // Permission is granted now; the sending identity (SES_FROM) must be a
+    // verified SES identity, and the account needs SES production access to
+    // reach non-verified recipients.
+    authFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["ses:SendEmail", "ses:SendRawEmail"],
+        resources: ["*"],
+      })
+    );
+    authFn.addEnvironment(
+      "SES_FROM",
+      process.env.SES_FROM || "Loopital Academy <noreply@loopital.com>"
+    );
+
     // ── HTTP API (API Gateway v2) ─────────────────────────────────────────
     const httpApi = new HttpApi(this, "HttpApi", { apiName: "loopital-api" });
     const integration = new HttpLambdaIntegration("AuthIntegration", authFn);
@@ -170,6 +211,7 @@ class LoopitalStack extends cdk.Stack {
     new cdk.CfnOutput(this, "ApiEndpoint", { value: httpApi.apiEndpoint });
     new cdk.CfnOutput(this, "ClusterArn", { value: dbCluster.clusterArn });
     new cdk.CfnOutput(this, "DbSecretArn", { value: dbCluster.secret.secretArn });
+    new cdk.CfnOutput(this, "MaterialsBucketName", { value: materialsBucket.bucketName });
   }
 }
 

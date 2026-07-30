@@ -13,6 +13,7 @@ import { AcademyPage } from "./pages/academy/AcademyPage";
 import { AcademyCoursePage } from "./pages/academy/AcademyCoursePage";
 import { AcademyApplyPage } from "./pages/academy/AcademyApplyPage";
 import { AcademyAdminPage } from "./pages/academy/AcademyAdminPage";
+import { FacilitatorPortalPage } from "./pages/academy/FacilitatorPortalPage";
 import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
       { path: "services", Component: ServicesPage },
       { path: "academy", Component: AcademyPage },
       { path: "academy/admin", Component: AcademyAdminPage },
+      { path: "academy/portal", Component: FacilitatorPortalPage },
       { path: "academy/apply/:slug", Component: AcademyApplyPage },
       { path: "academy/:slug", Component: AcademyCoursePage },
       { path: "contact", Component: ContactPage },

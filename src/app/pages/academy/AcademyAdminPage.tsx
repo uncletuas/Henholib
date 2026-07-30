@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { Link } from "react-router";
-import { Plus, Trash2, Pencil, LogOut, X, GripVertical } from "lucide-react";
+import { Plus, Trash2, Pencil, LogOut, X, GripVertical, Upload, UserPlus, KeyRound } from "lucide-react";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
-import { academyAdminApi, type AcademyApplication } from "../../lib/api";
-import { type Course, TRACKS, formatPrice, statusLabel } from "../../config/academy";
+import { academyAdminApi, uploadToS3, type AcademyApplication } from "../../lib/api";
+import { type Course, type Material, type Facilitator, TRACKS, formatPrice, statusLabel } from "../../config/academy";
 
 const TOKEN_KEY = "loopital_academy_admin";
 
@@ -106,6 +106,7 @@ interface Draft {
   format: { duration: string; cadence: string; commitment: string; delivery: string; prerequisites: string };
   priceDollars: number; currency: string; status: string; published: boolean; sortOrder: number;
   instructorName: string; instructorTitle: string; instructorBio: string;
+  introVideoUrl: string; selfPacedVideos: { title: string; url: string }[];
 }
 
 const DEFAULT_BIO =
@@ -119,6 +120,7 @@ function toDraft(c?: Course): Draft {
     format: { duration: "4 weeks", cadence: "", commitment: "", delivery: "Live online cohort", prerequisites: "None" },
     priceDollars: 100, currency: "USD", status: "coming_soon", published: true, sortOrder: 0,
     instructorName: "Tuamene Bestgod", instructorTitle: "Founder & CEO of Loopital", instructorBio: DEFAULT_BIO,
+    introVideoUrl: "", selfPacedVideos: [],
   };
   return {
     id: c.id, slug: c.slug, title: c.title, image: c.image || "", track: c.track,
@@ -133,7 +135,102 @@ function toDraft(c?: Course): Draft {
     priceDollars: (c.priceCents || 0) / 100, currency: c.currency || "USD", status: c.status,
     published: c.published, sortOrder: c.sortOrder,
     instructorName: c.instructorName, instructorTitle: c.instructorTitle, instructorBio: c.instructorBio,
+    introVideoUrl: c.introVideoUrl || "", selfPacedVideos: c.selfPacedVideos || [],
   };
+}
+
+const KB = 1024;
+function fileSize(n: number) {
+  if (!n) return "";
+  if (n < KB * KB) return `${Math.round(n / KB)} KB`;
+  return `${(n / (KB * KB)).toFixed(1)} MB`;
+}
+
+// Course materials: upload (presigned S3), list, download, delete.
+function MaterialsManager({ courseId, token }: { courseId: string; token: string }) {
+  const [materials, setMaterials] = useState<Material[] | null>(null);
+  const [title, setTitle] = useState("");
+  const [kind, setKind] = useState("manual");
+  const [studentVisible, setStudentVisible] = useState(true);
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    academyAdminApi.listMaterials(token, courseId).then((r) => setMaterials(r.materials)).catch((e) => setError(e.message));
+  }, [token, courseId]);
+  useEffect(() => { load(); }, [load]);
+
+  const upload = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!file) return setError("Choose a file first.");
+    if (!title.trim()) return setError("Give the material a title.");
+    setBusy(true);
+    try {
+      const { uploadUrl, fileKey } = await academyAdminApi.materialUploadUrl(token, { courseId, fileName: file.name, contentType: file.type || "application/octet-stream" });
+      await uploadToS3(uploadUrl, file);
+      await academyAdminApi.createMaterial(token, { courseId, title: title.trim(), kind, fileKey, fileName: file.name, contentType: file.type || "application/octet-stream", sizeBytes: file.size, studentVisible });
+      setTitle(""); setFile(null);
+      const el = document.getElementById("mat-file") as HTMLInputElement | null; if (el) el.value = "";
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const download = async (id: string) => {
+    try { const { url } = await academyAdminApi.materialDownloadUrl(token, id); window.open(url, "_blank", "noopener"); } catch (e) { setError(e instanceof Error ? e.message : "Couldn't open file."); }
+  };
+  const del = async (m: Material) => {
+    if (!window.confirm(`Delete "${m.title}"?`)) return;
+    try { await academyAdminApi.deleteMaterial(token, m.id); load(); } catch (e) { setError(e instanceof Error ? e.message : "Couldn't delete."); }
+  };
+
+  return (
+    <div className="rounded-2xl p-5" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+      <p style={{ ...label, marginBottom: "4px" }}>Training materials</p>
+      <p style={{ fontSize: "12.5px", color: colors.textTertiary, marginBottom: "14px" }}>Manuals & slides for facilitators; student-visible files download once the course is live.</p>
+
+      {materials && materials.length > 0 && (
+        <div className="flex flex-col gap-2 mb-4">
+          {materials.map((m) => (
+            <div key={m.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+              <span style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", color: colors.blue, minWidth: "54px" }}>{m.kind}</span>
+              <button type="button" onClick={() => download(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: colors.heading, fontWeight: 600, fontSize: "13.5px", textAlign: "left", flex: 1 }}>{m.title}</button>
+              <span style={{ fontSize: "12px", color: colors.textTertiary }}>{fileSize(m.sizeBytes)}</span>
+              <span title={m.studentVisible ? "Visible to students" : "Facilitators only"} style={{ fontSize: "11px", padding: "2px 8px", borderRadius: "999px", background: m.studentVisible ? `${colors.green}16` : colors.surfaceMuted, color: m.studentVisible ? colors.green : colors.textTertiary }}>{m.studentVisible ? "Students" : "Staff only"}</span>
+              <button type="button" onClick={() => del(m)} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={15} /></button>
+            </div>
+          ))}
+        </div>
+      )}
+      {materials && materials.length === 0 && <p style={{ fontSize: "13px", color: colors.textTertiary, marginBottom: "12px" }}>No materials yet.</p>}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input style={input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Material title (e.g. Week 1 Manual)" />
+        <div className="flex gap-3">
+          <select style={{ ...input, flex: 1 }} value={kind} onChange={(e) => setKind(e.target.value)}>
+            <option value="manual">Manual</option>
+            <option value="slides">Slides</option>
+            <option value="resource">Resource</option>
+          </select>
+          <label className="flex items-center gap-2 whitespace-nowrap" style={{ fontSize: "13px", color: colors.heading }}>
+            <input type="checkbox" checked={studentVisible} onChange={(e) => setStudentVisible(e.target.checked)} /> Students
+          </label>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 mt-3">
+        <input id="mat-file" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} style={{ fontSize: "13px", flex: 1 }} />
+        <button type="button" onClick={upload} disabled={busy} style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px", opacity: busy ? 0.6 : 1 }}>
+          <Upload size={15} /> {busy ? "Uploading…" : "Upload"}
+        </button>
+      </div>
+      {error && <p style={{ color: "#DC2626", fontSize: "13px", marginTop: "10px" }}>{error}</p>}
+    </div>
+  );
 }
 
 function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; token: string; onClose: () => void; onSaved: () => void }) {
@@ -158,6 +255,7 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
         priceCents: Math.round((Number(d.priceDollars) || 0) * 100),
         currency: d.currency, status: d.status as Course["status"], published: d.published, sortOrder: Number(d.sortOrder) || 0,
         instructorName: d.instructorName, instructorTitle: d.instructorTitle, instructorBio: d.instructorBio,
+        introVideoUrl: d.introVideoUrl, selfPacedVideos: d.selfPacedVideos,
       });
       onSaved();
     } catch (err) {
@@ -195,6 +293,11 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
               <input style={input} value={d.image} onChange={(e) => set("image", e.target.value)} placeholder="https://…  (leave blank for a default)" />
               {d.image && <img src={d.image} alt="" style={{ width: "56px", height: "40px", objectFit: "cover", borderRadius: "8px", border: `1px solid ${colors.hairline}` }} />}
             </div>
+          </div>
+
+          <div>
+            <label style={label}>Intro video URL <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(YouTube/Vimeo — students watch before class)</span></label>
+            <input style={input} value={d.introVideoUrl} onChange={(e) => set("introVideoUrl", e.target.value)} placeholder="https://youtu.be/…" />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -297,6 +400,12 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
             <textarea style={{ ...input, minHeight: "70px", resize: "vertical" }} value={d.instructorBio} onChange={(e) => set("instructorBio", e.target.value)} placeholder="Instructor bio" />
           </div>
 
+          {course?.id ? (
+            <MaterialsManager courseId={course.id} token={token} />
+          ) : (
+            <p style={{ fontSize: "13px", color: colors.textTertiary }}>Save the course first to upload training materials.</p>
+          )}
+
           <label className="flex items-center gap-2.5 cursor-pointer" style={{ fontSize: "14px", color: colors.heading }}>
             <input type="checkbox" checked={d.published} onChange={(e) => set("published", e.target.checked)} />
             Published (visible on the site)
@@ -315,7 +424,7 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
 
 // ── Dashboard ───────────────────────────────────────────────────────────
 function Dashboard({ token, onLogout }: { token: string; onLogout: () => void }) {
-  const [tab, setTab] = useState<"courses" | "applications" | "settings">("courses");
+  const [tab, setTab] = useState<"courses" | "facilitators" | "applications" | "settings">("courses");
   const [courses, setCourses] = useState<Course[] | null>(null);
   const [apps, setApps] = useState<AcademyApplication[] | null>(null);
   const [editing, setEditing] = useState<{ course?: Course } | null>(null);
@@ -363,6 +472,7 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
           </div>
           <div className="flex items-center gap-2">
             {tabBtn("courses", "Courses")}
+            {tabBtn("facilitators", "Facilitators")}
             {tabBtn("applications", "Applications")}
             {tabBtn("settings", "Settings")}
             <button onClick={onLogout} title="Log out" style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 14px" }}><LogOut size={15} /> Log out</button>
@@ -439,6 +549,8 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
           </>
         )}
 
+        {tab === "facilitators" && <FacilitatorsTab token={token} courses={courses} onGuard={guard} />}
+
         {tab === "settings" && <SettingsTab token={token} onLogout={onLogout} />}
       </div>
 
@@ -451,6 +563,109 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
         />
       )}
     </div>
+  );
+}
+
+function FacilitatorsTab({ token, courses, onGuard }: { token: string; courses: Course[] | null; onGuard: (e: unknown) => void }) {
+  const [list, setList] = useState<Facilitator[] | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", title: "", password: "" });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    academyAdminApi.listFacilitators(token).then((r) => setList(r.facilitators)).catch(onGuard);
+  }, [token, onGuard]);
+  useEffect(() => { load(); }, [load]);
+
+  const create = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (form.password.length < 8) return setError("Password must be at least 8 characters.");
+    setBusy(true);
+    try {
+      await academyAdminApi.createFacilitator(token, form);
+      setForm({ name: "", email: "", title: "", password: "" });
+      setAdding(false);
+      load();
+    } catch (err) { setError(err instanceof Error ? err.message : "Couldn't add facilitator."); }
+    finally { setBusy(false); }
+  };
+
+  const toggleAssign = async (f: Facilitator, courseId: string, assigned: boolean) => {
+    setList((prev) => prev?.map((x) => x.id === f.id ? { ...x, courseIds: assigned ? [...x.courseIds, courseId] : x.courseIds.filter((c) => c !== courseId) } : x) ?? prev);
+    try { await academyAdminApi.assignFacilitator(token, f.id, courseId, assigned); } catch (e) { onGuard(e); load(); }
+  };
+
+  const resetPw = async (f: Facilitator) => {
+    const pw = window.prompt(`Set a new password for ${f.name} (min 8 chars):`);
+    if (!pw) return;
+    if (pw.length < 8) { window.alert("Password must be at least 8 characters."); return; }
+    try { await academyAdminApi.setFacilitatorPassword(token, f.id, pw); window.alert("Password updated."); } catch (e) { onGuard(e); }
+  };
+
+  const del = async (f: Facilitator) => {
+    if (!window.confirm(`Remove ${f.name}? They will lose portal access.`)) return;
+    try { await academyAdminApi.deleteFacilitator(token, f.id); load(); } catch (e) { onGuard(e); }
+  };
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-2">
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Facilitators {list && <span style={{ color: colors.textTertiary, fontWeight: 500 }}>({list.length})</span>}</h2>
+        <button onClick={() => setAdding((v) => !v)} style={{ ...btnPrimary, display: "inline-flex", alignItems: "center", gap: "6px" }}><UserPlus size={16} /> Add facilitator</button>
+      </div>
+      <p style={{ color: colors.textSecondary, fontSize: "14px", marginBottom: "22px" }}>Onboard trainers and assign them to courses. They sign in at <strong>/academy/portal</strong> to access their training materials.</p>
+
+      {adding && (
+        <form onSubmit={create} className="rounded-2xl p-5 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>
+          <div><label style={label}>Name</label><input style={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
+          <div><label style={label}>Email</label><input type="email" style={input} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></div>
+          <div><label style={label}>Title <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(optional)</span></label><input style={input} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Lead Facilitator" /></div>
+          <div><label style={label}>Temporary password</label><input style={input} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="They can change it after login" required /></div>
+          {error && <p style={{ color: "#DC2626", fontSize: "13.5px" }} className="sm:col-span-2">{error}</p>}
+          <div className="sm:col-span-2 flex justify-end gap-3">
+            <button type="button" onClick={() => setAdding(false)} style={btnGhost}>Cancel</button>
+            <button type="submit" disabled={busy} style={{ ...btnPrimary, opacity: busy ? 0.6 : 1 }}>{busy ? "Adding…" : "Add facilitator"}</button>
+          </div>
+        </form>
+      )}
+
+      {!list ? <p style={{ color: colors.textTertiary }}>Loading…</p> : list.length === 0 ? (
+        <p style={{ color: colors.textTertiary }}>No facilitators yet. Add your first trainer above.</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {list.map((f) => (
+            <div key={f.id} className="rounded-2xl px-5 py-4" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex-1 min-w-[200px]">
+                  <span style={{ fontWeight: 700, color: colors.heading, fontSize: "15px" }}>{f.name}</span>
+                  {f.title && <span style={{ fontSize: "12.5px", color: colors.textTertiary }}> · {f.title}</span>}
+                  <p style={{ fontSize: "13px", color: colors.textSecondary }}>{f.email}</p>
+                </div>
+                <button onClick={() => resetPw(f)} title="Reset password" style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "5px", padding: "7px 12px", fontSize: "13px" }}><KeyRound size={14} /> Password</button>
+                <button onClick={() => del(f)} title="Remove" style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626", padding: "6px" }}><Trash2 size={17} /></button>
+              </div>
+              <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${colors.hairline}` }}>
+                <p style={{ fontSize: "12px", fontWeight: 600, color: colors.textTertiary, marginBottom: "8px" }}>ASSIGNED COURSES</p>
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  {(courses ?? []).map((c) => {
+                    const on = f.courseIds.includes(c.id);
+                    return (
+                      <label key={c.id} className="flex items-center gap-2 cursor-pointer" style={{ fontSize: "13.5px", color: on ? colors.heading : colors.textSecondary }}>
+                        <input type="checkbox" checked={on} onChange={(e) => toggleAssign(f, c.id, e.target.checked)} />
+                        {c.title}
+                      </label>
+                    );
+                  })}
+                  {(!courses || courses.length === 0) && <span style={{ fontSize: "13px", color: colors.textTertiary }}>Create courses first to assign them.</span>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 

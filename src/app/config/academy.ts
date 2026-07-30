@@ -44,6 +44,33 @@ export interface Course {
   instructorName: string;
   instructorTitle: string;
   instructorBio: string;
+  introVideoUrl: string;
+  selfPacedVideos: { title: string; url: string }[];
+}
+
+export interface Facilitator {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
+  bio: string;
+  active: boolean;
+  courseIds: string[];
+  createdAt: string;
+}
+
+export type MaterialKind = "manual" | "slides" | "resource";
+
+export interface Material {
+  id: string;
+  courseId: string;
+  title: string;
+  kind: MaterialKind;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  studentVisible: boolean;
+  createdAt: string;
 }
 
 export interface TrackMeta {

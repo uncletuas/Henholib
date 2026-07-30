@@ -33,13 +33,21 @@ const {
   SecretsManagerClient,
   GetSecretValueCommand,
 } = require("@aws-sdk/client-secrets-manager");
+const {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const rds = new RDSDataClient({});
 const sm = new SecretsManagerClient({});
+const s3 = new S3Client({});
 
-const { CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN } = process.env;
+const { CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN, MATERIALS_BUCKET } = process.env;
 const TOKEN_TTL = "7d";
 
 let cachedJwtSecret;
@@ -346,11 +354,13 @@ function courseOut(row) {
     instructorName: row.instructor_name || "",
     instructorTitle: row.instructor_title || "",
     instructorBio: row.instructor_bio || "",
+    introVideoUrl: row.intro_video_url || "",
+    selfPacedVideos: parseJsonField(row.self_paced_videos, []),
   };
 }
 
 const COURSE_COLS =
-  "id, slug, title, image, track, course_type, delivery_mode, short_desc, full_desc, who_for, curriculum, format, price_cents, currency, status, published, sort_order, instructor_name, instructor_title, instructor_bio";
+  "id, slug, title, image, track, course_type, delivery_mode, short_desc, full_desc, who_for, curriculum, format, price_cents, currency, status, published, sort_order, instructor_name, instructor_title, instructor_bio, intro_video_url, self_paced_videos";
 
 async function listCourses() {
   const rows = await sql(
@@ -478,6 +488,8 @@ function courseParams(body) {
     instructor_name: (body.instructorName || "").trim() || null,
     instructor_title: (body.instructorTitle || "").trim() || null,
     instructor_bio: (body.instructorBio || "").trim() || null,
+    intro_video_url: (body.introVideoUrl || "").trim() || null,
+    self_paced_videos: JSON.stringify(Array.isArray(body.selfPacedVideos) ? body.selfPacedVideos : []),
   };
 }
 
@@ -497,7 +509,8 @@ async function adminSaveCourse(headers, body) {
          price_cents = :price_cents::int, currency = :currency, status = :status,
          published = :published::boolean, sort_order = :sort_order::int,
          instructor_name = :instructor_name, instructor_title = :instructor_title,
-         instructor_bio = :instructor_bio, updated_at = now()
+         instructor_bio = :instructor_bio, intro_video_url = :intro_video_url,
+         self_paced_videos = :self_paced_videos, updated_at = now()
        WHERE id = :id::uuid
        RETURNING ${COURSE_COLS}`,
       { ...p, id: body.id }
@@ -510,11 +523,11 @@ async function adminSaveCourse(headers, body) {
     `INSERT INTO academy_courses
        (slug, title, image, track, course_type, delivery_mode, short_desc, full_desc, who_for, curriculum, format,
         price_cents, currency, status, published, sort_order,
-        instructor_name, instructor_title, instructor_bio)
+        instructor_name, instructor_title, instructor_bio, intro_video_url, self_paced_videos)
      VALUES
        (:slug, :title, :image, :track, :course_type, :delivery_mode, :short_desc, :full_desc, :who_for, :curriculum, :format,
         :price_cents::int, :currency, :status, :published::boolean, :sort_order::int,
-        :instructor_name, :instructor_title, :instructor_bio)
+        :instructor_name, :instructor_title, :instructor_bio, :intro_video_url, :self_paced_videos)
      ON CONFLICT (slug) DO NOTHING
      RETURNING ${COURSE_COLS}`,
     p
@@ -550,11 +563,242 @@ async function adminListApplications(headers) {
   return json(200, { applications });
 }
 
+// ── Academy LMS: facilitators & course materials ───────────────────────────
+
+function materialOut(r) {
+  return {
+    id: r.id,
+    courseId: r.course_id,
+    title: r.title,
+    kind: r.kind,
+    fileName: r.file_name || "",
+    contentType: r.content_type || "",
+    sizeBytes: Number(r.size_bytes) || 0,
+    studentVisible: r.student_visible === true || r.student_visible === "true",
+    createdAt: r.created_at,
+  };
+}
+
+const MATERIAL_COLS =
+  "id, course_id, title, kind, file_key, file_name, content_type, size_bytes, student_visible, created_at";
+
+async function presignPut(key, contentType) {
+  const cmd = new PutObjectCommand({ Bucket: MATERIALS_BUCKET, Key: key, ContentType: contentType });
+  return getSignedUrl(s3, cmd, { expiresIn: 300 });
+}
+async function presignGet(key, fileName) {
+  const cmd = new GetObjectCommand({
+    Bucket: MATERIALS_BUCKET,
+    Key: key,
+    ResponseContentDisposition: `attachment; filename="${String(fileName || "download").replace(/["\\]/g, "")}"`,
+  });
+  return getSignedUrl(s3, cmd, { expiresIn: 300 });
+}
+
+// Verify a facilitator token (distinct from admin/user/student tokens).
+async function facilitatorAuth(headers) {
+  const p = await authenticate(headers);
+  if (!p || p.role !== "facilitator") return null;
+  return p;
+}
+
+// ---- Admin: facilitators ----
+async function adminListFacilitators(headers) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  const rows = await sql(
+    `SELECT f.id, f.name, f.email, f.title, f.bio, f.active, f.created_at,
+            COALESCE(json_agg(cf.course_id) FILTER (WHERE cf.course_id IS NOT NULL), '[]') AS course_ids
+       FROM academy_facilitators f
+       LEFT JOIN academy_course_facilitators cf ON cf.facilitator_id = f.id
+      GROUP BY f.id
+      ORDER BY f.created_at DESC`
+  );
+  const facilitators = rows.map((r) => ({
+    id: r.id, name: r.name, email: r.email, title: r.title || "", bio: r.bio || "",
+    active: r.active === true || r.active === "true",
+    courseIds: parseJsonField(r.course_ids, []),
+    createdAt: r.created_at,
+  }));
+  return json(200, { facilitators });
+}
+
+async function adminCreateFacilitator(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  const name = (body.name || "").trim();
+  const email = (body.email || "").trim().toLowerCase();
+  const password = body.password || "";
+  const title = (body.title || "").trim() || null;
+  const bio = (body.bio || "").trim() || null;
+  if (!name) return json(400, { error: "Name is required." });
+  if (!EMAIL_RE.test(email)) return json(400, { error: "A valid email is required." });
+  if (password.length < 8) return json(400, { error: "Password must be at least 8 characters." });
+  const existing = await sql("SELECT id FROM academy_facilitators WHERE email = :email", { email });
+  if (existing.length) return json(409, { error: "A facilitator with that email already exists." });
+  const hash = await bcrypt.hash(password, 10);
+  const rows = await sql(
+    `INSERT INTO academy_facilitators (name, email, password_hash, title, bio)
+     VALUES (:name, :email, :hash, :title, :bio)
+     RETURNING id, name, email, title, bio, active, created_at`,
+    { name, email, hash, title, bio }
+  );
+  const r = rows[0];
+  return json(201, { facilitator: { id: r.id, name: r.name, email: r.email, title: r.title || "", bio: r.bio || "", active: true, courseIds: [], createdAt: r.created_at } });
+}
+
+async function adminDeleteFacilitator(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.id) return json(400, { error: "Missing id." });
+  await sql("DELETE FROM academy_facilitators WHERE id = :id::uuid", { id: body.id });
+  return json(200, { ok: true });
+}
+
+async function adminAssignFacilitator(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  const { facilitatorId, courseId } = body;
+  if (!facilitatorId || !courseId) return json(400, { error: "Missing ids." });
+  if (body.assigned === false) {
+    await sql("DELETE FROM academy_course_facilitators WHERE facilitator_id = :f::uuid AND course_id = :c::uuid", { f: facilitatorId, c: courseId });
+  } else {
+    await sql("INSERT INTO academy_course_facilitators (course_id, facilitator_id) VALUES (:c::uuid, :f::uuid) ON CONFLICT DO NOTHING", { c: courseId, f: facilitatorId });
+  }
+  return json(200, { ok: true });
+}
+
+async function adminSetFacilitatorPassword(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.id || (body.password || "").length < 8) return json(400, { error: "Password must be at least 8 characters." });
+  const hash = await bcrypt.hash(body.password, 10);
+  await sql("UPDATE academy_facilitators SET password_hash = :h WHERE id = :id::uuid", { h: hash, id: body.id });
+  return json(200, { ok: true });
+}
+
+// ---- Admin: materials ----
+async function adminMaterialUploadUrl(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  const courseId = body.courseId;
+  if (!courseId) return json(400, { error: "Missing course." });
+  const safe = String(body.fileName || "file").replace(/[^\w.\-]+/g, "_").slice(0, 120);
+  const key = `materials/${courseId}/${Date.now()}-${safe}`;
+  const uploadUrl = await presignPut(key, body.contentType || "application/octet-stream");
+  return json(200, { uploadUrl, fileKey: key });
+}
+
+async function adminCreateMaterial(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  const courseId = body.courseId;
+  const title = (body.title || "").trim();
+  const fileKey = body.fileKey;
+  if (!courseId || !fileKey || !title) return json(400, { error: "Missing course, title, or file." });
+  const kind = ["manual", "slides", "resource"].includes(body.kind) ? body.kind : "manual";
+  const rows = await sql(
+    `INSERT INTO academy_materials (course_id, title, kind, file_key, file_name, content_type, size_bytes, student_visible)
+     VALUES (:courseId::uuid, :title, :kind, :fileKey, :fileName, :contentType, :size::bigint, :vis::boolean)
+     RETURNING ${MATERIAL_COLS}`,
+    { courseId, title, kind, fileKey, fileName: body.fileName || null, contentType: body.contentType || null, size: Number(body.sizeBytes) || 0, vis: body.studentVisible === false ? false : true }
+  );
+  return json(201, { material: materialOut(rows[0]) });
+}
+
+async function adminListMaterials(headers, courseId) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  const rows = await sql(`SELECT ${MATERIAL_COLS} FROM academy_materials WHERE course_id = :c::uuid ORDER BY created_at`, { c: courseId });
+  return json(200, { materials: rows.map(materialOut) });
+}
+
+async function adminDeleteMaterial(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.id) return json(400, { error: "Missing id." });
+  const rows = await sql("SELECT file_key FROM academy_materials WHERE id = :id::uuid", { id: body.id });
+  if (rows.length) {
+    try { await s3.send(new DeleteObjectCommand({ Bucket: MATERIALS_BUCKET, Key: rows[0].file_key })); } catch (_) { /* ignore */ }
+  }
+  await sql("DELETE FROM academy_materials WHERE id = :id::uuid", { id: body.id });
+  return json(200, { ok: true });
+}
+
+async function adminMaterialDownloadUrl(headers, id) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!id) return json(400, { error: "Missing id." });
+  const rows = await sql("SELECT file_key, file_name FROM academy_materials WHERE id = :id::uuid", { id });
+  if (!rows.length) return json(404, { error: "Not found." });
+  return json(200, { url: await presignGet(rows[0].file_key, rows[0].file_name) });
+}
+
+// ---- Facilitator portal ----
+async function facilitatorLogin(body) {
+  const email = (body.email || "").trim().toLowerCase();
+  const password = body.password || "";
+  const rows = await sql("SELECT id, name, email, password_hash, active FROM academy_facilitators WHERE email = :email", { email });
+  if (!rows.length) return json(401, { error: "Invalid email or password." });
+  if (!(rows[0].active === true || rows[0].active === "true")) return json(403, { error: "This account is inactive." });
+  const ok = await bcrypt.compare(password, rows[0].password_hash);
+  if (!ok) return json(401, { error: "Invalid email or password." });
+  const secret = await getJwtSecret();
+  const token = jwt.sign({ role: "facilitator", sub: rows[0].id, email: rows[0].email }, secret, { expiresIn: ADMIN_TOKEN_TTL });
+  return json(200, { token, facilitator: { id: rows[0].id, name: rows[0].name, email: rows[0].email } });
+}
+
+async function facilitatorMe(headers) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  const prof = await sql("SELECT id, name, email, title, bio FROM academy_facilitators WHERE id = :id::uuid", { id: p.sub });
+  if (!prof.length) return json(401, { error: "Account not found." });
+  const courses = await sql(
+    `SELECT c.id, c.slug, c.title, c.image, c.track, c.status, c.intro_video_url
+       FROM academy_courses c
+       JOIN academy_course_facilitators cf ON cf.course_id = c.id
+      WHERE cf.facilitator_id = :id::uuid
+      ORDER BY c.sort_order, c.title`,
+    { id: p.sub }
+  );
+  const courseList = [];
+  for (const c of courses) {
+    const mats = await sql(`SELECT ${MATERIAL_COLS} FROM academy_materials WHERE course_id = :c::uuid ORDER BY created_at`, { c: c.id });
+    courseList.push({
+      id: c.id, slug: c.slug, title: c.title, image: c.image || "", track: c.track, status: c.status,
+      introVideoUrl: c.intro_video_url || "", materials: mats.map(materialOut),
+    });
+  }
+  const f = prof[0];
+  return json(200, { facilitator: { id: f.id, name: f.name, email: f.email, title: f.title || "", bio: f.bio || "" }, courses: courseList });
+}
+
+async function facilitatorMaterialDownloadUrl(headers, id) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  if (!id) return json(400, { error: "Missing id." });
+  const rows = await sql(
+    `SELECT m.file_key, m.file_name
+       FROM academy_materials m
+       JOIN academy_course_facilitators cf ON cf.course_id = m.course_id
+      WHERE m.id = :id::uuid AND cf.facilitator_id = :f::uuid`,
+    { id, f: p.sub }
+  );
+  if (!rows.length) return json(404, { error: "Not found." });
+  return json(200, { url: await presignGet(rows[0].file_key, rows[0].file_name) });
+}
+
+async function facilitatorChangePassword(headers, body) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  const rows = await sql("SELECT password_hash FROM academy_facilitators WHERE id = :id::uuid", { id: p.sub });
+  if (!rows.length) return json(404, { error: "Not found." });
+  const ok = await bcrypt.compare(body.current || "", rows[0].password_hash);
+  if (!ok) return json(401, { error: "Current password is incorrect." });
+  if ((body.next || "").length < 8) return json(400, { error: "New password must be at least 8 characters." });
+  const hash = await bcrypt.hash(body.next, 10);
+  await sql("UPDATE academy_facilitators SET password_hash = :h WHERE id = :id::uuid", { h: hash, id: p.sub });
+  return json(200, { ok: true });
+}
+
 exports.handler = async (event) => {
   const method =
     event.requestContext?.http?.method || event.httpMethod || "GET";
   const path = event.rawPath || event.path || "";
   const route = path.replace(/^\/api/, "") || "/";
+  const query = event.queryStringParameters || {};
+  const qs = (k) => (query ? query[k] : undefined);
 
   if (method === "OPTIONS") return json(204, {});
 
@@ -597,6 +841,26 @@ exports.handler = async (event) => {
     if (method === "POST" && route === "/academy/admin/courses/delete") return await adminDeleteCourse(headers, body);
     if (method === "POST" && route === "/academy/admin/courses") return await adminSaveCourse(headers, body);
     if (method === "GET" && route === "/academy/admin/applications") return await adminListApplications(headers);
+
+    // Academy — admin: facilitators
+    if (method === "GET" && route === "/academy/admin/facilitators") return await adminListFacilitators(headers);
+    if (method === "POST" && route === "/academy/admin/facilitators/delete") return await adminDeleteFacilitator(headers, body);
+    if (method === "POST" && route === "/academy/admin/facilitators/assign") return await adminAssignFacilitator(headers, body);
+    if (method === "POST" && route === "/academy/admin/facilitators/password") return await adminSetFacilitatorPassword(headers, body);
+    if (method === "POST" && route === "/academy/admin/facilitators") return await adminCreateFacilitator(headers, body);
+
+    // Academy — admin: materials
+    if (method === "POST" && route === "/academy/admin/materials/upload-url") return await adminMaterialUploadUrl(headers, body);
+    if (method === "POST" && route === "/academy/admin/materials/delete") return await adminDeleteMaterial(headers, body);
+    if (method === "GET" && route === "/academy/admin/materials/download") return await adminMaterialDownloadUrl(headers, qs("id"));
+    if (method === "GET" && route === "/academy/admin/materials") return await adminListMaterials(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/admin/materials") return await adminCreateMaterial(headers, body);
+
+    // Academy — facilitator portal
+    if (method === "POST" && route === "/academy/facilitator/login") return await facilitatorLogin(body);
+    if (method === "GET" && route === "/academy/facilitator/me") return await facilitatorMe(headers);
+    if (method === "POST" && route === "/academy/facilitator/password") return await facilitatorChangePassword(headers, body);
+    if (method === "GET" && route === "/academy/facilitator/materials/download") return await facilitatorMaterialDownloadUrl(headers, qs("id"));
 
     return json(404, { error: "Not found." });
   } catch (err) {

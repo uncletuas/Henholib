@@ -147,6 +147,86 @@ const statements = [
      password_hash TEXT NOT NULL,
      updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
    )`,
+
+  // ── Academy LMS: facilitators, materials, enrolments, sessions, certs ──
+  // Facilitators (trainers) enrolled by the admin. They log into their own
+  // portal to access the training materials for the courses they're assigned.
+  `CREATE TABLE IF NOT EXISTS academy_facilitators (
+     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     name          TEXT NOT NULL,
+     email         TEXT NOT NULL UNIQUE,
+     password_hash TEXT NOT NULL,
+     title         TEXT,
+     bio           TEXT,
+     active        BOOLEAN NOT NULL DEFAULT true,
+     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE TABLE IF NOT EXISTS academy_course_facilitators (
+     course_id      UUID NOT NULL REFERENCES academy_courses (id) ON DELETE CASCADE,
+     facilitator_id UUID NOT NULL REFERENCES academy_facilitators (id) ON DELETE CASCADE,
+     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+     PRIMARY KEY (course_id, facilitator_id)
+   )`,
+
+  // Course materials (manuals, slides, resources) uploaded by the admin to the
+  // private materials bucket. student_visible gates student downloads.
+  `CREATE TABLE IF NOT EXISTS academy_materials (
+     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_id       UUID NOT NULL REFERENCES academy_courses (id) ON DELETE CASCADE,
+     title           TEXT NOT NULL,
+     kind            TEXT NOT NULL DEFAULT 'manual'
+                       CHECK (kind IN ('manual','slides','resource')),
+     file_key        TEXT NOT NULL,
+     file_name       TEXT,
+     content_type    TEXT,
+     size_bytes      BIGINT,
+     student_visible BOOLEAN NOT NULL DEFAULT true,
+     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_materials_course_idx ON academy_materials (course_id)`,
+
+  // Student enrolments (student accounts reuse the existing users table).
+  `CREATE TABLE IF NOT EXISTS academy_enrollments (
+     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_id    UUID NOT NULL REFERENCES academy_courses (id) ON DELETE CASCADE,
+     user_id      UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     status       TEXT NOT NULL DEFAULT 'active'
+                    CHECK (status IN ('active','completed','withdrawn')),
+     progress     INTEGER NOT NULL DEFAULT 0,
+     completed_at TIMESTAMPTZ,
+     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+     UNIQUE (course_id, user_id)
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_enrollments_user_idx ON academy_enrollments (user_id)`,
+
+  // Scheduled sessions for the course calendar.
+  `CREATE TABLE IF NOT EXISTS academy_sessions (
+     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_id  UUID NOT NULL REFERENCES academy_courses (id) ON DELETE CASCADE,
+     title      TEXT,
+     starts_at  TIMESTAMPTZ NOT NULL,
+     ends_at    TIMESTAMPTZ,
+     location   TEXT,
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_sessions_course_idx ON academy_sessions (course_id)`,
+
+  // Issued certificates (generated as PDF + emailed on completion).
+  `CREATE TABLE IF NOT EXISTS academy_certificates (
+     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_id     UUID REFERENCES academy_courses (id) ON DELETE SET NULL,
+     user_id       UUID REFERENCES users (id) ON DELETE SET NULL,
+     student_name  TEXT NOT NULL,
+     student_email TEXT NOT NULL,
+     course_title  TEXT,
+     serial        TEXT NOT NULL UNIQUE,
+     issued_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+
+  // Course-level media added later: intro video (watched before class) and a
+  // list of self-paced videos (Coursera-style, tutor-optional).
+  `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS intro_video_url TEXT`,
+  `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS self_paced_videos TEXT`,
 ];
 
 async function run() {
