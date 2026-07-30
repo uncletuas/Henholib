@@ -329,7 +329,10 @@ function courseOut(row) {
     id: row.id,
     slug: row.slug,
     title: row.title,
+    image: row.image || "",
     track: row.track,
+    courseType: row.course_type || "live",
+    deliveryMode: row.delivery_mode || "online",
     shortDesc: row.short_desc || "",
     fullDesc: row.full_desc || "",
     whoFor: parseJsonField(row.who_for, []),
@@ -347,7 +350,7 @@ function courseOut(row) {
 }
 
 const COURSE_COLS =
-  "id, slug, title, track, short_desc, full_desc, who_for, curriculum, format, price_cents, currency, status, published, sort_order, instructor_name, instructor_title, instructor_bio";
+  "id, slug, title, image, track, course_type, delivery_mode, short_desc, full_desc, who_for, curriculum, format, price_cents, currency, status, published, sort_order, instructor_name, instructor_title, instructor_bio";
 
 async function listCourses() {
   const rows = await sql(
@@ -458,7 +461,10 @@ function courseParams(body) {
   return {
     slug,
     title: (body.title || "").trim(),
+    image: (body.image || "").trim() || null,
     track: ["technical", "business", "public"].includes(body.track) ? body.track : "technical",
+    course_type: body.courseType === "self_paced" ? "self_paced" : "live",
+    delivery_mode: ["online", "in_house", "both"].includes(body.deliveryMode) ? body.deliveryMode : "online",
     short_desc: (body.shortDesc || "").trim() || null,
     full_desc: (body.fullDesc || "").trim() || null,
     who_for: JSON.stringify(Array.isArray(body.whoFor) ? body.whoFor : []),
@@ -484,8 +490,10 @@ async function adminSaveCourse(headers, body) {
   if (body.id) {
     const rows = await sql(
       `UPDATE academy_courses SET
-         slug = :slug, title = :title, track = :track, short_desc = :short_desc,
-         full_desc = :full_desc, who_for = :who_for, curriculum = :curriculum, format = :format,
+         slug = :slug, title = :title, image = :image, track = :track,
+         course_type = :course_type, delivery_mode = :delivery_mode,
+         short_desc = :short_desc, full_desc = :full_desc, who_for = :who_for,
+         curriculum = :curriculum, format = :format,
          price_cents = :price_cents::int, currency = :currency, status = :status,
          published = :published::boolean, sort_order = :sort_order::int,
          instructor_name = :instructor_name, instructor_title = :instructor_title,
@@ -500,11 +508,11 @@ async function adminSaveCourse(headers, body) {
 
   const rows = await sql(
     `INSERT INTO academy_courses
-       (slug, title, track, short_desc, full_desc, who_for, curriculum, format,
+       (slug, title, image, track, course_type, delivery_mode, short_desc, full_desc, who_for, curriculum, format,
         price_cents, currency, status, published, sort_order,
         instructor_name, instructor_title, instructor_bio)
      VALUES
-       (:slug, :title, :track, :short_desc, :full_desc, :who_for, :curriculum, :format,
+       (:slug, :title, :image, :track, :course_type, :delivery_mode, :short_desc, :full_desc, :who_for, :curriculum, :format,
         :price_cents::int, :currency, :status, :published::boolean, :sort_order::int,
         :instructor_name, :instructor_title, :instructor_bio)
      ON CONFLICT (slug) DO NOTHING

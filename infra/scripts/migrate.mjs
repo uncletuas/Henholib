@@ -101,6 +101,7 @@ const statements = [
      id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
      slug             TEXT NOT NULL UNIQUE,
      title            TEXT NOT NULL,
+     image            TEXT,
      track            TEXT NOT NULL DEFAULT 'technical',
      short_desc       TEXT,
      full_desc        TEXT,
@@ -120,6 +121,10 @@ const statements = [
      updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
    )`,
   `CREATE INDEX IF NOT EXISTS academy_courses_track_idx ON academy_courses (track)`,
+  // Additive columns for existing installs (no-op when already present).
+  `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS image TEXT`,
+  `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS course_type TEXT NOT NULL DEFAULT 'live'`,
+  `ALTER TABLE academy_courses ADD COLUMN IF NOT EXISTS delivery_mode TEXT NOT NULL DEFAULT 'online'`,
 
   // Applications / expressions of interest submitted from a course page.
   `CREATE TABLE IF NOT EXISTS academy_applications (

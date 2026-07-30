@@ -3,7 +3,7 @@
 // place and unknown paths (404s) default to noindex.
 
 import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd, academyLd, courseLd } from "./structured-data";
-import { FOUNDER_IMAGE } from "./site";
+import { FOUNDER_IMAGE, FOUNDER_SOCIALS } from "./site";
 
 export interface PageSeo {
   title: string;
@@ -200,6 +200,7 @@ export const pageSeo: Record<string, PageSeo> = {
         alumniOf: "Rivers State University",
         homeLocation: "Rivers State, Nigeria",
         knowsAbout: ["Artificial Intelligence", "Software Engineering", "Healthcare Technology", "Leadership", "Public Policy", "Innovation"],
+        sameAs: FOUNDER_SOCIALS.map((s) => s.href),
       }),
       breadcrumbLd([
         { name: "Home", path: "/" },

@@ -25,8 +25,17 @@ export const API_BASE_URL = (
 
 // Founder portrait, used on the founder profile page and Academy instructor
 // blocks. Swap this single constant (and the file in /public) to change it
-// everywhere. Currently an on-brand monogram; replace with a raster headshot.
-export const FOUNDER_IMAGE = "/tuamene.svg";
+// everywhere.
+export const FOUNDER_IMAGE = "/tuamene.jpg";
+
+// Founder social profiles (order defines display order).
+export const FOUNDER_SOCIALS = [
+  { network: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/in/tuamene-bestgod" },
+  { network: "x", label: "X", href: "https://x.com/BTuamene" },
+  { network: "instagram", label: "Instagram", href: "https://www.instagram.com/btuamene" },
+  { network: "facebook", label: "Facebook", href: "https://facebook.com/bestgod.tuamene" },
+  { network: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@btuamene" },
+] as const;
 
 export const CONTACT_EMAIL = "contact@loopital.com";
 export const COMPANY_ADDRESS =

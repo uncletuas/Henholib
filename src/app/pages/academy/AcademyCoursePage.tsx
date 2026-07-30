@@ -10,7 +10,7 @@ import type { Testimonial } from "../../components/academy/Testimonials";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { academyApi } from "../../lib/api";
 import { FOUNDER_IMAGE } from "../../config/site";
-import { type Course, formatPrice, statusLabel, trackMeta } from "../../config/academy";
+import { type Course, FALLBACK_COURSE_IMAGE, formatPrice, statusLabel, courseTypeLabel, deliveryLabel, trackMeta } from "../../config/academy";
 
 export function AcademyCoursePage() {
   const { slug = "" } = useParams();
@@ -69,9 +69,15 @@ export function AcademyCoursePage() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-12 items-start">
               <div>
-                <div className="flex items-center gap-2.5 mb-5">
+                <div className="flex flex-wrap items-center gap-2.5 mb-5">
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={enrolling ? { background: `${colors.green}16`, color: colors.green } : { background: colors.surfaceMuted, color: colors.textTertiary }}>
                     {statusLabel(course.status)}
+                  </span>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${accent}12`, color: accent }}>
+                    {courseTypeLabel(course.courseType)}
+                  </span>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: colors.surfaceMuted, color: colors.textSecondary }}>
+                    {deliveryLabel(course.deliveryMode)}
                   </span>
                 </div>
                 <h1 style={{ fontSize: "clamp(2.2rem,4.4vw,3.4rem)", fontWeight: 800, letterSpacing: "-0.035em", lineHeight: 1.06, marginBottom: "18px" }}>
@@ -110,6 +116,15 @@ export function AcademyCoursePage() {
           </Reveal>
         </div>
       </section>
+
+      {/* ── COVER ── */}
+      <div className="max-w-7xl mx-auto px-6" style={{ marginTop: "-6px", marginBottom: "clamp(8px,3vw,32px)" }}>
+        <Reveal from="none">
+          <div className="rounded-[28px] overflow-hidden" style={{ aspectRatio: "21/8", boxShadow: shadow.md, border: `1px solid ${colors.hairline}` }}>
+            <ImageWithFallback src={course.image || FALLBACK_COURSE_IMAGE} alt={course.title} className="w-full h-full object-cover" />
+          </div>
+        </Reveal>
+      </div>
 
       {/* ── OVERVIEW + WHO FOR ── */}
       <Section background={colors.surface} pad="lg">

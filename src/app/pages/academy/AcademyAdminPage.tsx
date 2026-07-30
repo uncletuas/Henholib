@@ -99,7 +99,8 @@ function AdminAuth({ onToken }: { onToken: (t: string) => void }) {
 // ── Course editor ───────────────────────────────────────────────────────
 interface Draft {
   id?: string;
-  slug: string; title: string; track: string;
+  slug: string; title: string; image: string; track: string;
+  courseType: string; deliveryMode: string;
   shortDesc: string; fullDesc: string; whoForText: string;
   curriculum: { week: number; title: string; desc: string }[];
   format: { duration: string; cadence: string; commitment: string; delivery: string; prerequisites: string };
@@ -112,14 +113,17 @@ const DEFAULT_BIO =
 
 function toDraft(c?: Course): Draft {
   if (!c) return {
-    slug: "", title: "", track: "technical", shortDesc: "", fullDesc: "", whoForText: "",
+    slug: "", title: "", image: "", track: "technical", courseType: "live", deliveryMode: "online",
+    shortDesc: "", fullDesc: "", whoForText: "",
     curriculum: [{ week: 1, title: "", desc: "" }],
     format: { duration: "4 weeks", cadence: "", commitment: "", delivery: "Live online cohort", prerequisites: "None" },
     priceDollars: 100, currency: "USD", status: "coming_soon", published: true, sortOrder: 0,
     instructorName: "Tuamene Bestgod", instructorTitle: "Founder & CEO of Loopital", instructorBio: DEFAULT_BIO,
   };
   return {
-    id: c.id, slug: c.slug, title: c.title, track: c.track, shortDesc: c.shortDesc, fullDesc: c.fullDesc,
+    id: c.id, slug: c.slug, title: c.title, image: c.image || "", track: c.track,
+    courseType: c.courseType || "live", deliveryMode: c.deliveryMode || "online",
+    shortDesc: c.shortDesc, fullDesc: c.fullDesc,
     whoForText: (c.whoFor || []).join("\n"),
     curriculum: c.curriculum?.length ? c.curriculum.map((w) => ({ week: w.week, title: w.title, desc: w.desc })) : [{ week: 1, title: "", desc: "" }],
     format: {
@@ -145,7 +149,8 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
     try {
       await academyAdminApi.saveCourse(token, {
         id: d.id,
-        slug: d.slug, title: d.title, track: d.track as Course["track"],
+        slug: d.slug, title: d.title, image: d.image, track: d.track as Course["track"],
+        courseType: d.courseType as Course["courseType"], deliveryMode: d.deliveryMode as Course["deliveryMode"],
         shortDesc: d.shortDesc, fullDesc: d.fullDesc,
         whoFor: d.whoForText.split("\n").map((s) => s.trim()).filter(Boolean),
         curriculum: d.curriculum.map((w, i) => ({ week: Number(w.week) || i + 1, title: w.title.trim(), desc: w.desc.trim() })).filter((w) => w.title || w.desc),
@@ -184,13 +189,39 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <label style={label}>Cover image URL</label>
+            <div className="flex items-center gap-3">
+              <input style={input} value={d.image} onChange={(e) => set("image", e.target.value)} placeholder="https://…  (leave blank for a default)" />
+              {d.image && <img src={d.image} alt="" style={{ width: "56px", height: "40px", objectFit: "cover", borderRadius: "8px", border: `1px solid ${colors.hairline}` }} />}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
               <label style={label}>Track</label>
               <select style={input} value={d.track} onChange={(e) => set("track", e.target.value)}>
                 {TRACKS.map((t) => <option key={t.key} value={t.key}>{t.name}</option>)}
               </select>
             </div>
+            <div>
+              <label style={label}>Course type</label>
+              <select style={input} value={d.courseType} onChange={(e) => set("courseType", e.target.value)}>
+                <option value="live">Live cohort (tutor-led)</option>
+                <option value="self_paced">Self-paced (video)</option>
+              </select>
+            </div>
+            <div>
+              <label style={label}>Delivery</label>
+              <select style={input} value={d.deliveryMode} onChange={(e) => set("deliveryMode", e.target.value)}>
+                <option value="online">Online</option>
+                <option value="in_house">In-house</option>
+                <option value="both">Online or in-house</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
               <label style={label}>Price ({d.currency})</label>
               <input type="number" min="0" step="1" style={input} value={d.priceDollars} onChange={(e) => set("priceDollars", Number(e.target.value))} />

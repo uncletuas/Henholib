@@ -6,6 +6,8 @@ import { colors } from "../lib/brand";
 
 export type TrackKey = "technical" | "business" | "public";
 export type CourseStatus = "enrolling" | "coming_soon";
+export type CourseType = "live" | "self_paced";
+export type DeliveryMode = "online" | "in_house" | "both";
 
 export interface CourseWeek {
   week: number;
@@ -25,7 +27,10 @@ export interface Course {
   id: string;
   slug: string;
   title: string;
+  image: string;
   track: TrackKey;
+  courseType: CourseType;
+  deliveryMode: DeliveryMode;
   shortDesc: string;
   fullDesc: string;
   whoFor: string[];
@@ -85,3 +90,13 @@ export function formatPrice(cents: number, currency = "USD"): string {
 
 export const statusLabel = (s: CourseStatus): string =>
   s === "enrolling" ? "Enrolling now" : "Coming soon";
+
+export const courseTypeLabel = (t: CourseType): string =>
+  t === "self_paced" ? "Self-paced" : "Live cohort";
+
+export const deliveryLabel = (d: DeliveryMode): string =>
+  d === "in_house" ? "In-house" : d === "both" ? "Online or in-house" : "Online";
+
+/** A fallback course image when none is set. */
+export const FALLBACK_COURSE_IMAGE =
+  "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1080&q=80";

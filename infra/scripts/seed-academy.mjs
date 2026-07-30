@@ -33,6 +33,18 @@ const client = new RDSDataClient({ region });
 // Track pricing (USD cents). Every course inherits its track's price.
 const PRICE = { technical: 10000, business: 20000, public: 30000 };
 
+// Curated, on-theme course cover images (Unsplash). Admin-editable per course.
+const U = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1080&q=80`;
+const IMG = {
+  "generative-ai-masterclass": U("photo-1677442136019-21780ecad995"),
+  "software-development-with-ai": U("photo-1461749280684-dccba630e2f6"),
+  "application-development-with-ai": U("photo-1531482615713-2afd69097998"),
+  "ai-for-business-executives": U("photo-1552664730-d307ca884978"),
+  "ai-for-marketing": U("photo-1460925895917-afdab827c52f"),
+  "ai-for-research-and-planning": U("photo-1454165804606-c3d57bc86b40"),
+  "ai-for-governance": U("photo-1529107386315-e1a2ed48a620"),
+};
+
 const INSTRUCTOR = {
   name: "Tuamene Bestgod",
   title: "Founder & CEO of Loopital",
@@ -242,6 +254,7 @@ async function run() {
     const params = [
       param("slug", c.slug),
       param("title", c.title),
+      param("image", IMG[c.slug] || null),
       param("track", c.track),
       param("short_desc", c.shortDesc),
       param("full_desc", c.fullDesc),
@@ -262,14 +275,14 @@ async function run() {
         secretArn,
         database: DB_NAME,
         sql: `INSERT INTO academy_courses
-                (slug, title, track, short_desc, full_desc, who_for, curriculum, format,
+                (slug, title, image, track, short_desc, full_desc, who_for, curriculum, format,
                  price_cents, currency, status, published, sort_order,
                  instructor_name, instructor_title, instructor_bio)
               VALUES
-                (:slug, :title, :track, :short_desc, :full_desc, :who_for, :curriculum, :format,
+                (:slug, :title, :image, :track, :short_desc, :full_desc, :who_for, :curriculum, :format,
                  :price_cents::int, 'USD', :status, true, :sort_order::int,
                  :instructor_name, :instructor_title, :instructor_bio)
-              ON CONFLICT (slug) DO NOTHING`,
+              ON CONFLICT (slug) DO UPDATE SET image = COALESCE(academy_courses.image, EXCLUDED.image)`,
         parameters: params,
       })
     );

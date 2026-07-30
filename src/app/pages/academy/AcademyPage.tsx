@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, GraduationCap, Users, Building2, Landmark } from "lucide-react";
+import { ArrowRight, GraduationCap, Users, Building2, Landmark, Check } from "lucide-react";
 import { Section } from "../../components/Section";
 import { Reveal } from "../../components/Reveal";
 import { GradientText } from "../../components/GradientText";
 import { CTAButton } from "../../components/CTAButton";
 import { CourseCard } from "../../components/academy/CourseCard";
+import { AcademyExperience } from "../../components/academy/AcademyExperience";
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { academyApi } from "../../lib/api";
 import { TRACKS, type Course, type TrackKey } from "../../config/academy";
-import { FOUNDER_IMAGE } from "../../config/site";
+import { CONTACT_EMAIL, FOUNDER_IMAGE } from "../../config/site";
 
 const trackIcon: Record<TrackKey, typeof Users> = {
   technical: GraduationCap,
@@ -17,10 +18,11 @@ const trackIcon: Record<TrackKey, typeof Users> = {
   public: Landmark,
 };
 
-const highlights = [
-  { icon: GraduationCap, title: "Learn by doing", desc: "Every course is hands-on, with labs and a capstone you can actually use." },
-  { icon: Users, title: "Live cohorts", desc: "Small live sessions with real instruction — not pre-recorded videos you watch alone." },
-  { icon: Building2, title: "Built for real work", desc: "Practical AI skills you apply the same week — for your job, business, or institution." },
+const orgOfferings = [
+  "AI adoption & the future of work for your whole team",
+  "Tailored cohorts mapped to your industry and tools",
+  "Delivered online or on-site at your offices",
+  "For companies, hospitals, and public institutions",
 ];
 
 export function AcademyPage() {
@@ -52,28 +54,17 @@ export function AcademyPage() {
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <CTAButton href="#tracks" variant="gradient" size="lg">Browse courses <ArrowRight size={16} /></CTAButton>
-              <CTAButton to="/contact" variant="outline" size="lg">Train your team</CTAButton>
+              <CTAButton href="#organizations" variant="outline" size="lg">Train your team</CTAButton>
             </div>
+            <p style={{ color: colors.textTertiary, fontSize: "14px", marginTop: "22px" }}>
+              🌍 All courses run online as live cohorts · 🏢 In-house training available for organizations on request
+            </p>
           </Reveal>
         </div>
       </section>
 
-      {/* ── WHY ── */}
-      <Section background={colors.surface} pad="md">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {highlights.map((h, i) => (
-            <Reveal key={h.title} delay={i * 0.06}>
-              <div className="h-full rounded-3xl p-7" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
-                <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5" style={{ background: gradientBrand }}>
-                  <h.icon size={20} color="#fff" />
-                </div>
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: colors.heading, marginBottom: "8px" }}>{h.title}</h3>
-                <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.7 }}>{h.desc}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      {/* ── EXPERIENCE (immersive) ── */}
+      <AcademyExperience />
 
       {/* ── TRACKS + COURSES ── */}
       <section id="tracks" style={{ background: colors.bg, padding: "clamp(72px,9vw,120px) 0" }}>
@@ -121,6 +112,48 @@ export function AcademyPage() {
         </div>
       </section>
 
+      {/* ── FOR ORGANIZATIONS ── */}
+      <section id="organizations" style={{ background: colors.surface, padding: "clamp(72px,9vw,120px) 0" }}>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <Reveal from="left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: `${colors.blue}0f`, border: `1px solid ${colors.blue}22` }}>
+                <Building2 size={15} style={{ color: colors.blue }} />
+                <span style={{ color: colors.blue, fontSize: "12.5px", fontWeight: 600, letterSpacing: "0.04em" }}>FOR ORGANIZATIONS</span>
+              </div>
+              <h2 style={{ fontSize: "clamp(1.9rem,3.4vw,2.7rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, marginBottom: "18px" }}>
+                Bring Loopital Academy <GradientText>in-house</GradientText>.
+              </h2>
+              <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.8, marginBottom: "26px", maxWidth: "560px" }}>
+                Our public courses run online — but for organizations, we also deliver private, in-house training on special request. We run staff programs on <strong style={{ color: colors.heading }}>AI adoption and the future of work</strong>, tailored to your team, your sector, and your goals. We discuss the scope together and shape a cohort around it.
+              </p>
+              <div className="flex flex-col gap-3 mb-8">
+                {orgOfferings.map((o) => (
+                  <div key={o} className="flex items-start gap-3">
+                    <span className="mt-1 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${colors.green}18` }}>
+                      <Check size={12} style={{ color: colors.green }} />
+                    </span>
+                    <span style={{ color: colors.text, fontSize: "15.5px", lineHeight: 1.55 }}>{o}</span>
+                  </div>
+                ))}
+              </div>
+              <CTAButton href={`mailto:${CONTACT_EMAIL}?subject=In-house%20AI%20training%20for%20our%20organization`} variant="gradient" size="lg">
+                Discuss in-house training <ArrowRight size={16} />
+              </CTAButton>
+            </Reveal>
+            <Reveal from="right">
+              <div className="rounded-[28px] overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: shadow.lg, border: `1px solid ${colors.hairline}` }}>
+                <ImageWithFallback
+                  src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1080&q=80"
+                  alt="Loopital Academy in-house training for organizations"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       {/* ── INSTRUCTOR ── */}
       <Section background={colors.surface} pad="lg">
         <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-center">
@@ -148,14 +181,14 @@ export function AcademyPage() {
       <section style={{ background: gradientBrand, padding: "clamp(72px,9vw,110px) 0" }}>
         <Reveal className="max-w-3xl mx-auto px-6 text-center">
           <h2 style={{ color: "#fff", fontSize: "clamp(1.9rem,3.6vw,2.8rem)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "18px" }}>
-            Bring AI into your organization.
+            Start learning with Loopital Academy.
           </h2>
           <p style={{ color: "rgba(255,255,255,0.88)", fontSize: "18px", lineHeight: 1.65, marginBottom: "32px" }}>
-            Training a team, a company, or a public institution? We run tailored cohorts. Tell us what you need.
+            Pick a course and join the next live cohort — or talk to us about training your whole team.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <CTAButton to="/contact" variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>Talk to us</CTAButton>
-            <CTAButton href="#tracks" variant="ghost-light" size="lg">See all courses</CTAButton>
+            <CTAButton href="#tracks" variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>Browse courses</CTAButton>
+            <CTAButton to="/contact" variant="ghost-light" size="lg">Talk to us</CTAButton>
           </div>
         </Reveal>
       </section>
