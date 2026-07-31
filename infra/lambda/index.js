@@ -1082,13 +1082,13 @@ async function facilitatorRoster(headers, courseId) {
   const a = await sql("SELECT 1 AS ok FROM academy_course_facilitators WHERE course_id = :c::uuid AND facilitator_id = :f::uuid", { c: courseId, f: p.sub });
   if (!a.length) return json(403, { error: "Not your course." });
   const rows = await sql(
-    `SELECT e.id, e.status, e.progress, e.completed_at, u.name, u.email, cert.serial AS cert_serial
+    `SELECT e.id, e.status, e.progress, e.completed_at, u.id AS user_id, u.name, u.email, cert.serial AS cert_serial
        FROM academy_enrollments e JOIN users u ON u.id = e.user_id
        LEFT JOIN academy_certificates cert ON cert.course_id = e.course_id AND cert.user_id = e.user_id
       WHERE e.course_id = :c::uuid ORDER BY e.created_at DESC`,
     { c: courseId }
   );
-  const students = rows.map((r) => ({ enrollmentId: r.id, name: r.name, email: r.email, status: r.status, progress: Number(r.progress) || 0, completedAt: r.completed_at, certSerial: r.cert_serial }));
+  const students = rows.map((r) => ({ enrollmentId: r.id, userId: r.user_id, name: r.name, email: r.email, status: r.status, progress: Number(r.progress) || 0, completedAt: r.completed_at, certSerial: r.cert_serial }));
   return json(200, { students });
 }
 async function facilitatorGenerateCertificate(headers, body) {
@@ -1102,6 +1102,274 @@ async function facilitatorGenerateCertificate(headers, body) {
   );
   if (!chk.length) return json(403, { error: "Not your student." });
   return generateCertificateForEnrollment(body.enrollmentId);
+}
+
+// ── Academy: reviews, exams, usernames, achievements, verification ─────────
+
+async function enrolledId(userId, courseId) {
+  const e = await sql("SELECT id FROM academy_enrollments WHERE course_id = :c::uuid AND user_id = :u::uuid", { c: courseId, u: userId });
+  return e.length ? e[0].id : null;
+}
+async function facilitatorAssigned(fid, courseId) {
+  const a = await sql("SELECT 1 AS ok FROM academy_course_facilitators WHERE course_id = :c::uuid AND facilitator_id = :f::uuid", { c: courseId, f: fid });
+  return a.length > 0;
+}
+function setEq(a, b) {
+  const A = Array.isArray(a) ? a : [], B = Array.isArray(b) ? b : [];
+  if (A.length !== B.length) return false;
+  const s = new Set(A.map(String));
+  return B.every((x) => s.has(String(x)));
+}
+
+// ---- Reviews ----
+async function listReviews(courseId) {
+  if (!courseId) return json(400, { error: "Missing course." });
+  const rows = await sql(
+    `SELECT r.rating, r.comment, r.created_at, u.name
+       FROM academy_reviews r JOIN users u ON u.id = r.user_id
+      WHERE r.course_id = :c::uuid AND r.hidden = false
+      ORDER BY r.created_at DESC LIMIT 100`,
+    { c: courseId }
+  );
+  const reviews = rows.map((r) => ({ name: r.name, rating: Number(r.rating), comment: r.comment || "", createdAt: r.created_at }));
+  const count = reviews.length;
+  const average = count ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / count) * 10) / 10 : 0;
+  return json(200, { reviews, count, average });
+}
+async function studentReview(headers, body) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  const rating = Math.round(Number(body.rating));
+  if (!body.courseId || !(rating >= 1 && rating <= 5)) return json(400, { error: "Pick a rating from 1 to 5." });
+  if (!(await enrolledId(p.sub, body.courseId))) return json(403, { error: "Only enrolled students can review this course." });
+  await sql(
+    `INSERT INTO academy_reviews (course_id, user_id, rating, comment)
+     VALUES (:c::uuid, :u::uuid, :rating::int, :comment)
+     ON CONFLICT (course_id, user_id) DO UPDATE SET rating = EXCLUDED.rating, comment = EXCLUDED.comment, hidden = false, created_at = now()`,
+    { c: body.courseId, u: p.sub, rating, comment: (body.comment || "").trim() || null }
+  );
+  return json(201, { ok: true });
+}
+async function adminListReviews(headers, courseId) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  const rows = await sql(
+    `SELECT r.id, r.rating, r.comment, r.hidden, r.created_at, u.name, u.email
+       FROM academy_reviews r JOIN users u ON u.id = r.user_id
+      WHERE r.course_id = :c::uuid ORDER BY r.created_at DESC`,
+    { c: courseId }
+  );
+  return json(200, { reviews: rows.map((r) => ({ id: r.id, name: r.name, email: r.email, rating: Number(r.rating), comment: r.comment || "", hidden: r.hidden === true || r.hidden === "true", createdAt: r.created_at })) });
+}
+async function adminHideReview(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.id) return json(400, { error: "Missing id." });
+  await sql("UPDATE academy_reviews SET hidden = :h::boolean WHERE id = :id::uuid", { h: body.hidden === false ? false : true, id: body.id });
+  return json(200, { ok: true });
+}
+
+// ---- Exams ----
+function questionOut(row, includeCorrect) {
+  return {
+    id: row.id,
+    prompt: row.prompt,
+    kind: row.kind,
+    options: parseJsonField(row.options, []),
+    points: Number(row.points) || 1,
+    sortOrder: Number(row.sort_order) || 0,
+    ...(includeCorrect ? { correct: parseJsonField(row.correct, []) } : {}),
+  };
+}
+async function loadExam(courseId) {
+  const ex = await sql("SELECT id, course_id, title, pass_mark, published FROM academy_exams WHERE course_id = :c::uuid", { c: courseId });
+  if (!ex.length) return null;
+  const qs = await sql("SELECT id, prompt, kind, options, correct, points, sort_order FROM academy_exam_questions WHERE exam_id = :e::uuid ORDER BY sort_order", { e: ex[0].id });
+  return { exam: ex[0], questions: qs };
+}
+async function attemptStatus(examId, userId, passMark) {
+  const attempts = await sql("SELECT score, passed, attempt_no FROM academy_exam_attempts WHERE exam_id = :e::uuid AND user_id = :u::uuid ORDER BY attempt_no", { e: examId, u: userId });
+  const ov = await sql("SELECT extra FROM academy_exam_overrides WHERE exam_id = :e::uuid AND user_id = :u::uuid", { e: examId, u: userId });
+  const extra = ov.length ? Number(ov[0].extra) || 0 : 0;
+  const used = attempts.length;
+  const passed = attempts.some((a) => a.passed === true || a.passed === "true");
+  const best = attempts.reduce((m, a) => Math.max(m, Number(a.score) || 0), 0);
+  const maxAttempts = 3 + extra;
+  return { attemptsUsed: used, maxAttempts, passed, bestScore: best, canTake: !passed && used < maxAttempts, passMark };
+}
+
+// Student: fetch exam (no answers) + their status
+async function studentExam(headers, courseId) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  if (!(await enrolledId(p.sub, courseId))) return json(403, { error: "You're not enrolled in this course." });
+  const data = await loadExam(courseId);
+  if (!data || !(data.exam.published === true || data.exam.published === "true")) return json(200, { exam: null });
+  const status = await attemptStatus(data.exam.id, p.sub, Number(data.exam.pass_mark));
+  return json(200, {
+    exam: { id: data.exam.id, title: data.exam.title, passMark: Number(data.exam.pass_mark), questions: data.questions.map((q) => questionOut(q, false)) },
+    status,
+  });
+}
+// Student: submit + auto-grade
+async function studentSubmitExam(headers, body) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  const courseId = body.courseId;
+  if (!courseId) return json(400, { error: "Missing course." });
+  if (!(await enrolledId(p.sub, courseId))) return json(403, { error: "You're not enrolled." });
+  const data = await loadExam(courseId);
+  if (!data || !(data.exam.published === true || data.exam.published === "true")) return json(404, { error: "No exam available." });
+  const status = await attemptStatus(data.exam.id, p.sub, Number(data.exam.pass_mark));
+  if (status.passed) return json(409, { error: "You've already passed this exam." });
+  if (!status.canTake) return json(403, { error: "You've used all your attempts. Please contact support or your instructor." });
+
+  const answers = body.answers || {};
+  let earned = 0, total = 0;
+  for (const q of data.questions) {
+    const pts = Number(q.points) || 1;
+    total += pts;
+    if (setEq(answers[q.id], parseJsonField(q.correct, []))) earned += pts;
+  }
+  const score = total ? Math.round((earned / total) * 100) : 0;
+  const passMark = Number(data.exam.pass_mark);
+  const passed = score >= passMark;
+  const attemptNo = status.attemptsUsed + 1;
+  await sql(
+    "INSERT INTO academy_exam_attempts (exam_id, user_id, score, passed, attempt_no) VALUES (:e::uuid, :u::uuid, :s::int, :passed::boolean, :n::int)",
+    { e: data.exam.id, u: p.sub, s: score, passed, n: attemptNo }
+  );
+  const attemptsLeft = status.maxAttempts - attemptNo;
+  return json(200, { score, passed, passMark, attemptNo, attemptsLeft: passed ? 0 : Math.max(0, attemptsLeft), canRetake: !passed && attemptsLeft > 0 });
+}
+
+// Instructor/admin: get full exam (with answers) for editing
+async function getExamForEdit(courseId) {
+  const data = await loadExam(courseId);
+  if (!data) return json(200, { exam: null });
+  return json(200, { exam: { id: data.exam.id, courseId: data.exam.course_id, title: data.exam.title, passMark: Number(data.exam.pass_mark), published: data.exam.published === true || data.exam.published === "true", questions: data.questions.map((q) => questionOut(q, true)) } });
+}
+// Instructor/admin: upsert exam + replace questions
+async function saveExam(courseId, body) {
+  const title = (body.title || "Course assessment").trim();
+  const passMark = Math.min(100, Math.max(1, Math.round(Number(body.passMark) || 70)));
+  const published = body.published === true;
+  const rows = await sql(
+    `INSERT INTO academy_exams (course_id, title, pass_mark, published)
+     VALUES (:c::uuid, :title, :pm::int, :pub::boolean)
+     ON CONFLICT (course_id) DO UPDATE SET title = EXCLUDED.title, pass_mark = EXCLUDED.pass_mark, published = EXCLUDED.published, updated_at = now()
+     RETURNING id`,
+    { c: courseId, title, pm: passMark, pub: published }
+  );
+  const examId = rows[0].id;
+  await sql("DELETE FROM academy_exam_questions WHERE exam_id = :e::uuid", { e: examId });
+  const questions = Array.isArray(body.questions) ? body.questions : [];
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    const kind = ["single", "multi", "truefalse"].includes(q.kind) ? q.kind : "single";
+    await sql(
+      `INSERT INTO academy_exam_questions (exam_id, prompt, kind, options, correct, points, sort_order)
+       VALUES (:e::uuid, :prompt, :kind, :options, :correct, :points::int, :sort::int)`,
+      {
+        e: examId,
+        prompt: (q.prompt || "").trim() || "Question",
+        kind,
+        options: JSON.stringify(Array.isArray(q.options) ? q.options : []),
+        correct: JSON.stringify(Array.isArray(q.correct) ? q.correct : []),
+        points: Math.max(1, Math.round(Number(q.points) || 1)),
+        sort: i,
+      }
+    );
+  }
+  return json(200, { ok: true, examId });
+}
+async function grantRetake(courseId, userId) {
+  const ex = await sql("SELECT id FROM academy_exams WHERE course_id = :c::uuid", { c: courseId });
+  if (!ex.length) return json(404, { error: "No exam for this course." });
+  await sql(
+    `INSERT INTO academy_exam_overrides (exam_id, user_id, extra) VALUES (:e::uuid, :u::uuid, 3)
+     ON CONFLICT (exam_id, user_id) DO UPDATE SET extra = academy_exam_overrides.extra + 3`,
+    { e: ex[0].id, u: userId }
+  );
+  return json(200, { ok: true });
+}
+
+// Admin wrappers
+async function adminGetExam(headers, courseId) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!courseId) return json(400, { error: "Missing course." });
+  return getExamForEdit(courseId);
+}
+async function adminSaveExam(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.courseId) return json(400, { error: "Missing course." });
+  return saveExam(body.courseId, body);
+}
+async function adminGrantRetake(headers, body) {
+  if (!(await adminAuth(headers))) return json(401, { error: "Not authorized." });
+  if (!body.courseId || !body.userId) return json(400, { error: "Missing ids." });
+  return grantRetake(body.courseId, body.userId);
+}
+// Facilitator wrappers (must be assigned to the course)
+async function facilitatorGetExam(headers, courseId) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  if (!courseId || !(await facilitatorAssigned(p.sub, courseId))) return json(403, { error: "Not your course." });
+  return getExamForEdit(courseId);
+}
+async function facilitatorSaveExam(headers, body) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  if (!body.courseId || !(await facilitatorAssigned(p.sub, body.courseId))) return json(403, { error: "Not your course." });
+  return saveExam(body.courseId, body);
+}
+async function facilitatorGrantRetake(headers, body) {
+  const p = await facilitatorAuth(headers);
+  if (!p) return json(401, { error: "Not authorized." });
+  if (!body.courseId || !body.userId || !(await facilitatorAssigned(p.sub, body.courseId))) return json(403, { error: "Not your course." });
+  return grantRetake(body.courseId, body.userId);
+}
+
+// ---- Username, achievements, verification ----
+async function studentProfile(headers) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  const rows = await sql("SELECT name, email, username FROM users WHERE id = :id::uuid", { id: p.sub });
+  if (!rows.length) return json(404, { error: "Not found." });
+  return json(200, { name: rows[0].name, email: rows[0].email, username: rows[0].username || "" });
+}
+async function setUsername(headers, body) {
+  const p = await studentAuth(headers);
+  if (!p) return json(401, { error: "Please sign in." });
+  const username = String(body.username || "").trim().toLowerCase();
+  if (!/^[a-z0-9_]{3,20}$/.test(username)) return json(400, { error: "Username must be 3–20 characters: lowercase letters, numbers, or underscore." });
+  const taken = await sql("SELECT id FROM users WHERE lower(username) = :u AND id <> :id::uuid", { u: username, id: p.sub });
+  if (taken.length) return json(409, { error: "That username is taken." });
+  await sql("UPDATE users SET username = :u WHERE id = :id::uuid", { u: username, id: p.sub });
+  return json(200, { username });
+}
+async function publicAchievements(username) {
+  const clean = String(username || "").trim().toLowerCase();
+  if (!clean) return json(400, { error: "Missing username." });
+  const u = await sql("SELECT id, name, username FROM users WHERE lower(username) = :u", { u: clean });
+  if (!u.length) return json(404, { error: "Profile not found." });
+  const rows = await sql(
+    `SELECT c.title AS course_title, c.track, e.completed_at, cert.serial, cert.issued_at
+       FROM academy_enrollments e JOIN academy_courses c ON c.id = e.course_id
+       LEFT JOIN academy_certificates cert ON cert.course_id = e.course_id AND cert.user_id = e.user_id
+      WHERE e.user_id = :uid::uuid AND (e.status = 'completed' OR cert.id IS NOT NULL)
+      ORDER BY e.completed_at DESC NULLS LAST`,
+    { uid: u[0].id }
+  );
+  const achievements = rows.map((r) => ({ courseTitle: r.course_title, track: r.track, completedAt: r.completed_at, certificateSerial: r.serial || null, certificateIssuedAt: r.issued_at || null }));
+  return json(200, { name: u[0].name, username: u[0].username, achievements });
+}
+async function verifyCertificate(serial) {
+  const s = String(serial || "").trim();
+  if (!s) return json(400, { error: "Enter a certificate ID." });
+  const rows = await sql("SELECT student_name, course_title, issued_at FROM academy_certificates WHERE upper(serial) = upper(:s)", { s });
+  if (!rows.length) return json(200, { valid: false });
+  return json(200, { valid: true, name: rows[0].student_name, courseTitle: rows[0].course_title, issuedAt: rows[0].issued_at, serial: s });
 }
 
 exports.handler = async (event) => {
@@ -1192,6 +1460,34 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/academy/admin/enrollments") return await adminListEnrollments(headers, qs("courseId"));
     if (method === "POST" && route === "/academy/admin/enrollments/remove") return await adminRemoveEnrollment(headers, body);
     if (method === "POST" && route === "/academy/admin/certificate") return await adminGenerateCertificate(headers, body);
+
+    // Academy — reviews (public list + student post)
+    if (method === "GET" && route === "/academy/reviews") return await listReviews(qs("courseId"));
+    if (method === "POST" && route === "/academy/student/review") return await studentReview(headers, body);
+
+    // Academy — exams (student take + submit)
+    if (method === "GET" && route === "/academy/student/exam") return await studentExam(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/student/exam/submit") return await studentSubmitExam(headers, body);
+
+    // Academy — student profile + username
+    if (method === "GET" && route === "/academy/student/profile") return await studentProfile(headers);
+    if (method === "POST" && route === "/academy/student/username") return await setUsername(headers, body);
+
+    // Academy — public achievements + certificate verification
+    if (method === "GET" && route.startsWith("/academy/u/")) return await publicAchievements(decodeURIComponent(route.slice("/academy/u/".length)));
+    if (method === "GET" && route === "/academy/verify") return await verifyCertificate(qs("serial"));
+
+    // Academy — admin: reviews + exams
+    if (method === "GET" && route === "/academy/admin/reviews") return await adminListReviews(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/admin/reviews/hide") return await adminHideReview(headers, body);
+    if (method === "GET" && route === "/academy/admin/exam") return await adminGetExam(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/admin/exam/grant") return await adminGrantRetake(headers, body);
+    if (method === "POST" && route === "/academy/admin/exam") return await adminSaveExam(headers, body);
+
+    // Academy — facilitator: exams
+    if (method === "GET" && route === "/academy/facilitator/exam") return await facilitatorGetExam(headers, qs("courseId"));
+    if (method === "POST" && route === "/academy/facilitator/exam/grant") return await facilitatorGrantRetake(headers, body);
+    if (method === "POST" && route === "/academy/facilitator/exam") return await facilitatorSaveExam(headers, body);
 
     return json(404, { error: "Not found." });
   } catch (err) {

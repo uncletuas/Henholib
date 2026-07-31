@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { Link } from "react-router";
-import { LogOut, FileText, PlayCircle, Download, KeyRound, Award, Users, ChevronDown } from "lucide-react";
+import { LogOut, FileText, PlayCircle, Download, KeyRound, Award, Users, ChevronDown, RotateCcw } from "lucide-react";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { facilitatorApi, type FacilitatorCourse, type FacilitatorProfile, type RosterStudent } from "../../lib/api";
+import { ExamEditor } from "../../components/academy/ExamEditor";
 import { trackMeta } from "../../config/academy";
 
 const TOKEN_KEY = "loopital_academy_facilitator";
@@ -91,6 +92,11 @@ function CourseRoster({ token, courseId }: { token: string; courseId: string }) 
     try { const r = await facilitatorApi.generateCertificate(token, s.enrollmentId); setMsg(r.emailed ? `Certificate issued and emailed to ${s.email}.` : `Certificate ${r.serial} issued (email pending SES setup). The student can download it from their portal.`); load(); }
     catch (e) { setMsg(e instanceof Error ? e.message : "Couldn't generate certificate."); }
   };
+  const grant = async (s: RosterStudent) => {
+    setMsg(null);
+    try { await facilitatorApi.grantRetake(token, courseId, s.userId); setMsg(`Granted ${s.name} 3 more exam attempts.`); }
+    catch (e) { setMsg(e instanceof Error ? e.message : "Couldn't grant retake."); }
+  };
 
   return (
     <div className="px-6 py-4" style={{ borderTop: `1px solid ${colors.hairline}` }}>
@@ -101,6 +107,7 @@ function CourseRoster({ token, courseId }: { token: string; courseId: string }) 
       {open && (
         <div className="mt-3">
           {msg && <p style={{ fontSize: "12.5px", color: colors.green, marginBottom: "10px" }}>{msg}</p>}
+          <div className="mb-4"><ExamEditor token={token} courseId={courseId} api={facilitatorApi} /></div>
           {!students ? <p style={{ fontSize: "13px", color: colors.textTertiary }}>Loading…</p> : students.length === 0 ? (
             <p style={{ fontSize: "13px", color: colors.textTertiary }}>No students enrolled yet.</p>
           ) : (
@@ -112,6 +119,7 @@ function CourseRoster({ token, courseId }: { token: string; courseId: string }) 
                     <p style={{ fontSize: "12px", color: colors.textSecondary }}>{s.email}</p>
                   </div>
                   <span style={{ fontSize: "12.5px", fontWeight: 600, color: colors.heading }}>{s.progress}%</span>
+                  <button onClick={() => grant(s)} title="Grant 3 more exam attempts" style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: colors.surfaceMuted, color: colors.heading, border: "none", borderRadius: "999px", padding: "6px 10px", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}><RotateCcw size={12} /> Retake</button>
                   {s.certSerial
                     ? <span style={{ fontSize: "11px", padding: "3px 9px", borderRadius: "999px", background: `${colors.green}16`, color: colors.green }}>Certified</span>
                     : <button onClick={() => gen(s)} style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: gradientBrand, color: "#fff", border: "none", borderRadius: "999px", padding: "7px 12px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" }}><Award size={13} /> Certificate</button>}

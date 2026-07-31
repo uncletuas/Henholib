@@ -7,6 +7,7 @@ import { CTAButton } from "../../components/CTAButton";
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 import { Testimonials } from "../../components/academy/Testimonials";
 import type { Testimonial } from "../../components/academy/Testimonials";
+import { CourseReviews } from "../../components/academy/CourseReviews";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { academyApi } from "../../lib/api";
 import { FOUNDER_IMAGE } from "../../config/site";
@@ -203,6 +204,8 @@ export function AcademyCoursePage() {
           </Reveal>
         </div>
       </Section>
+
+      <CourseReviews courseId={course.id} />
 
       <Testimonials items={testimonials} />
 

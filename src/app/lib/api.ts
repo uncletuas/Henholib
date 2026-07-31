@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../config/site";
-import type { Course, Facilitator, Material, CourseSession, CourseItem, Enrollment } from "../config/academy";
+import type { Course, Facilitator, Material, CourseSession, CourseItem, Enrollment, Review, StudentExam, ExamResult, EditableExam, PublicProfile } from "../config/academy";
 
 export interface AuthUser {
   id: string;
@@ -97,6 +97,15 @@ export const academyApi = {
       method: "POST",
       body: JSON.stringify(input),
     }),
+
+  reviews: (courseId: string) =>
+    request<{ reviews: Review[]; count: number; average: number }>(`/academy/reviews?courseId=${encodeURIComponent(courseId)}`),
+
+  verify: (serial: string) =>
+    request<{ valid: boolean; name?: string; courseTitle?: string; issuedAt?: string; serial?: string }>(`/academy/verify?serial=${encodeURIComponent(serial)}`),
+
+  achievements: (username: string) =>
+    request<PublicProfile>(`/academy/u/${encodeURIComponent(username)}`),
 };
 
 export const academyAdminApi = {
@@ -204,6 +213,18 @@ export const academyAdminApi = {
     request<{ ok: boolean }>("/academy/admin/enrollments/remove", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ id }) }),
   generateCertificate: (token: string, enrollmentId: string) =>
     request<{ ok: boolean; serial: string; emailed: boolean; emailError: string | null }>("/academy/admin/certificate", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ enrollmentId }) }),
+
+  // Reviews + exams
+  listReviews: (token: string, courseId: string) =>
+    request<{ reviews: (Review & { id: string; email: string; hidden: boolean })[] }>(`/academy/admin/reviews?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  hideReview: (token: string, id: string, hidden: boolean) =>
+    request<{ ok: boolean }>("/academy/admin/reviews/hide", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ id, hidden }) }),
+  getExam: (token: string, courseId: string) =>
+    request<{ exam: EditableExam | null }>(`/academy/admin/exam?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  saveExam: (token: string, exam: Partial<EditableExam> & { courseId: string }) =>
+    request<{ ok: boolean; examId: string }>("/academy/admin/exam", { method: "POST", headers: adminHeader(token), body: JSON.stringify(exam) }),
+  grantRetake: (token: string, courseId: string, userId: string) =>
+    request<{ ok: boolean }>("/academy/admin/exam/grant", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId, userId }) }),
 };
 
 export interface AdminEnrollment {
@@ -219,6 +240,7 @@ export interface AdminEnrollment {
 
 export interface RosterStudent {
   enrollmentId: string;
+  userId: string;
   name: string;
   email: string;
   status: string;
@@ -249,6 +271,11 @@ export const studentApi = {
   progress: (token: string, courseId: string, itemKey: string, completed: boolean) => request<{ progress: number; status: string }>("/academy/student/progress", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId, itemKey, completed }) }),
   materialDownloadUrl: (token: string, id: string) => request<{ url: string }>(`/academy/student/materials/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
   certificateDownloadUrl: (token: string, id: string) => request<{ url: string }>(`/academy/student/certificate/download?id=${encodeURIComponent(id)}`, { headers: adminHeader(token) }),
+  review: (token: string, courseId: string, rating: number, comment: string) => request<{ ok: boolean }>("/academy/student/review", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId, rating, comment }) }),
+  exam: (token: string, courseId: string) => request<StudentExam>(`/academy/student/exam?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  submitExam: (token: string, courseId: string, answers: Record<string, string[]>) => request<ExamResult>("/academy/student/exam/submit", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId, answers }) }),
+  profile: (token: string) => request<{ name: string; email: string; username: string }>("/academy/student/profile", { headers: adminHeader(token) }),
+  setUsername: (token: string, username: string) => request<{ username: string }>("/academy/student/username", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ username }) }),
 };
 
 // ── Academy facilitator portal ─────────────────────────────────────────
@@ -293,6 +320,13 @@ export const facilitatorApi = {
 
   generateCertificate: (token: string, enrollmentId: string) =>
     request<{ ok: boolean; serial: string; emailed: boolean; emailError: string | null }>("/academy/facilitator/certificate", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ enrollmentId }) }),
+
+  getExam: (token: string, courseId: string) =>
+    request<{ exam: EditableExam | null }>(`/academy/facilitator/exam?courseId=${encodeURIComponent(courseId)}`, { headers: adminHeader(token) }),
+  saveExam: (token: string, exam: Partial<EditableExam> & { courseId: string }) =>
+    request<{ ok: boolean; examId: string }>("/academy/facilitator/exam", { method: "POST", headers: adminHeader(token), body: JSON.stringify(exam) }),
+  grantRetake: (token: string, courseId: string, userId: string) =>
+    request<{ ok: boolean }>("/academy/facilitator/exam/grant", { method: "POST", headers: adminHeader(token), body: JSON.stringify({ courseId, userId }) }),
 };
 
 /** Upload a file to S3 via a presigned PUT URL. */

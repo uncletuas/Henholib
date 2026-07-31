@@ -83,6 +83,72 @@ export interface Enrollment {
   course: Course;
 }
 
+export interface Review {
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export type QuestionKind = "single" | "multi" | "truefalse";
+
+export interface ExamOption { id: string; text: string; }
+
+export interface ExamQuestion {
+  id: string;
+  prompt: string;
+  kind: QuestionKind;
+  options: ExamOption[];
+  points: number;
+  correct?: string[]; // only present in the instructor/edit view
+}
+
+export interface ExamStatus {
+  attemptsUsed: number;
+  maxAttempts: number;
+  passed: boolean;
+  bestScore: number;
+  canTake: boolean;
+  passMark: number;
+}
+
+export interface StudentExam {
+  exam: { id: string; title: string; passMark: number; questions: ExamQuestion[] } | null;
+  status?: ExamStatus;
+}
+
+export interface ExamResult {
+  score: number;
+  passed: boolean;
+  passMark: number;
+  attemptNo: number;
+  attemptsLeft: number;
+  canRetake: boolean;
+}
+
+export interface EditableExam {
+  id: string;
+  courseId: string;
+  title: string;
+  passMark: number;
+  published: boolean;
+  questions: ExamQuestion[];
+}
+
+export interface Achievement {
+  courseTitle: string;
+  track: string;
+  completedAt: string | null;
+  certificateSerial: string | null;
+  certificateIssuedAt: string | null;
+}
+
+export interface PublicProfile {
+  name: string;
+  username: string;
+  achievements: Achievement[];
+}
+
 export type MaterialKind = "manual" | "slides" | "resource";
 
 export interface Material {

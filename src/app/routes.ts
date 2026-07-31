@@ -16,6 +16,8 @@ import { AcademyApplyPage } from "./pages/academy/AcademyApplyPage";
 import { AcademyAdminPage } from "./pages/academy/AcademyAdminPage";
 import { FacilitatorPortalPage } from "./pages/academy/FacilitatorPortalPage";
 import { StudentPortalPage } from "./pages/academy/StudentPortalPage";
+import { VerifyPage } from "./pages/academy/VerifyPage";
+import { AchievementsPage } from "./pages/academy/AchievementsPage";
 import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
@@ -42,6 +44,8 @@ export const router = createBrowserRouter([
       { path: "academy/admin", Component: AcademyAdminPage },
       { path: "academy/portal", Component: FacilitatorPortalPage },
       { path: "academy/learn", Component: StudentPortalPage },
+      { path: "verify", Component: VerifyPage },
+      { path: "u/:username", Component: AchievementsPage },
       { path: "academy/apply/:slug", Component: AcademyApplyPage },
       { path: "academy/:slug", Component: AcademyCoursePage },
       { path: "contact", Component: ContactPage },

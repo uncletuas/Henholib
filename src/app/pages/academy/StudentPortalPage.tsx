@@ -5,6 +5,8 @@ import { LogOut, ArrowLeft, ArrowRight, CheckCircle2, Circle, FileText, Download
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { ImageWithFallback } from "../../components/figma/ImageWithFallback";
 import { VideoEmbed } from "../../components/academy/VideoEmbed";
+import { ExamPanel } from "../../components/academy/ExamPanel";
+import { ReviewForm } from "../../components/academy/ReviewForm";
 import { studentApi, academyApi, type AuthUser, type StudentCourseDetail } from "../../lib/api";
 import { type Course, type Enrollment, FALLBACK_COURSE_IMAGE, formatPrice, trackMeta } from "../../config/academy";
 
@@ -183,6 +185,9 @@ function Learn({ token, courseId, onBack }: { token: string; courseId: string; o
               </div>
             </section>
           )}
+
+          <ExamPanel token={token} courseId={c.id} courseCompleted={progress >= 100} />
+          <ReviewForm token={token} courseId={c.id} />
         </div>
 
         {/* Sidebar */}
@@ -304,6 +309,8 @@ function Dashboard({ token, user, onLogout, onOpen }: { token: string; user: Aut
           </div>
         )}
 
+        <ProfileCard token={token} />
+
         {available.length > 0 && (
           <>
             <h2 style={{ fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.02em", marginTop: "48px", marginBottom: "6px" }}>Browse courses</h2>
@@ -327,6 +334,41 @@ function Dashboard({ token, user, onLogout, onOpen }: { token: string; user: Aut
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function ProfileCard({ token }: { token: string }) {
+  const [profile, setProfile] = useState<{ name: string; username: string } | null>(null);
+  const [username, setUsername] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    studentApi.profile(token).then((p) => { setProfile({ name: p.name, username: p.username }); setUsername(p.username || ""); }).catch(() => {});
+  }, [token]);
+
+  const save = async () => {
+    setBusy(true); setMsg(null);
+    try { const r = await studentApi.setUsername(token, username); setProfile((p) => (p ? { ...p, username: r.username } : p)); setMsg({ ok: true, text: "Saved!" }); }
+    catch (e) { setMsg({ ok: false, text: e instanceof Error ? e.message : "Couldn't save." }); }
+    finally { setBusy(false); }
+  };
+
+  if (!profile) return null;
+  return (
+    <div className="mt-12 rounded-3xl p-7" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>
+      <div className="flex items-center gap-2 mb-2"><Award size={18} style={{ color: colors.green }} /><h2 style={{ fontSize: "1.2rem", fontWeight: 800 }}>Your public profile</h2></div>
+      <p style={{ color: colors.textSecondary, fontSize: "14px", lineHeight: 1.6, marginBottom: "16px" }}>
+        Pick a username to get a shareable page of your completed courses and certificates that anyone can view.
+      </p>
+      <div className="flex items-center gap-2 flex-wrap">
+        <span style={{ color: colors.textTertiary, fontSize: "14px" }}>loopital.com/u/</span>
+        <input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} placeholder="username" style={{ ...input, width: "180px" }} />
+        <button onClick={save} disabled={busy} style={{ ...btnPrimary, opacity: busy ? 0.6 : 1 }}>{busy ? "Saving…" : "Save"}</button>
+        {profile.username && <Link to={`/u/${profile.username}`} style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "6px" }}>View my achievements <ArrowRight size={14} /></Link>}
+      </div>
+      {msg && <p style={{ color: msg.ok ? colors.green : "#DC2626", fontSize: "13px", marginTop: "10px" }}>{msg.text}</p>}
     </div>
   );
 }

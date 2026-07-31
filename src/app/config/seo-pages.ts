@@ -194,6 +194,11 @@ export const pageSeo: Record<string, PageSeo> = {
     description:
       "Product news, engineering, and perspectives from Loopital on software, AI, healthcare technology, and enterprise platforms.",
   },
+  "/verify": {
+    title: "Verify a Certificate — Loopital Academy",
+    description:
+      "Verify a Loopital Academy certificate of completion. Enter the certificate ID to confirm it's genuine and see the recipient, course, and issue date.",
+  },
   "/contact": {
     title: "Contact Loopital",
     description:
@@ -243,6 +248,14 @@ const NOT_FOUND: PageSeo = {
 export function getPageSeo(pathname: string): PageSeo {
   const key = pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
   if (pageSeo[key]) return pageSeo[key];
+
+  // Public per-user achievements pages are shareable + indexable.
+  if (key.startsWith("/u/")) {
+    return {
+      title: "Achievements — Loopital Academy",
+      description: "Loopital Academy achievements and verified certificates of completion.",
+    };
+  }
 
   // Academy: application forms and the private portals stay out of the index.
   if (key === "/academy/admin" || key === "/academy/portal" || key === "/academy/learn" || key.startsWith("/academy/apply")) {

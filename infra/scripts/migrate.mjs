@@ -238,6 +238,67 @@ const statements = [
 
   // Link a certificate to its stored PDF key (added additively).
   `ALTER TABLE academy_certificates ADD COLUMN IF NOT EXISTS file_key TEXT`,
+
+  // ── Academy: usernames, reviews, exams ────────────────────────────────
+  // Public username handle for the shareable achievements page (/u/<username>).
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS users_username_key ON users (lower(username))`,
+
+  // Course reviews (one per student per course).
+  `CREATE TABLE IF NOT EXISTS academy_reviews (
+     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_id  UUID NOT NULL REFERENCES academy_courses (id) ON DELETE CASCADE,
+     user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     rating     INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+     comment    TEXT,
+     hidden     BOOLEAN NOT NULL DEFAULT false,
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+     UNIQUE (course_id, user_id)
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_reviews_course_idx ON academy_reviews (course_id)`,
+
+  // One assessment exam per course; auto-graded (MC + true/false).
+  `CREATE TABLE IF NOT EXISTS academy_exams (
+     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     course_id  UUID NOT NULL UNIQUE REFERENCES academy_courses (id) ON DELETE CASCADE,
+     title      TEXT NOT NULL DEFAULT 'Course assessment',
+     pass_mark  INTEGER NOT NULL DEFAULT 70,
+     published  BOOLEAN NOT NULL DEFAULT false,
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE TABLE IF NOT EXISTS academy_exam_questions (
+     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     exam_id    UUID NOT NULL REFERENCES academy_exams (id) ON DELETE CASCADE,
+     prompt     TEXT NOT NULL,
+     kind       TEXT NOT NULL DEFAULT 'single'
+                  CHECK (kind IN ('single','multi','truefalse')),
+     options    TEXT NOT NULL DEFAULT '[]',
+     correct    TEXT NOT NULL DEFAULT '[]',
+     points     INTEGER NOT NULL DEFAULT 1,
+     sort_order INTEGER NOT NULL DEFAULT 0
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_exam_questions_exam_idx ON academy_exam_questions (exam_id)`,
+
+  // Attempt history (auto-graded); students get up to 3 attempts + any overrides.
+  `CREATE TABLE IF NOT EXISTS academy_exam_attempts (
+     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     exam_id    UUID NOT NULL REFERENCES academy_exams (id) ON DELETE CASCADE,
+     user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     score      INTEGER NOT NULL,
+     passed     BOOLEAN NOT NULL,
+     attempt_no INTEGER NOT NULL,
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_exam_attempts_idx ON academy_exam_attempts (exam_id, user_id)`,
+
+  // Extra attempts granted by an instructor/admin after the 3-attempt limit.
+  `CREATE TABLE IF NOT EXISTS academy_exam_overrides (
+     exam_id  UUID NOT NULL REFERENCES academy_exams (id) ON DELETE CASCADE,
+     user_id  UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     extra    INTEGER NOT NULL DEFAULT 0,
+     PRIMARY KEY (exam_id, user_id)
+   )`,
 ];
 
 async function run() {

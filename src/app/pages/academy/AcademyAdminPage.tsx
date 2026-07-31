@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import { Link } from "react-router";
-import { Plus, Trash2, Pencil, LogOut, X, GripVertical, Upload, UserPlus, KeyRound, Award, CalendarDays } from "lucide-react";
+import { Plus, Trash2, Pencil, LogOut, X, GripVertical, Upload, UserPlus, KeyRound, Award, CalendarDays, RotateCcw } from "lucide-react";
 import { colors, gradientBrand, shadow } from "../../lib/brand";
 import { academyAdminApi, uploadToS3, type AcademyApplication, type AdminEnrollment } from "../../lib/api";
 import { type Course, type Material, type Facilitator, type CourseSession, TRACKS, formatPrice, statusLabel } from "../../config/academy";
+import { ExamEditor } from "../../components/academy/ExamEditor";
 
 const TOKEN_KEY = "loopital_academy_admin";
 
@@ -724,6 +725,9 @@ function StudentsTab({ token, courses, onGuard }: { token: string; courses: Cour
     if (!window.confirm(`Remove ${e.name} from this course?`)) return;
     try { await academyAdminApi.removeEnrollment(token, e.id); load(); } catch (err) { onGuard(err); }
   };
+  const grant = async (e: AdminEnrollment) => {
+    try { await academyAdminApi.grantRetake(token, courseId, e.userId); setMsg(`Granted ${e.name} 3 more exam attempts.`); } catch (err) { onGuard(err); }
+  };
   const addSession = async (ev: FormEvent) => {
     ev.preventDefault();
     if (!sess.startsAt) return;
@@ -746,6 +750,8 @@ function StudentsTab({ token, courses, onGuard }: { token: string; courses: Cour
       </div>
       {msg && <p style={{ fontSize: "13.5px", color: colors.green, marginBottom: "16px" }}>{msg}</p>}
 
+      {courseId && <div className="mb-6"><ExamEditor token={token} courseId={courseId} api={academyAdminApi} /></div>}
+
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8">
         {/* Enrollments */}
         <div>
@@ -762,6 +768,7 @@ function StudentsTab({ token, courses, onGuard }: { token: string; courses: Cour
                       <p style={{ fontSize: "12.5px", color: colors.textSecondary }}>{e.email}</p>
                     </div>
                     <span style={{ fontSize: "12.5px", color: colors.heading, fontWeight: 600 }}>{e.progress}%</span>
+                    <button onClick={() => grant(e)} title="Grant 3 more exam attempts" style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "4px", padding: "7px 10px", fontSize: "12.5px" }}><RotateCcw size={13} /> Retake</button>
                     {e.certSerial
                       ? <span style={{ fontSize: "11px", padding: "3px 9px", borderRadius: "999px", background: `${colors.green}16`, color: colors.green }} title={e.certSerial}>Certified</span>
                       : <button onClick={() => genCert(e)} style={{ ...btnGhost, display: "inline-flex", alignItems: "center", gap: "5px", padding: "7px 12px", fontSize: "12.5px" }}><Award size={13} /> Certificate</button>}
