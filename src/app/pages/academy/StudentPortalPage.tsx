@@ -9,8 +9,8 @@ import { ExamPanel } from "../../components/academy/ExamPanel";
 import { ReviewForm } from "../../components/academy/ReviewForm";
 import { studentApi, academyApi, type AuthUser, type StudentCourseDetail } from "../../lib/api";
 import { type Course, type Enrollment, FALLBACK_COURSE_IMAGE, formatPrice, trackMeta } from "../../config/academy";
+import { useAuth } from "../../context/AuthContext";
 
-const TOKEN_KEY = "loopital_student";
 const input: CSSProperties = { width: "100%", padding: "11px 13px", borderRadius: "10px", border: `1px solid ${colors.hairline}`, background: "#fff", fontSize: "14px", color: colors.heading, outline: "none" };
 const label: CSSProperties = { display: "block", fontSize: "12.5px", fontWeight: 600, color: colors.heading, marginBottom: "6px" };
 const btnPrimary: CSSProperties = { background: gradientBrand, color: "#fff", padding: "11px 20px", borderRadius: "999px", fontSize: "14px", fontWeight: 600, border: "none", cursor: "pointer" };
@@ -28,47 +28,16 @@ function ProgressBar({ pct }: { pct: number }) {
   );
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────
-function Auth({ onAuthed }: { onAuthed: (t: string, u: AuthUser) => void }) {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setBusy(true);
-    try {
-      const r = mode === "signup" ? await studentApi.signup(name, email, password) : await studentApi.signin(email, password);
-      onAuthed(r.token, r.user);
-    } catch (err) { setError(err instanceof Error ? err.message : "Something went wrong."); }
-    finally { setBusy(false); }
-  };
-
+// ── Sign-in prompt — the portal uses the one Loopital account (global auth) ──
+function SignInPrompt({ onSignIn }: { onSignIn: () => void }) {
   return (
     <div className="min-h-[72vh] flex items-center justify-center px-6" style={{ background: colors.bg }}>
-      <div className="w-full max-w-md rounded-3xl p-8" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.md }}>
-        <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5" style={{ background: gradientBrand }}><GraduationCap size={22} color="#fff" /></div>
-        <p style={{ color: colors.blue, fontSize: "12.5px", fontWeight: 600, letterSpacing: "0.09em", marginBottom: "8px" }}>LOOPITAL ACADEMY</p>
-        <h1 style={{ fontSize: "1.6rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "6px" }}>{mode === "signup" ? "Create your student account" : "Welcome back"}</h1>
-        <p style={{ color: colors.textSecondary, fontSize: "14px", lineHeight: 1.6, marginBottom: "22px" }}>{mode === "signup" ? "Sign up to enroll, learn, and earn certificates." : "Sign in to continue learning."}</p>
-        <form onSubmit={submit} className="flex flex-col gap-4">
-          {mode === "signup" && <div><label style={label}>Full name</label><input style={input} value={name} onChange={(e) => setName(e.target.value)} required /></div>}
-          <div><label style={label}>Email</label><input type="email" style={input} value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus /></div>
-          <div><label style={label}>Password</label><input type="password" style={input} value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-          {error && <p style={{ color: "#DC2626", fontSize: "13.5px" }}>{error}</p>}
-          <button type="submit" disabled={busy} style={{ ...btnPrimary, opacity: busy ? 0.6 : 1 }}>{busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}</button>
-        </form>
-        <p className="mt-5 text-center" style={{ fontSize: "13.5px", color: colors.textSecondary }}>
-          {mode === "signup" ? "Already have an account? " : "New to the Academy? "}
-          <button onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(null); }} style={{ background: "none", border: "none", color: colors.blue, fontWeight: 600, cursor: "pointer" }}>
-            {mode === "signup" ? "Sign in" : "Create one"}
-          </button>
-        </p>
-        <div className="mt-4 text-center"><Link to="/academy" style={{ color: colors.textTertiary, fontSize: "13px" }} className="hover:underline">← Back to Academy</Link></div>
+      <div className="w-full max-w-md rounded-3xl p-8 text-center" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.md }}>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 mx-auto" style={{ background: gradientBrand }}><GraduationCap size={24} color="#fff" /></div>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "8px" }}>Sign in to your learning</h1>
+        <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6, marginBottom: "22px" }}>Use your Loopital account to enroll, learn, and track your courses and certificates — one account across everything Loopital.</p>
+        <button onClick={onSignIn} style={{ ...btnPrimary, width: "100%" }}>Sign in or create account</button>
+        <div className="mt-4"><Link to="/academy" style={{ color: colors.textTertiary, fontSize: "13px" }} className="hover:underline">← Back to Academy</Link></div>
       </div>
     </div>
   );
@@ -374,17 +343,10 @@ function ProfileCard({ token }: { token: string }) {
 }
 
 export function StudentPortalPage() {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [restoring, setRestoring] = useState(true);
+  const { user, token, initializing, setShowAuth, signOut } = useAuth();
   const [view, setView] = useState<{ name: "dashboard" } | { name: "learn"; courseId: string }>({ name: "dashboard" });
   const [params, setParams] = useSearchParams();
   const enrollId = params.get("enroll");
-
-  useEffect(() => {
-    if (!token) { setRestoring(false); return; }
-    studentApi.me(token).then((r) => setUser(r.user)).catch(() => { localStorage.removeItem(TOKEN_KEY); setToken(null); }).finally(() => setRestoring(false));
-  }, [token]);
 
   // Post-registration: a course id in ?enroll= auto-enrolls the signed-in
   // student and opens the course, then clears the param.
@@ -404,11 +366,8 @@ export function StudentPortalPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, user, enrollId]);
 
-  const onAuthed = (t: string, u: AuthUser) => { localStorage.setItem(TOKEN_KEY, t); setToken(t); setUser(u); setRestoring(false); };
-  const logout = () => { localStorage.removeItem(TOKEN_KEY); setToken(null); setUser(null); setView({ name: "dashboard" }); };
-
-  if (restoring) return <div className="max-w-5xl mx-auto px-6 py-20" style={{ color: colors.textTertiary }}>Loading…</div>;
-  if (!token || !user) return <Auth onAuthed={onAuthed} />;
+  if (initializing) return <div className="max-w-5xl mx-auto px-6 py-20" style={{ color: colors.textTertiary }}>Loading…</div>;
+  if (!user || !token) return <SignInPrompt onSignIn={() => setShowAuth("signin")} />;
   if (view.name === "learn") return <Learn token={token} courseId={view.courseId} onBack={() => setView({ name: "dashboard" })} />;
-  return <Dashboard token={token} user={user} onLogout={logout} onOpen={(courseId) => setView({ name: "learn", courseId })} />;
+  return <Dashboard token={token} user={user} onLogout={signOut} onOpen={(courseId) => setView({ name: "learn", courseId })} />;
 }

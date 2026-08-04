@@ -3,8 +3,10 @@ import { Link, useLocation } from "react-router";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ProductLink } from "./ProductLink";
+import { AccountMenu } from "./AccountMenu";
 import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
+import { useAuth } from "../context/AuthContext";
 import loopitalLogo from "../../imports/loopital-logo.svg";
 
 const services = [
@@ -24,6 +26,7 @@ const company = [
 
 export function Navbar() {
   const location = useLocation();
+  const { user, setShowAuth, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -140,7 +143,11 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-2">
-            <Link to="/contact" className="px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>Talk to us</Link>
+            {user ? (
+              <AccountMenu />
+            ) : (
+              <button onClick={() => setShowAuth("signin")} className="px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>Sign in</button>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -175,8 +182,17 @@ export function Navbar() {
           {company.map((c) => (
             <Link key={c.label} to={c.href} className="block px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
           ))}
-          <div className="flex flex-col gap-2 mt-4">
-            <Link to="/contact" onClick={() => setMobileOpen(false)} className="py-3 rounded-full text-sm font-semibold text-white text-center" style={{ background: gradientBrand }}>Talk to us</Link>
+          <div className="h-px my-2" style={{ background: colors.hairline }} />
+          <div className="flex flex-col gap-2 mt-2">
+            {user ? (
+              <>
+                <Link to="/academy/learn" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F5F5F7]" style={{ color: colors.heading }}>My Learning</Link>
+                <button onClick={() => { setShowAuth("dashboard"); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Manage account</button>
+                <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Sign out</button>
+              </>
+            ) : (
+              <button onClick={() => { setShowAuth("signin"); setMobileOpen(false); }} className="py-3 rounded-full text-sm font-semibold text-white text-center" style={{ background: gradientBrand }}>Sign in</button>
+            )}
           </div>
         </div>
       )}

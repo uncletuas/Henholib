@@ -54,7 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(TOKEN_KEY, t);
     setToken(t);
     setUser(u);
-    setShowAuth("dashboard");
+    // Google-style: signing in just closes the modal; the account menu (avatar)
+    // is how you reach your apps + account afterwards.
+    setShowAuth("none");
   };
 
   const signIn = async (email: string, password: string) => {
