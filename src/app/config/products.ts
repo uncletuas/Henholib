@@ -180,10 +180,8 @@ export const productById = (id: ProductId) => products.find((p) => p.id === id)!
 /** Products tied to the unified loopital account/portal (Swift + Pal). */
 export const accountProducts = products.filter((p) => p.accountLinked);
 
-// ── Positioning groups (so visitors clearly see what's ready vs. in the works) ──
-/** Flagship products we actively promote — Henholib (live) + EDM73 (waitlist). */
-export const flagshipProducts = products.filter((p) => p.flagship);
-/** Other products usable today (non-flagship, available). */
-export const availableProducts = products.filter((p) => p.stage === "available" && !p.flagship);
+// ── Positioning groups ──
+/** The core ecosystem, in the order we lead with them (needs-first). */
+export const ecosystemProducts: Product[] = ["henholib", "fms13", "hms7", "edm73"].map((id) => productById(id as ProductId));
 /** Products still in development — shown separately with a waitlist (Pal, Swift). */
 export const inDevelopmentProducts = products.filter((p) => p.stage === "coming_soon" && !p.flagship);

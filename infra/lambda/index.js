@@ -50,7 +50,10 @@ const sm = new SecretsManagerClient({});
 const s3 = new S3Client({});
 const ses = new SESv2Client({});
 
-const { CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN, MATERIALS_BUCKET, SES_FROM } = process.env;
+const {
+  CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN, MATERIALS_BUCKET, SES_FROM,
+  RESEND_API_KEY, RESEND_FROM_EMAIL, PAYSTACK_SECRET_KEY, PAYSTACK_CALLBACK_URL,
+} = process.env;
 const TOKEN_TTL = "7d";
 
 let cachedJwtSecret;
@@ -1383,12 +1386,23 @@ async function verifyCertificate(serial) {
 // ── Notification + contact emails (SES) ────────────────────────────────────
 const NOTIFY_EMAILS = ["admin@loopital.com", "tuamenebestgod@gmail.com"];
 
+// Sends via Resend (https://resend.com) when configured; falls back to SES.
 async function sendSimpleEmail(to, subject, text, replyTo) {
+  const recipients = Array.isArray(to) ? to : [to];
+  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: RESEND_FROM_EMAIL, to: recipients, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
+    });
+    if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+    return;
+  }
   if (!SES_FROM) return;
   await ses.send(
     new SendEmailCommand({
       FromEmailAddress: SES_FROM,
-      Destination: { ToAddresses: Array.isArray(to) ? to : [to] },
+      Destination: { ToAddresses: recipients },
       ...(replyTo ? { ReplyToAddresses: [replyTo] } : {}),
       Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } },
     })

@@ -131,10 +131,13 @@ class LoopitalStack extends cdk.Stack {
       process.env.SES_FROM || "Loopital <noreply@loopital.com>"
     );
 
-    // Paystack secret key for course payments. Provide PAYSTACK_SECRET_KEY at
-    // deploy time (test key now, live key later). Public key is set in the
-    // frontend config.
+    // Paystack for course payments + Resend for transactional email. Provide
+    // these at deploy time (see the deploy memory). Public/test values only in
+    // env; nothing secret is committed.
     authFn.addEnvironment("PAYSTACK_SECRET_KEY", process.env.PAYSTACK_SECRET_KEY || "");
+    authFn.addEnvironment("PAYSTACK_CALLBACK_URL", process.env.PAYSTACK_CALLBACK_URL || "https://www.loopital.com/payment/callback");
+    authFn.addEnvironment("RESEND_API_KEY", process.env.RESEND_API_KEY || "");
+    authFn.addEnvironment("RESEND_FROM_EMAIL", process.env.RESEND_FROM_EMAIL || "");
 
     // ── HTTP API (API Gateway v2) ─────────────────────────────────────────
     const httpApi = new HttpApi(this, "HttpApi", { apiName: "loopital-api" });
