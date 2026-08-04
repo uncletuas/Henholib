@@ -135,6 +135,10 @@ async function signup(body) {
   const token = jwt.sign({ sub: user.id, email: user.email }, secret, {
     expiresIn: TOKEN_TTL,
   });
+  await notifyAdmins(
+    "New Loopital signup",
+    `A new account was created.\n\nName: ${user.name}\nEmail: ${user.email}`
+  );
   return json(201, { token, user: publicUser(user) });
 }
 
@@ -153,6 +157,10 @@ async function joinWaitlist(body) {
      VALUES (:email, :product, :name)
      ON CONFLICT (email, product) DO NOTHING`,
     { email, product, name }
+  );
+  await notifyAdmins(
+    `New waitlist signup — ${product}`,
+    `Someone joined a product waitlist.\n\nProduct: ${product}\nEmail: ${email}\nName: ${name || "—"}`
   );
   return json(201, { ok: true });
 }
@@ -1372,6 +1380,46 @@ async function verifyCertificate(serial) {
   return json(200, { valid: true, name: rows[0].student_name, courseTitle: rows[0].course_title, issuedAt: rows[0].issued_at, serial: s });
 }
 
+// ── Notification + contact emails (SES) ────────────────────────────────────
+const NOTIFY_EMAILS = ["admin@loopital.com", "tuamenebestgod@gmail.com"];
+
+async function sendSimpleEmail(to, subject, text, replyTo) {
+  if (!SES_FROM) return;
+  await ses.send(
+    new SendEmailCommand({
+      FromEmailAddress: SES_FROM,
+      Destination: { ToAddresses: Array.isArray(to) ? to : [to] },
+      ...(replyTo ? { ReplyToAddresses: [replyTo] } : {}),
+      Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } },
+    })
+  );
+}
+
+// Best-effort admin notification — never blocks or fails the primary action.
+async function notifyAdmins(subject, text) {
+  try {
+    await sendSimpleEmail(NOTIFY_EMAILS, subject, text);
+  } catch (e) {
+    console.error("notifyAdmins failed:", (e && e.message) || e);
+  }
+}
+
+async function handleContact(body) {
+  const name = (body.name || "").trim();
+  const email = (body.email || "").trim().toLowerCase();
+  const subject = (body.subject || "").trim() || "General";
+  const message = (body.message || "").trim();
+  if (!name || !EMAIL_RE.test(email) || !message)
+    return json(400, { error: "Please add your name, a valid email, and a message." });
+  const text = `New contact form submission\n\nName: ${name}\nEmail: ${email}\nTopic: ${subject}\n\nMessage:\n${message}`;
+  try {
+    await sendSimpleEmail(NOTIFY_EMAILS, `[Loopital] ${subject} — ${name}`, text, email);
+  } catch (e) {
+    console.error("contact email failed:", (e && e.message) || e);
+  }
+  return json(201, { ok: true });
+}
+
 exports.handler = async (event) => {
   const method =
     event.requestContext?.http?.method || event.httpMethod || "GET";
@@ -1400,6 +1448,7 @@ exports.handler = async (event) => {
     if (method === "POST" && route === "/auth/signup") return await signup(body);
     if (method === "POST" && route === "/auth/signin") return await signin(body);
     if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
+    if (method === "POST" && route === "/contact") return await handleContact(body);
     if (method === "GET" && route === "/auth/me") return await me(headers);
     if (method === "GET" && route === "/account/subscriptions") return await getSubscriptions(headers);
     if (method === "GET" && route === "/account/invoices") return await getInvoices(headers);

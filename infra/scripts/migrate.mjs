@@ -299,6 +299,36 @@ const statements = [
      extra    INTEGER NOT NULL DEFAULT 0,
      PRIMARY KEY (exam_id, user_id)
    )`,
+
+  // ── Payments (Paystack) + instructor-controlled completion ─────────────
+  // A payment attempt per (student, course). Paid access is granted only after
+  // a successful payment (free courses skip this).
+  `CREATE TABLE IF NOT EXISTS academy_payments (
+     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     user_id      UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     course_id    UUID NOT NULL REFERENCES academy_courses (id) ON DELETE CASCADE,
+     reference    TEXT NOT NULL UNIQUE,
+     amount_cents INTEGER NOT NULL,
+     currency     TEXT NOT NULL DEFAULT 'USD',
+     status       TEXT NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending','success','failed')),
+     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS academy_payments_user_idx ON academy_payments (user_id)`,
+
+  // Instructor marks attendance per session per enrolled student.
+  `CREATE TABLE IF NOT EXISTS academy_attendance (
+     enrollment_id UUID NOT NULL REFERENCES academy_enrollments (id) ON DELETE CASCADE,
+     session_id    UUID NOT NULL REFERENCES academy_sessions (id) ON DELETE CASCADE,
+     present       BOOLEAN NOT NULL DEFAULT true,
+     marked_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+     PRIMARY KEY (enrollment_id, session_id)
+   )`,
+
+  // Enrolment flags: paid gates access; exam_authorized gates the assessment
+  // (only the instructor can set completion + authorize the exam).
+  `ALTER TABLE academy_enrollments ADD COLUMN IF NOT EXISTS paid BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE academy_enrollments ADD COLUMN IF NOT EXISTS exam_authorized BOOLEAN NOT NULL DEFAULT false`,
 ];
 
 async function run() {

@@ -59,6 +59,12 @@ export const waitlistApi = {
     }),
 };
 
+// Contact form → emails admin@loopital.com + tuamenebestgod@gmail.com (SES).
+export const contactApi = {
+  send: (input: { name: string; email: string; subject: string; message: string }) =>
+    request<{ ok: boolean }>("/contact", { method: "POST", body: JSON.stringify(input) }),
+};
+
 // ── Loopital Academy ───────────────────────────────────────────────────
 // Public: course catalog + application capture. Admin: management portal
 // (single shared credential set via self-service bootstrap on first run).

@@ -1,15 +1,26 @@
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { motion } from "motion/react";
+import { contactApi } from "../lib/api";
 
 export function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSent(true); }, 1500);
+    setError(null);
+    try {
+      await contactApi.send({ ...form, subject: form.subject || "General" });
+      setSent(true);
+    } catch {
+      setError("Couldn't send right now. Please email us at info@loopital.com.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle = {
@@ -135,6 +146,7 @@ export function ContactPage() {
                         <label style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}>Message</label>
                         <textarea required rows={5} placeholder="Tell us more about what you need…" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, resize: "vertical" }} onFocus={e => { (e.target as HTMLTextAreaElement).style.borderColor = "#2563EB"; }} onBlur={e => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
                       </div>
+                      {error && <p style={{ color: "#DC2626", fontSize: "13px" }}>{error}</p>}
                       <button type="submit" disabled={loading} className="py-3.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center" style={{ background: "#2563EB", color: "#fff" }}>
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Send message"}
                       </button>
