@@ -37,6 +37,6 @@ export const FOUNDER_SOCIALS = [
   { network: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@btuamene" },
 ] as const;
 
-export const CONTACT_EMAIL = "contact@loopital.com";
+export const CONTACT_EMAIL = "info@loopital.com";
 export const COMPANY_ADDRESS =
   "Pyale Hub, 21 Bekwere Wosu Street, D-Line, Diobu, Port Harcourt, Rivers State, Nigeria";

@@ -3,27 +3,20 @@ import { GlassCard } from "./GlassCard";
 import { ProductLink } from "./ProductLink";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { colors } from "../lib/brand";
+import { productImagery } from "../config/product-media";
 import type { Product } from "../config/products";
-
-// Per-product cover imagery for the post cards.
-const imagery: Record<string, string> = {
-  stack62: "https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  sart34: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  hms7: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  henholib: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  fms13: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  edm73: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-};
 
 /** x.ai-style "post" card for a product — cover image + glass body, cursor-reactive. */
 export function ProductPostCard({ product: p }: { product: Product }) {
+  const soon = p.stage === "coming_soon";
   return (
     <GlassCard accent={p.accent} className="h-full">
       {/* Cover */}
       <div className="relative" style={{ aspectRatio: "16/9" }}>
-        <ImageWithFallback src={imagery[p.id]} alt={p.name} className="w-full h-full object-cover" />
+        <ImageWithFallback src={productImagery[p.id]} alt={p.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0" style={{ background: `linear-gradient(150deg, ${p.accent}30 0%, transparent 55%)` }} />
         <span className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.9)", color: p.accent }}>{p.category}</span>
+        <span className="absolute bottom-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full" style={soon ? { background: "rgba(6,8,15,0.72)", color: "#fff" } : { background: colors.green, color: "#fff" }}>{soon ? "Coming soon" : "Available now"}</span>
         <div className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#fff", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
           <ImageWithFallback src={p.logo} alt={p.name} className="w-6 h-6 object-contain" />
         </div>

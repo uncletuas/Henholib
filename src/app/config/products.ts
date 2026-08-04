@@ -46,6 +46,10 @@ export interface Product {
   accountLinked: boolean;
   /** Primary call to action: launch the app, or book a demo. */
   ctaType: CtaType;
+  /** Launch stage: "available" (usable now) or "coming_soon" (in development / waitlist). */
+  stage: "available" | "coming_soon";
+  /** Flagship products we actively promote (Henholib + EDM73). */
+  flagship?: boolean;
   /** Optional launch offer, e.g. "Free for the first 3 months". */
   offer?: string;
   /** Mobile store links (Swift only). */
@@ -67,6 +71,7 @@ export const products: Product[] = [
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
     detailHref: "/products/stack62",
+    stage: "coming_soon",
     external: false,
     accountLinked: false,
     ctaType: "waitlist",
@@ -84,6 +89,7 @@ export const products: Product[] = [
     platforms: ["web", "desktop", "mobile"],
     accent: productAccent.sart34,
     detailHref: "/products/sart34",
+    stage: "coming_soon",
     external: false,
     accountLinked: false,
     ctaType: "waitlist",
@@ -101,6 +107,7 @@ export const products: Product[] = [
     platforms: ["web", "desktop"],
     accent: productAccent.hms7,
     detailHref: "/products/hms7",
+    stage: "available",
     external: false,
     accountLinked: false,
     ctaType: "demo",
@@ -119,6 +126,8 @@ export const products: Product[] = [
     platforms: ["web", "mobile"],
     accent: productAccent.henholib,
     detailHref: "/products/henholib",
+    stage: "available",
+    flagship: true,
     appHref: HENHOLIB_URL,
     external: false,
     accountLinked: false,
@@ -137,6 +146,7 @@ export const products: Product[] = [
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
     detailHref: "/products/fms13",
+    stage: "available",
     appHref: FMS13_URL,
     external: false,
     accountLinked: false,
@@ -156,6 +166,8 @@ export const products: Product[] = [
     platforms: ["web", "desktop"],
     accent: productAccent.edm73,
     detailHref: "/products/edm73",
+    stage: "coming_soon",
+    flagship: true,
     external: false,
     accountLinked: false,
     ctaType: "waitlist",
@@ -167,3 +179,11 @@ export const productById = (id: ProductId) => products.find((p) => p.id === id)!
 
 /** Products tied to the unified loopital account/portal (Swift + Pal). */
 export const accountProducts = products.filter((p) => p.accountLinked);
+
+// ── Positioning groups (so visitors clearly see what's ready vs. in the works) ──
+/** Flagship products we actively promote — Henholib (live) + EDM73 (waitlist). */
+export const flagshipProducts = products.filter((p) => p.flagship);
+/** Other products usable today (non-flagship, available). */
+export const availableProducts = products.filter((p) => p.stage === "available" && !p.flagship);
+/** Products still in development — shown separately with a waitlist (Pal, Swift). */
+export const inDevelopmentProducts = products.filter((p) => p.stage === "coming_soon" && !p.flagship);

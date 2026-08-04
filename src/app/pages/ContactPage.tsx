@@ -24,7 +24,7 @@ export function ContactPage() {
   };
 
   const contactInfo = [
-    { label: "Email", value: "contact@loopital.com", href: "mailto:contact@loopital.com" },
+    { label: "Email", value: "info@loopital.com", href: "mailto:info@loopital.com" },
     { label: "Phone", value: "+234 705 939 9170", href: "tel:+2347059399170" },
   ];
 

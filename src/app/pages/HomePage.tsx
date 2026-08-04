@@ -9,8 +9,9 @@ import { GlassCard } from "../components/GlassCard";
 import { TypingChat } from "../components/TypingChat";
 import { TypeCycle } from "../components/TypeCycle";
 import { ProductPostCard } from "../components/ProductPostCard";
+import { FeaturedProductCard } from "../components/FeaturedProductCard";
 import { AcademyShowcase } from "../components/AcademyShowcase";
-import { products } from "../config/products";
+import { flagshipProducts, availableProducts, inDevelopmentProducts } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 import { useAuth } from "../context/AuthContext";
 
@@ -69,17 +70,49 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ── PRODUCTS: post-card feed ── */}
+      {/* ── FLAGSHIP PRODUCTS ── */}
       <Section background={colors.surface} pad="md">
         <Reveal className="max-w-2xl mb-10">
-          <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>OUR PRODUCTS</p>
-          <h2 style={{ marginBottom: "12px" }}>One intelligent infrastructure, five focused products.</h2>
+          <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>OUR FLAGSHIP PRODUCTS</p>
+          <h2 style={{ marginBottom: "12px" }}>The platforms we're building the future on.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            Each powerful on its own, designed to work together — for the way modern organizations work, communicate, operate, and grow.
+            Henholib is live and connecting healthcare today. EDM73 is next — the operating system for schools and training institutions. Get in early.
           </p>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {products.map((p, i) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {flagshipProducts.map((p, i) => (
+            <Reveal key={p.id} delay={i * 0.08}>
+              <FeaturedProductCard product={p} />
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Also available today */}
+        <div className="mt-14">
+          <Reveal className="mb-6">
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Also available today</h3>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {availableProducts.map((p, i) => (
+              <Reveal key={p.id} delay={i * 0.06}>
+                <ProductPostCard product={p} />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* ── IN DEVELOPMENT ── */}
+      <Section background={colors.bg} pad="md">
+        <Reveal className="max-w-2xl mb-8">
+          <p style={{ color: colors.textTertiary, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>IN DEVELOPMENT</p>
+          <h2 style={{ marginBottom: "12px" }}>On the way.</h2>
+          <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
+            These AI products are still in active development. Join the waitlist and we'll let you know the moment they're ready for you.
+          </p>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5" style={{ maxWidth: "760px" }}>
+          {inDevelopmentProducts.map((p, i) => (
             <Reveal key={p.id} delay={i * 0.06}>
               <ProductPostCard product={p} />
             </Reveal>
