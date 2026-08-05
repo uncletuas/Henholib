@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * Living Coworker face — the exact face used inside the Pal workspace
- * (pal.loopital.com), reproduced here for the loopital.com demo.
+ * (pal.loopital.com), kept in sync between the app and the loopital.com demo.
  *
- * The face is never frozen. Even at rest it blinks, glances, twitches
- * its eyebrows, and breathes. When it speaks, the mouth cycles through
- * phoneme-like shapes (M / A / E / O / closed) instead of just opening
- * and closing in place. When it's thinking, the eyes drift up-right,
- * one brow lifts, and the mouth purses — no spinners, no dots.
+ * The face is never frozen. Even at rest it blinks, glances, twitches its
+ * eyebrows, breathes, and its smile gently shifts. When it speaks, the mouth
+ * cycles through phoneme-like shapes (A / E / O / I / U / M / closed) with a
+ * wide, warm range instead of just opening and closing in place. When it's
+ * thinking, the eyes drift up-right, one brow lifts, and the mouth purses.
  *
  * Drives:
  *   - mood          → resting expression baseline (eyes, brows, mouth curve)
@@ -26,15 +26,22 @@ export type CoworkerMood =
   | "anxious"
   | "listening";
 
-type Phoneme = "closed" | "M" | "A" | "E" | "O" | "I";
+type Phoneme = "closed" | "M" | "A" | "E" | "O" | "I" | "U";
 
-const PHONEME_CYCLE: Phoneme[] = ["A", "M", "E", "O", "I", "M", "A", "closed"];
+// A richer cycle with more vowel variety so the mouth visibly re-shapes
+// word to word rather than just pulsing.
+const PHONEME_CYCLE: Phoneme[] = ["A", "E", "O", "I", "M", "U", "A", "E", "closed"];
 
 interface BrowState {
   /** Vertical offset in svg units; negative = raised. */
   lift: number;
   /** Inner-end angle in degrees, negative = pulled down (worried). */
   angle: number;
+}
+
+/** Moods that read as genuinely happy — used for smiling eyes + dimples. */
+function isJoyful(mood: CoworkerMood): boolean {
+  return mood === "happy" || mood === "excited";
 }
 
 export function CoworkerFace({
@@ -63,6 +70,8 @@ export function CoworkerFace({
   const [tilt, setTilt] = useState(0);
   /** Subtle breathing scale (0.97..1.03). */
   const [breath, setBreath] = useState(1);
+  /** Slow idle motion (0..1 sine) so the resting smile is never static. */
+  const [idle, setIdle] = useState(0);
 
   const phonemeTimer = useRef<number | null>(null);
 
@@ -141,9 +150,9 @@ export function CoworkerFace({
       } else if (mood === "anxious") {
         setBrowTwitch({ lift: -0.3, angle: -14 });
       } else if (mood === "excited") {
-        setBrowTwitch({ lift: -1.0, angle: 6 });
+        setBrowTwitch({ lift: -1.3, angle: 7 });
       } else if (mood === "happy") {
-        setBrowTwitch({ lift: -0.4, angle: 4 });
+        setBrowTwitch({ lift: -0.6, angle: 5 });
       } else if (mood === "sad") {
         setBrowTwitch({ lift: 0.5, angle: -10 });
       } else {
@@ -190,7 +199,7 @@ export function CoworkerFace({
     };
   }, [mood, thinking]);
 
-  // ── Breathing ─────────────────────────────────────────────────────
+  // ── Breathing + idle mouth life ───────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     const start = performance.now();
@@ -198,6 +207,9 @@ export function CoworkerFace({
       if (cancelled) return;
       const phase = (t - start) / 1800; // ~1.8s per breath
       setBreath(1 + Math.sin(phase * Math.PI * 2) * 0.025);
+      // Slow, independent idle wave (~3.2s) so the resting smile eases
+      // in and out instead of sitting perfectly still.
+      setIdle((Math.sin((t - start) / 3200) + 1) / 2);
       raf = requestAnimationFrame(step);
     };
     let raf = requestAnimationFrame(step);
@@ -217,7 +229,7 @@ export function CoworkerFace({
       setPhonemeIdx(0);
       return;
     }
-    const tickMs = mood === "excited" ? 95 : mood === "sad" ? 160 : 120;
+    const tickMs = mood === "excited" ? 90 : mood === "sad" ? 155 : 115;
     phonemeTimer.current = window.setInterval(() => {
       setPhonemeIdx((i) => (i + 1) % PHONEME_CYCLE.length);
     }, tickMs);
@@ -233,41 +245,47 @@ export function CoworkerFace({
   useEffect(() => {
     if (!mouthPulse) return;
     setPunching(true);
-    const id = window.setTimeout(() => setPunching(false), 130);
+    const id = window.setTimeout(() => setPunching(false), 140);
     return () => window.clearTimeout(id);
   }, [mouthPulse]);
 
   // ── Compute mouth ─────────────────────────────────────────────────
   const phoneme: Phoneme = speaking ? PHONEME_CYCLE[phonemeIdx] : "closed";
-  const openness = speaking ? (punching ? 1.0 : 0.85) : 0;
+  const openness = speaking ? (punching ? 1.0 : 0.86) : 0;
   const mouthPath = thinking
     ? thinkingMouthPath()
     : speaking
       ? phonemePath(phoneme, mood, openness)
-      : restingMouthPath(mood);
-  const mouthFilled = !thinking && openness > 0.3 && phoneme !== "M" && phoneme !== "closed";
+      : restingMouthPath(mood, idle);
+  const mouthOpen =
+    !thinking && openness > 0.3 && phoneme !== "M" && phoneme !== "closed";
+  // A resting "excited" face keeps its mouth slightly open (a grin).
+  const restingGrin = !thinking && !speaking && mood === "excited";
+  const mouthFilled = mouthOpen || restingGrin;
 
   // ── Eyes ──────────────────────────────────────────────────────────
   const eyeColor = autonomous ? "#a7f3d0" : "white";
   const eyeRyBase =
     thinking
       ? 1.6
-      : mood === "happy" || mood === "excited"
-        ? 1.5
-        : mood === "sad"
-          ? 1.3
-          : 1.9;
+      : mood === "excited"
+        ? 1.35
+        : mood === "happy"
+          ? 1.5
+          : mood === "sad"
+            ? 1.3
+            : 1.9;
   const eyeRy = blink ? 0.2 : eyeRyBase;
   const eyeY = mood === "sad" ? 13 : mood === "excited" ? 11 : 12;
   const leftEyeCx = 10 + gaze.x;
   const rightEyeCx = 18 + gaze.x;
   const eyesCy = eyeY + gaze.y;
+  // Smiling eyes: for joyful moods, draw a soft upward arc over each eye
+  // so the whole face reads as a genuine smile, not just a curved mouth.
+  const joyful = isJoyful(mood) && !thinking;
+  const showSmileEyes = joyful && !blink;
 
   // ── Brows ─────────────────────────────────────────────────────────
-  // Each brow is a short line. Inner end is closer to centre; outer
-  // end farther. Angle rotates around the inner end. Sad/anxious has
-  // a negative angle (inner up, outer down → worried). Excited/happy
-  // has positive angle on the outer (arched).
   const browY = eyeY - 3 + browTwitch.lift;
   const leftBrow = browPath(true, browY, browTwitch.angle, blink ? 0 : 1);
   const rightBrow = browPath(false, browY, browTwitch.angle, blink ? 0 : 1);
@@ -327,6 +345,28 @@ export function CoworkerFace({
         }}
       />
 
+      {/* Smiling-eye arcs for joyful moods */}
+      {showSmileEyes && (
+        <>
+          <path
+            d={`M ${leftEyeCx - 2} ${eyesCy - 0.2} Q ${leftEyeCx} ${eyesCy - 2.3} ${leftEyeCx + 2} ${eyesCy - 0.2}`}
+            stroke={eyeColor}
+            strokeWidth="1.1"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.85"
+          />
+          <path
+            d={`M ${rightEyeCx - 2} ${eyesCy - 0.2} Q ${rightEyeCx} ${eyesCy - 2.3} ${rightEyeCx + 2} ${eyesCy - 0.2}`}
+            stroke={eyeColor}
+            strokeWidth="1.1"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.85"
+          />
+        </>
+      )}
+
       {/* Autonomous-mode eye glow */}
       {autonomous && !blink && (
         <>
@@ -349,16 +389,24 @@ export function CoworkerFace({
         </>
       )}
 
+      {/* Dimples — a couple of soft dots at the corners when joyful */}
+      {joyful && !speaking && (
+        <>
+          <circle cx="6.4" cy="19" r="0.7" fill="white" opacity="0.5" />
+          <circle cx="21.6" cy="19" r="0.7" fill="white" opacity="0.5" />
+        </>
+      )}
+
       {/* Mouth */}
       <path
         d={mouthPath}
         stroke="white"
-        strokeWidth={thinking ? 1.5 : 1.8}
+        strokeWidth={thinking ? 1.5 : 1.9}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={mouthFilled ? "rgba(255,255,255,0.85)" : "none"}
+        fill={mouthFilled ? "rgba(255,255,255,0.9)" : "none"}
         style={{
-          transition: "d 0.09s ease-out, fill 0.15s ease-out",
+          transition: "d 0.08s ease-out, fill 0.15s ease-out",
         }}
       />
     </svg>
@@ -373,10 +421,8 @@ function browPath(
   opacity: number,
 ): string {
   if (opacity === 0) return "M 0 0"; // hidden on blink
-  // Inner end is closer to centre x=14, outer end is at x≈7 or x≈21.
   const innerX = left ? 12 : 16;
   const outerX = left ? 8 : 20;
-  // Angle rotates the outer end relative to the inner end.
   const len = Math.abs(outerX - innerX);
   const rad = (angle * Math.PI) / 180;
   const dy = Math.sin(rad) * len * (left ? -1 : 1);
@@ -386,21 +432,28 @@ function browPath(
 
 /* ── Mouth path generation ─────────────────────────────────────────── */
 
-function restingMouthPath(mood: CoworkerMood): string {
+/**
+ * Resting mouth. `idle` (0..1) eases the smile a touch wider/warmer so a
+ * face that isn't speaking still feels alive.
+ */
+function restingMouthPath(mood: CoworkerMood, idle = 0.5): string {
+  const w = idle * 0.7; // 0..0.7 svg units of extra smile width
   switch (mood) {
     case "happy":
-      return `M 7 18 Q 14 22 21 18`;
+      return `M ${6.5 - w} 18 Q 14 ${22.6 + idle * 0.5} ${21.5 + w} 18`;
     case "excited":
-      return `M 6 17.5 Q 14 22.5 22 17.5`;
+      // Open grin (filled by caller) — big and joyful.
+      return ellipsePath(14, 19.4, 4.6 + w, 2.3 + idle * 0.3);
     case "sad":
-      return `M 7 20.5 Q 14 18 21 20.5`;
+      return `M 7 20.6 Q 14 ${17.8 - idle * 0.3} 21 20.6`;
     case "anxious":
       return `M 7 19 Q 10 17.6 13 19 Q 16 20.5 19 19 Q 20.6 18.4 21 19`;
     case "listening":
-      return `M 8 18.5 Q 14 20 20 18.5`;
+      return `M ${8 - w * 0.5} 18.5 Q 14 ${20.2 + idle * 0.4} ${20 + w * 0.5} 18.5`;
     case "neutral":
     default:
-      return `M 9 19 Q 14 20 19 19`;
+      // A gentle friendly upcurve, easing with idle.
+      return `M ${8.5 - w * 0.5} 18.9 Q 14 ${20.8 + idle * 0.4} ${19.5 + w * 0.5} 18.9`;
   }
 }
 
@@ -410,59 +463,56 @@ function thinkingMouthPath(): string {
 }
 
 /**
- * Phoneme shapes — each tries to feel different from the next so the
- * mouth visibly changes shape rather than just pulsing wider/narrower.
- *   - M / closed   : nearly closed lips, gentle curve
- *   - A            : wide-open oval (talking loudly)
- *   - E            : wide and shallow (smile-shaped)
- *   - O            : round, small
- *   - I            : narrow horizontal slit
+ * Phoneme shapes — a wide, warm set so the mouth visibly re-shapes:
+ *   - A : wide-open oval (loud)          - O : round, medium
+ *   - E : wide + shallow (smile-shaped)  - I : narrow horizontal slit
+ *   - U : small forward purse            - M / closed : gentle closed curve
  *
  * Mood tints the shape: happy/excited keep upturned corners even when
- * open; sad keeps corners pulled down; anxious adds asymmetric wobble.
+ * open; sad keeps corners pulled down.
  */
 function phonemePath(
   p: Phoneme,
   mood: CoworkerMood,
   openness: number,
 ): string {
-  const cornerLift =
-    mood === "happy" || mood === "excited"
-      ? -0.6
-      : mood === "sad"
-        ? 0.7
-        : 0;
+  const cornerLift = isJoyful(mood) ? -0.7 : mood === "sad" ? 0.7 : 0;
   const t = Math.max(0, Math.min(1, openness));
 
   switch (p) {
     case "closed":
     case "M": {
       const cy = 19 + cornerLift * 0.3;
-      const dip = 19.5 + cornerLift * 0.3;
-      return `M 9 ${cy} Q 14 ${dip} 19 ${cy}`;
+      const dip = 19.6 + cornerLift * 0.3;
+      return `M 8.5 ${cy} Q 14 ${dip} 19.5 ${cy}`;
     }
     case "A": {
-      // Wide open oval
-      const rx = 4.2 + t * 0.4;
-      const ry = 2.2 + t * 0.6;
-      return ellipsePath(14, 19.5 + cornerLift * 0.2, rx, ry);
+      // Wide open oval — the biggest opening.
+      const rx = 4.8 + t * 0.6;
+      const ry = 2.6 + t * 0.9;
+      return ellipsePath(14, 19.6 + cornerLift * 0.2, rx, ry);
     }
     case "E": {
-      // Wide and shallow smile-like
-      const rx = 5 + t * 0.4;
-      const ry = 1.0 + t * 0.4;
+      // Wide + shallow, smile-like.
+      const rx = 5.6 + t * 0.5;
+      const ry = 1.2 + t * 0.5;
       const cy = 19.3 + cornerLift * 0.3;
       return ellipsePath(14, cy, rx, ry);
     }
     case "O": {
-      // Small round
-      const r = 1.7 + t * 0.6;
-      return ellipsePath(14, 19.5, r, r);
+      // Round, medium.
+      const r = 2.2 + t * 0.8;
+      return ellipsePath(14, 19.6, r, r);
+    }
+    case "U": {
+      // Small forward purse.
+      const r = 1.5 + t * 0.5;
+      return ellipsePath(14, 19.7, r, r * 1.15);
     }
     case "I": {
-      // Narrow horizontal slit with a fill
-      const rx = 4.0;
-      const ry = 0.7 + t * 0.3;
+      // Narrow horizontal slit.
+      const rx = 4.6;
+      const ry = 0.85 + t * 0.35;
       return ellipsePath(14, 19.4 + cornerLift * 0.3, rx, ry);
     }
     default:

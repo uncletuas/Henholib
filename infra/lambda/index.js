@@ -348,7 +348,7 @@ async function exchangeSsoToken(body) {
 // NOTE: the Paystack account currently only supports NGN (USD → "unsupported_currency").
 // Amount is in the currency's subunit (kobo for NGN). PLACEHOLDER price — confirm.
 const PAYSTACK_CURRENCY = process.env.PAYSTACK_CURRENCY || "NGN";
-const PAL_COWORKER_AMOUNT = Number(process.env.PAL_COWORKER_AMOUNT) || 1500000; // ₦15,000/mo
+const PAL_COWORKER_AMOUNT = Number(process.env.PAL_COWORKER_AMOUNT) || 3500000; // ₦35,000/mo
 const PAYSTACK_API = "https://api.paystack.co";
 
 async function palProfile(headers) {

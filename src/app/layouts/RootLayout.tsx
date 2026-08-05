@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useSearchParams } from "react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { AuthModal } from "../components/AuthModal";
@@ -16,7 +16,16 @@ import { launchWorkspace } from "../lib/pal";
 export function RootLayout() {
   const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, pendingPal, setPendingPal } = useAuth();
   const location = useLocation();
+  const [params] = useSearchParams();
   const seo = getPageSeo(location.pathname);
+
+  // Deep-link from the Pal app's "Add the coworker" upgrade CTA:
+  // `?upgrade=coworker` opens the account dashboard (where "Add coworker"
+  // lives) when signed in, or the sign-up modal first when not.
+  useEffect(() => {
+    if (params.get("upgrade") !== "coworker") return;
+    setShowAuth(user ? "dashboard" : "signup");
+  }, [params, user, setShowAuth]);
 
   // Resume a "Try Pal" click after the user signs in/registers: onboard if
   // first-time, otherwise launch straight into the workspace.
