@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router";
-import { LogOut, Settings, GraduationCap, ChevronDown } from "lucide-react";
+import { LogOut, Settings, GraduationCap, ChevronDown, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
+import { openPalWorkspace } from "../lib/pal";
 import { productById } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 
@@ -11,7 +12,7 @@ const initials = (name: string) =>
 
 /** Google-style account button: avatar → dropdown with an app launcher. */
 export function AccountMenu() {
-  const { user, signOut, setShowAuth } = useAuth();
+  const { user, token, signOut, setShowAuth, setShowPalOnboarding, setPendingPal } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -24,11 +25,12 @@ export function AccountMenu() {
   if (!user) return null;
   const pal = productById("stack62");
   const swift = productById("sart34");
+  const launchPal = () => { setOpen(false); openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal }); };
 
-  // Apps this one account unlocks. Academy is live; Pal/Swift are in development.
+  // Apps this one account unlocks. Pal + Academy are live; Swift is in development.
   const apps = [
+    { name: pal.name, onClick: launchPal, node: <ImageWithFallback src={pal.logo} alt={pal.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: false },
     { name: "Academy", to: "/academy/learn", node: <GraduationCap size={20} color="#fff" />, chip: gradientBrand, soon: false },
-    { name: pal.name, to: pal.detailHref, node: <ImageWithFallback src={pal.logo} alt={pal.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: true },
     { name: swift.name, to: swift.detailHref, node: <ImageWithFallback src={swift.logo} alt={swift.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: true },
   ];
 
@@ -36,6 +38,14 @@ export function AccountMenu() {
     <span className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ width: size, height: size, background: gradientBrand, fontSize: size * 0.4 }}>
       {initials(user.name)}
     </span>
+  );
+
+  const tileInner = (a: typeof apps[number]) => (
+    <>
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: a.chip, border: a.chip === "#fff" ? `1px solid ${colors.hairline}` : "none" }}>{a.node}</div>
+      <span style={{ fontSize: "12px", fontWeight: 600, color: colors.heading }}>{a.name}</span>
+      {a.soon && <span className="absolute top-1 right-1" style={{ fontSize: "8.5px", fontWeight: 700, color: colors.textTertiary, background: colors.surfaceMuted, borderRadius: "999px", padding: "1px 5px" }}>SOON</span>}
+    </>
   );
 
   return (
@@ -55,15 +65,21 @@ export function AccountMenu() {
             </div>
           </div>
 
-          <div className="p-3">
+          <div className="p-3 pb-1">
+            <button onClick={launchPal} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-white transition-all hover:opacity-95" style={{ background: gradientBrand }}>
+              <span className="w-7 h-7 rounded-lg flex items-center justify-center bg-white flex-shrink-0"><ImageWithFallback src={pal.logo} alt="Pal" className="w-5 h-5 object-contain" /></span>
+              <span className="flex-1" style={{ fontSize: "13.5px", fontWeight: 700 }}>Open your Pal workspace</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
+
+          <div className="p-3 pt-2">
             <p style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em", color: colors.textTertiary, marginBottom: "8px" }}>YOUR APPS</p>
             <div className="grid grid-cols-3 gap-1.5">
-              {apps.map((a) => (
-                <Link key={a.name} to={a.to} onClick={() => setOpen(false)} className="relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-colors hover:bg-[#F5F5F7]">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: a.chip, border: a.chip === "#fff" ? `1px solid ${colors.hairline}` : "none" }}>{a.node}</div>
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: colors.heading }}>{a.name}</span>
-                  {a.soon && <span className="absolute top-1 right-1" style={{ fontSize: "8.5px", fontWeight: 700, color: colors.textTertiary, background: colors.surfaceMuted, borderRadius: "999px", padding: "1px 5px" }}>SOON</span>}
-                </Link>
+              {apps.map((a) => a.onClick ? (
+                <button key={a.name} onClick={a.onClick} className="relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</button>
+              ) : (
+                <Link key={a.name} to={a.to!} onClick={() => setOpen(false)} className="relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</Link>
               ))}
             </div>
           </div>

@@ -1,18 +1,32 @@
+import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { AuthModal } from "../components/AuthModal";
 import { AccountDashboard } from "../components/AccountDashboard";
 import { WaitlistModal } from "../components/WaitlistModal";
+import { PalOnboardingModal } from "../components/PalOnboardingModal";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { Seo } from "../components/Seo";
 import { getPageSeo } from "../config/seo-pages";
 import { useAuth } from "../context/AuthContext";
+import { palApi } from "../lib/api";
+import { launchWorkspace } from "../lib/pal";
 
 export function RootLayout() {
-  const { showAuth, setShowAuth, signOut, user, waitlist, setWaitlist } = useAuth();
+  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, pendingPal, setPendingPal } = useAuth();
   const location = useLocation();
   const seo = getPageSeo(location.pathname);
+
+  // Resume a "Try Pal" click after the user signs in/registers: onboard if
+  // first-time, otherwise launch straight into the workspace.
+  useEffect(() => {
+    if (!(user && token && pendingPal)) return;
+    setPendingPal(false);
+    palApi.getProfile(token)
+      .then((pr) => { if (!pr.onboarded) setShowPalOnboarding(true); else launchWorkspace(token); })
+      .catch(() => launchWorkspace(token));
+  }, [user, token, pendingPal, setPendingPal, setShowPalOnboarding]);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#FBFBFD" }}>
@@ -41,6 +55,7 @@ export function RootLayout() {
       {waitlist && (
         <WaitlistModal product={waitlist} onClose={() => setWaitlist(null)} />
       )}
+      {showPalOnboarding && <PalOnboardingModal />}
     </div>
   );
 }

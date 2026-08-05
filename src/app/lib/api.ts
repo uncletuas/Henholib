@@ -410,3 +410,27 @@ export async function launchProductApp(
     window.open(appHref, "_blank", "noopener");
   }
 }
+
+// ── Pal workspace ───────────────────────────────────────────────────────
+// A Loopital account IS a Pal account. The workspace is free; the AI coworker
+// is a paid upgrade billed here via Paystack (product = "stack62").
+export interface PalProfile {
+  onboarded: boolean;
+  useType: string | null;
+  orgName: string | null;
+  teamSize: string | null;
+  coworker: boolean; // has the paid coworker subscription
+}
+
+export const palApi = {
+  getProfile: (token: string) => request<PalProfile>("/account/pal", { headers: authHeader(token) }),
+  saveOnboarding: (token: string, input: { useType: string; orgName?: string; teamSize?: string }) =>
+    request<{ ok: boolean }>("/account/pal/onboarding", { method: "POST", headers: authHeader(token), body: JSON.stringify(input) }),
+  subscribe: (token: string) =>
+    request<{ authorizationUrl: string; reference: string }>("/account/pal/subscribe", { method: "POST", headers: authHeader(token) }),
+};
+
+export const payApi = {
+  verify: (token: string, reference: string) =>
+    request<{ status: string }>(`/account/pay/verify?reference=${encodeURIComponent(reference)}`, { headers: authHeader(token) }),
+};

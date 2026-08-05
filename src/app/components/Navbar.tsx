@@ -7,6 +7,7 @@ import { AccountMenu } from "./AccountMenu";
 import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 import { useAuth } from "../context/AuthContext";
+import { openPalWorkspace } from "../lib/pal";
 import loopitalLogo from "../../imports/loopital-logo.svg";
 
 const services = [
@@ -26,7 +27,8 @@ const company = [
 
 export function Navbar() {
   const location = useLocation();
-  const { user, setShowAuth, signOut } = useAuth();
+  const { user, token, setShowAuth, signOut, setShowPalOnboarding, setPendingPal } = useAuth();
+  const tryPal = () => openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal });
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -142,11 +144,12 @@ export function Navbar() {
           </div>
 
           {/* CTA */}
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2.5">
+            <button onClick={tryPal} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>Try Pal <ArrowRight size={15} /></button>
             {user ? (
               <AccountMenu />
             ) : (
-              <button onClick={() => setShowAuth("signin")} className="px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>Sign in</button>
+              <button onClick={() => setShowAuth("signin")} className="px-4 py-2.5 rounded-full text-sm font-semibold transition-colors hover:bg-[#F5F5F7]" style={{ color: colors.heading, border: `1px solid ${colors.hairline}` }}>Sign in</button>
             )}
           </div>
 
@@ -184,6 +187,7 @@ export function Navbar() {
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
           <div className="flex flex-col gap-2 mt-2">
+            <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 rounded-full text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>Try Pal <ArrowRight size={15} /></button>
             {user ? (
               <>
                 <Link to="/academy/learn" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F5F5F7]" style={{ color: colors.heading }}>My Learning</Link>

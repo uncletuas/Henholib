@@ -18,6 +18,7 @@ import { FacilitatorPortalPage } from "./pages/academy/FacilitatorPortalPage";
 import { StudentPortalPage } from "./pages/academy/StudentPortalPage";
 import { VerifyPage } from "./pages/academy/VerifyPage";
 import { AchievementsPage } from "./pages/academy/AchievementsPage";
+import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
       { path: "academy/learn", Component: StudentPortalPage },
       { path: "verify", Component: VerifyPage },
       { path: "u/:username", Component: AchievementsPage },
+      { path: "payment/callback", Component: PaymentCallbackPage },
       { path: "academy/apply/:slug", Component: AcademyApplyPage },
       { path: "academy/:slug", Component: AcademyCoursePage },
       { path: "contact", Component: ContactPage },

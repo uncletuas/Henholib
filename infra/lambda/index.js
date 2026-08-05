@@ -44,6 +44,7 @@ const { SESv2Client, SendEmailCommand } = require("@aws-sdk/client-sesv2");
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const rds = new RDSDataClient({});
 const sm = new SecretsManagerClient({});
@@ -322,11 +323,145 @@ async function exchangeSsoToken(body) {
     return json(401, { error: "Not an SSO token." });
 
   const rows = await sql(
-    "SELECT id, name, email FROM users WHERE id = :id::uuid",
+    "SELECT id, name, email, pal_onboarded, pal_use_type, pal_org_name FROM users WHERE id = :id::uuid",
     { id: payload.sub }
   );
   if (rows.length === 0) return json(401, { error: "Account not found." });
-  return json(200, { user: publicUser(rows[0]) });
+  const u = rows[0];
+  // Entitlements the product app (e.g. Pal) uses to gate paid features.
+  const paid = await sql(
+    "SELECT 1 AS ok FROM subscriptions WHERE user_id = :id::uuid AND product = :product AND status IN ('active','trialing')",
+    { id: payload.sub, product }
+  );
+  return json(200, {
+    user: publicUser(u),
+    entitlements: { coworker: paid.length > 0 },
+    profile: {
+      onboarded: u.pal_onboarded === true || u.pal_onboarded === "true",
+      useType: u.pal_use_type || null,
+      orgName: u.pal_org_name || null,
+    },
+  });
+}
+
+// ── Pal workspace: profile/onboarding, entitlements & billing (Loopital-billed) ──
+// NOTE: the Paystack account currently only supports NGN (USD → "unsupported_currency").
+// Amount is in the currency's subunit (kobo for NGN). PLACEHOLDER price — confirm.
+const PAYSTACK_CURRENCY = process.env.PAYSTACK_CURRENCY || "NGN";
+const PAL_COWORKER_AMOUNT = Number(process.env.PAL_COWORKER_AMOUNT) || 1500000; // ₦15,000/mo
+const PAYSTACK_API = "https://api.paystack.co";
+
+async function palProfile(headers) {
+  const p = await authenticate(headers);
+  if (!p) return json(401, { error: "Not authenticated." });
+  const rows = await sql("SELECT pal_onboarded, pal_use_type, pal_org_name, pal_team_size FROM users WHERE id = :id::uuid", { id: p.sub });
+  if (!rows.length) return json(401, { error: "Account not found." });
+  const u = rows[0];
+  const coworker = (await sql("SELECT 1 AS ok FROM subscriptions WHERE user_id = :id::uuid AND product = 'stack62' AND status IN ('active','trialing')", { id: p.sub })).length > 0;
+  return json(200, {
+    onboarded: u.pal_onboarded === true || u.pal_onboarded === "true",
+    useType: u.pal_use_type || null,
+    orgName: u.pal_org_name || null,
+    teamSize: u.pal_team_size || null,
+    coworker,
+  });
+}
+
+async function palOnboarding(headers, body) {
+  const p = await authenticate(headers);
+  if (!p) return json(401, { error: "Not authenticated." });
+  const useType = body.useType === "team" ? "team" : "personal";
+  const orgName = (body.orgName || "").trim() || null;
+  const teamSize = (body.teamSize || "").trim() || null;
+  const rows = await sql(
+    `UPDATE users SET pal_onboarded = true, pal_use_type = :useType, pal_org_name = :orgName, pal_team_size = :teamSize
+     WHERE id = :id::uuid RETURNING name, email`,
+    { useType, orgName, teamSize, id: p.sub }
+  );
+  if (rows.length) {
+    await notifyAdmins(
+      "New Pal workspace onboarding",
+      `A user set up their Pal workspace.\n\nName: ${rows[0].name}\nEmail: ${rows[0].email}\nUse: ${useType}${orgName ? `\nOrg: ${orgName}` : ""}${teamSize ? `\nTeam size: ${teamSize}` : ""}`
+    );
+  }
+  return json(200, { ok: true });
+}
+
+// ---- Paystack (Loopital-billed) ----
+async function paystackInit({ email, amountCents, reference, metadata, callbackUrl }) {
+  const res = await fetch(`${PAYSTACK_API}/transaction/initialize`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, amount: amountCents, currency: PAYSTACK_CURRENCY, reference, metadata, callback_url: callbackUrl }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.status) throw new Error(data.message || `Paystack init ${res.status}`);
+  return data.data; // { authorization_url, access_code, reference }
+}
+async function paystackVerify(reference) {
+  const res = await fetch(`${PAYSTACK_API}/transaction/verify/${encodeURIComponent(reference)}`, {
+    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
+  });
+  const data = await res.json();
+  if (!res.ok || !data.status) throw new Error(data.message || `Paystack verify ${res.status}`);
+  return data.data; // { status: 'success' | ... }
+}
+
+async function palSubscribe(headers) {
+  const p = await authenticate(headers);
+  if (!p) return json(401, { error: "Not authenticated." });
+  if (!PAYSTACK_SECRET_KEY) return json(503, { error: "Payments aren't configured yet." });
+  const reference = "PAL-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
+  await sql("INSERT INTO pal_payments (user_id, reference, amount_cents, currency, status) VALUES (:uid::uuid, :ref, :amt::int, :cur, 'pending')", { uid: p.sub, ref: reference, amt: PAL_COWORKER_AMOUNT, cur: PAYSTACK_CURRENCY });
+  try {
+    const init = await paystackInit({ email: p.email, amountCents: PAL_COWORKER_AMOUNT, reference, metadata: { userId: p.sub, purpose: "pal_coworker" }, callbackUrl: PAYSTACK_CALLBACK_URL });
+    return json(200, { authorizationUrl: init.authorization_url, reference });
+  } catch (e) {
+    await sql("UPDATE pal_payments SET status = 'failed' WHERE reference = :ref", { ref: reference });
+    console.error("paystackInit failed:", (e && e.message) || e);
+    return json(502, { error: "Couldn't start payment. Please try again." });
+  }
+}
+
+// Mark a payment successful + activate the Pal coworker subscription (idempotent).
+async function activatePalPayment(reference) {
+  const rows = await sql("SELECT user_id, status FROM pal_payments WHERE reference = :ref", { ref: reference });
+  if (!rows.length) return false;
+  if (rows[0].status !== "success") {
+    await sql("UPDATE pal_payments SET status = 'success' WHERE reference = :ref", { ref: reference });
+    await sql(
+      `INSERT INTO subscriptions (user_id, product, plan, status, current_period_end)
+       VALUES (:uid::uuid, 'stack62', 'coworker', 'active', now() + interval '30 days')
+       ON CONFLICT (user_id, product) DO UPDATE SET status = 'active', plan = 'coworker', current_period_end = now() + interval '30 days'`,
+      { uid: rows[0].user_id }
+    );
+  }
+  return true;
+}
+
+async function payVerify(headers, reference) {
+  const p = await authenticate(headers);
+  if (!p) return json(401, { error: "Not authenticated." });
+  if (!reference) return json(400, { error: "Missing reference." });
+  try {
+    const data = await paystackVerify(reference);
+    if (data.status === "success") { await activatePalPayment(reference); return json(200, { status: "success" }); }
+    return json(200, { status: data.status || "pending" });
+  } catch (e) {
+    console.error("payVerify failed:", (e && e.message) || e);
+    return json(502, { error: "Couldn't verify payment." });
+  }
+}
+
+async function paystackWebhook(event, body) {
+  const sig = (event.headers && (event.headers["x-paystack-signature"] || event.headers["X-Paystack-Signature"])) || "";
+  const raw = event.isBase64Encoded ? Buffer.from(event.body || "", "base64").toString("utf8") : (event.body || "");
+  const expected = crypto.createHmac("sha512", PAYSTACK_SECRET_KEY || "").update(raw).digest("hex");
+  if (!sig || sig !== expected) return json(401, { error: "Invalid signature." });
+  if (body && body.event === "charge.success" && body.data && body.data.reference) {
+    await activatePalPayment(body.data.reference);
+  }
+  return json(200, { ok: true });
 }
 
 // ── Loopital Academy ──────────────────────────────────────────────────────
@@ -1468,6 +1603,13 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/account/invoices") return await getInvoices(headers);
     if (method === "POST" && route === "/sso/token") return await issueSsoToken(headers, body);
     if (method === "POST" && route === "/sso/exchange") return await exchangeSsoToken(body);
+
+    // Pal workspace: profile/onboarding + billing (Loopital-billed coworker)
+    if (method === "GET" && route === "/account/pal") return await palProfile(headers);
+    if (method === "POST" && route === "/account/pal/onboarding") return await palOnboarding(headers, body);
+    if (method === "POST" && route === "/account/pal/subscribe") return await palSubscribe(headers);
+    if (method === "GET" && route === "/account/pay/verify") return await payVerify(headers, qs("reference"));
+    if (method === "POST" && route === "/paystack/webhook") return await paystackWebhook(event, body);
 
     // Academy — public
     if (method === "GET" && route === "/academy/courses") return await listCourses();

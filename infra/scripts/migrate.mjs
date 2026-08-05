@@ -329,6 +329,25 @@ const statements = [
   // (only the instructor can set completion + authorize the exam).
   `ALTER TABLE academy_enrollments ADD COLUMN IF NOT EXISTS paid BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE academy_enrollments ADD COLUMN IF NOT EXISTS exam_authorized BOOLEAN NOT NULL DEFAULT false`,
+
+  // ── Pal workspace: a Loopital account IS a Pal account ─────────────────
+  // First-time onboarding (personal vs team) + the paid "coworker" upgrade
+  // (billed by Loopital via Paystack; recorded in the shared subscriptions
+  // table as product='stack62'). pal_payments logs the Paystack transactions.
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS pal_onboarded BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS pal_use_type TEXT`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS pal_org_name TEXT`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS pal_team_size TEXT`,
+  `CREATE TABLE IF NOT EXISTS pal_payments (
+     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     user_id      UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     reference    TEXT NOT NULL UNIQUE,
+     amount_cents INTEGER NOT NULL,
+     currency     TEXT NOT NULL DEFAULT 'USD',
+     status       TEXT NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending','success','failed')),
+     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
 ];
 
 async function run() {

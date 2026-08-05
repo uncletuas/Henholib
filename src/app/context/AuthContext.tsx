@@ -24,6 +24,12 @@ interface AuthContextType {
   /** The product whose waitlist modal is open, or null when closed. */
   waitlist: ProductId | null;
   setWaitlist: (p: ProductId | null) => void;
+  /** Pal workspace onboarding modal (personal vs team) open state. */
+  showPalOnboarding: boolean;
+  setShowPalOnboarding: (v: boolean) => void;
+  /** True when a "Try Pal" click is waiting for sign-in to complete. */
+  pendingPal: boolean;
+  setPendingPal: (v: boolean) => void;
 }
 
 const TOKEN_KEY = "loopital_token";
@@ -35,6 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [initializing, setInitializing] = useState(true);
   const [showAuth, setShowAuth] = useState<AuthView>("none");
   const [waitlist, setWaitlist] = useState<ProductId | null>(null);
+  const [showPalOnboarding, setShowPalOnboarding] = useState(false);
+  const [pendingPal, setPendingPal] = useState(false);
 
   // Restore session from a stored token on first load.
   useEffect(() => {
@@ -78,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, initializing, signIn, signUp, signOut, showAuth, setShowAuth, waitlist, setWaitlist }}
+      value={{ user, token, initializing, signIn, signUp, signOut, showAuth, setShowAuth, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, pendingPal, setPendingPal }}
     >
       {children}
     </AuthContext.Provider>

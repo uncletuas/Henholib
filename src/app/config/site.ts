@@ -7,10 +7,15 @@ export const SITE_URL = "https://www.loopital.com";
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 // Externally-hosted product apps (their own landing pages live on subdomains).
-export const STACK62_URL = "https://stack62.loopital.com";
+// Pal (formerly STACK62) is the workspace every Loopital account can open.
+export const PAL_URL = "https://pal.loopital.com";
+export const STACK62_URL = PAL_URL; // legacy alias
 export const SART34_URL = "https://sart34.loopital.com";
 export const FMS13_URL = "https://fms13.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
+
+// Paystack public key (safe to expose) — used to redirect to hosted checkout.
+export const PAYSTACK_PUBLIC_KEY = "pk_test_13449920aaa915f243a95926ec029dfe609dbbee";
 
 // SART34 is the only product with a mobile app. Replace these placeholders
 // with the real store listings when available.

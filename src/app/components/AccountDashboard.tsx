@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { X, CreditCard, LogOut, ChevronRight, ArrowUpRight, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
-import { accountApi, launchProductApp, type Subscription, type Invoice, type AccountProductId } from "../lib/api";
+import { accountApi, launchProductApp, palApi, type Subscription, type Invoice, type AccountProductId } from "../lib/api";
 import { accountProducts, productById } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 
@@ -44,6 +44,13 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
   }, [token]);
 
   const subFor = (id: AccountProductId) => subs.find((s) => s.product === id);
+  const [upgrading, setUpgrading] = useState(false);
+  const upgradeCoworker = async () => {
+    if (!token) return;
+    setUpgrading(true);
+    try { const r = await palApi.subscribe(token); window.location.href = r.authorizationUrl; }
+    catch { setUpgrading(false); }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.45)", backdropFilter: "blur(16px)" }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
@@ -89,14 +96,19 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                               {sub && <span className="px-2 py-0.5 rounded-md text-xs" style={{ background: `${p.accent}14`, color: p.accent }}>{sub.plan}</span>}
                             </div>
                             <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>
-                              {sub ? `Renews ${fmtDate(sub.currentPeriodEnd)}` : "No active subscription"}
+                              {sub ? `AI coworker active — renews ${fmtDate(sub.currentPeriodEnd)}` : "Workspace included free · AI coworker not added"}
                             </p>
                           </div>
-                          <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="flex items-center gap-2.5 flex-shrink-0">
                             {st && <span className="hidden sm:flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: st.color }} /><span style={{ color: colors.textSecondary, fontSize: "12px" }}>{st.label}</span></span>}
                             <button onClick={() => p.appHref && launchProductApp(p.appHref, p.id as AccountProductId, token)} className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-colors hover:bg-[#F5F5F7]" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>
-                              {sub ? "Open app" : "Get started"} <ArrowUpRight size={12} />
+                              Open workspace <ArrowUpRight size={12} />
                             </button>
+                            {!sub && (
+                              <button onClick={upgradeCoworker} disabled={upgrading} className="px-3.5 py-2 rounded-full text-xs font-semibold text-white transition-all hover:opacity-95 disabled:opacity-60" style={{ background: gradientBrand }}>
+                                {upgrading ? "…" : "Add coworker"}
+                              </button>
+                            )}
                           </div>
                         </div>
                       );

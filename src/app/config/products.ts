@@ -6,6 +6,7 @@
 import {
   FMS13_URL,
   HENHOLIB_URL,
+  PAL_URL,
 } from "./site";
 import { productAccent } from "../lib/brand";
 import type { Platform } from "../components/PlatformPills";
@@ -63,19 +64,20 @@ export const products: Product[] = [
     id: "stack62",
     name: "Pal",
     logo: stack62Logo,
-    category: "AI Coworker Platform",
+    category: "Your AI Workspace",
     theme: "The Future of Work",
-    tagline: "Your team's most intelligent member.",
+    tagline: "Your AI workspace — it comes with your account.",
     description:
-      "Pal is an AI coworker that handles research, knowledge management, content creation, and workflow automation — so your team thinks faster and works at a fundamentally higher level.",
+      "Pal is your AI workspace, included with every Loopital account. Organize your work in one place, and switch on the AI coworker — research, content, automation, and decision support — whenever you're ready. Free to use; the coworker is a paid upgrade.",
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
     detailHref: "/products/stack62",
-    stage: "coming_soon",
+    stage: "available",
     external: false,
-    accountLinked: false,
-    ctaType: "waitlist",
-    highlights: ["Research & synthesis", "Content generation", "Workflow automation", "Decision support"],
+    accountLinked: true,
+    ctaType: "launch",
+    appHref: PAL_URL,
+    highlights: ["Free workspace with your account", "AI coworker (paid)", "Research & content", "Workflow automation"],
   },
   {
     id: "sart34",
