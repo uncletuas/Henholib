@@ -19,6 +19,12 @@ export function RootLayout() {
   const [params] = useSearchParams();
   const seo = getPageSeo(location.pathname);
 
+  // App shells (the Academy student + facilitator portals) are full-app
+  // experiences — hide the marketing site chrome (nav + footer) there.
+  const isAppShell =
+    location.pathname.startsWith("/academy/learn") ||
+    location.pathname.startsWith("/academy/portal");
+
   // Deep-link from the Pal app's "Add the coworker" upgrade CTA:
   // `?upgrade=coworker` opens the account dashboard (where "Add coworker"
   // lives) when signed in, or the sign-up modal first when not.
@@ -41,11 +47,11 @@ export function RootLayout() {
     <div className="min-h-screen flex flex-col" style={{ background: "#FBFBFD" }}>
       <Seo {...seo} path={location.pathname} />
       <ScrollToTop />
-      <Navbar />
-      <main className="flex-1 pt-16">
+      {!isAppShell && <Navbar />}
+      <main className={`flex-1 ${isAppShell ? "" : "pt-16"}`}>
         <Outlet />
       </main>
-      <Footer />
+      {!isAppShell && <Footer />}
 
       {(showAuth === "signin" || showAuth === "signup") && (
         <AuthModal
