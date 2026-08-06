@@ -7,7 +7,7 @@ import { productAudience } from "../config/product-audience";
 import type { Product } from "../config/products";
 
 /**
- * Compact, needs-first product tile — leads with WHO it's for and the problem
+ * Compact, needs-first product tile, leads with WHO it's for and the problem
  * it solves, so a visitor clicks straight through to the product for their need
  * (Palantir/Salesforce-style ecosystem, not a product list). No cover image.
  */

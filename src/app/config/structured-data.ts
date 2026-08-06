@@ -48,7 +48,7 @@ export function softwareApplicationLd(input: {
     url: `${SITE_URL}${input.path}`,
     description: input.description,
     publisher: { "@type": "Organization", name: "Loopital", url: SITE_URL },
-    offers: { "@type": "Offer", priceCurrency: "USD", price: "0", description: "Contact sales for pricing — book a demo." },
+    offers: { "@type": "Offer", priceCurrency: "USD", price: "0", description: "Contact sales for pricing, book a demo." },
   };
 }
 
@@ -88,7 +88,7 @@ export const academyLd: Record<string, unknown> = {
   url: `${SITE_URL}/academy`,
   parentOrganization: { "@type": "Organization", name: "Loopital", url: SITE_URL },
   description:
-    "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector — across technical, business & leadership, and public sector tracks.",
+    "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector, across technical, business & leadership, and public sector tracks.",
 };
 
 /** Course schema for an individual Academy course page. */

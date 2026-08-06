@@ -7,9 +7,9 @@ const officeImg = "https://images.unsplash.com/photo-1531972111231-7482a960e109?
 
 const values = [
   { title: "Product over process", desc: "We measure everything by the quality and impact of what we build. Great products come from focused engineering, clear thinking, and a relentless user focus." },
-  { title: "Built to last", desc: "We build software that organizations can depend on — reliable, secure, well-documented, and designed with long operational lifespans in mind." },
+  { title: "Built to last", desc: "We build software that organizations can depend on, reliable, secure, well-documented, and designed with long operational lifespans in mind." },
   { title: "Global from day one", desc: "Our products and services are designed to serve organizations anywhere in the world. We build with international standards and diverse operational contexts in mind." },
-  { title: "Intelligence in everything", desc: "We believe AI should be embedded in operational software from the ground up — not bolted on. Every product we build incorporates intelligent capabilities where they create real value." },
+  { title: "Intelligence in everything", desc: "We believe AI should be embedded in operational software from the ground up, not bolted on. Every product we build incorporates intelligent capabilities where they create real value." },
 ];
 
 export function AboutPage() {
@@ -44,7 +44,7 @@ export function AboutPage() {
                   We founded Loopital on a single conviction: most organizations are limited not by ambition, but by the technology available to them. Too many businesses and institutions still run on outdated, fragmented, or poorly designed software systems.
                 </p>
                 <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
-                  Loopital exists to close that gap — by building products that are genuinely excellent, and by helping other organizations bring that same quality to their own technology.
+                  Loopital exists to close that gap, by building products that are genuinely excellent, and by helping other organizations bring that same quality to their own technology.
                 </p>
               </div>
             </motion.div>

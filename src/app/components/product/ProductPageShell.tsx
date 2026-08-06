@@ -18,9 +18,9 @@ export interface ProductFeature {
 export interface ProductPageContent {
   product: Product;
   heroImage: string;
-  /** Headline — falls back to the catalog tagline. */
+  /** Headline, falls back to the catalog tagline. */
   headline?: ReactNode;
-  /** Hero sub-paragraph — falls back to the catalog description. */
+  /** Hero sub-paragraph, falls back to the catalog description. */
   heroBody?: string;
   /** Trust/stat strip. */
   stats?: { value: string; label: string }[];

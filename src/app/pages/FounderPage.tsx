@@ -10,10 +10,10 @@ import { CONTACT_EMAIL, FOUNDER_IMAGE } from "../config/site";
 
 const glance = [
   { icon: Briefcase, label: "Role", value: "Founder & CEO, Loopital" },
-  { icon: HeartPulse, label: "Building", value: "Henholib — connected healthcare for Nigeria" },
-  { icon: Award, label: "Recognition", value: "Camper of the Year at 16 — CITY Camp" },
+  { icon: HeartPulse, label: "Building", value: "Henholib, connected healthcare for Nigeria" },
+  { icon: Award, label: "Recognition", value: "Camper of the Year at 16, CITY Camp" },
   { icon: Landmark, label: "Policy", value: "Contributor, National Research-to-Commercialization Policy (Zero Draft)" },
-  { icon: GraduationCap, label: "Education", value: "B.Tech, Electrical/Electronics — Rivers State University" },
+  { icon: GraduationCap, label: "Education", value: "B.Tech, Electrical/Electronics, Rivers State University" },
   { icon: MapPin, label: "Roots", value: "Bori, Rivers State, Nigeria" },
 ];
 
@@ -36,7 +36,7 @@ export function FounderPage() {
                 Building AI and software that connect <GradientText>Africa's institutions and its people</GradientText>.
               </p>
               <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.75, maxWidth: "540px", marginBottom: "30px" }}>
-                I'm the founder and CEO of Loopital, a technology company building AI and software for businesses, corporations, and governments across Africa — and a public speaker, volunteer, and advocate for impact.
+                I'm the founder and CEO of Loopital, a technology company building AI and software for businesses, corporations, and governments across Africa, and a public speaker, volunteer, and advocate for impact.
               </p>
               <div className="flex flex-wrap items-center gap-4 mb-8">
                 <CTAButton href={`mailto:${CONTACT_EMAIL}`} variant="gradient" size="lg">Get in touch <ArrowRight size={16} /></CTAButton>
@@ -77,17 +77,17 @@ export function FounderPage() {
           <Reveal>
             <p style={{ color: colors.green, fontSize: "13px", fontWeight: 600, letterSpacing: "0.1em", marginBottom: "16px" }}>THE WORK</p>
             <h2 style={{ fontSize: "clamp(1.9rem,3.4vw,2.8rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "28px", maxWidth: "620px" }}>
-              Technology that serves people — and leadership that outlasts the title.
+              Technology that serves people, and leadership that outlasts the title.
             </h2>
             <div className="flex flex-col gap-6" style={{ color: colors.textSecondary, fontSize: "18.5px", lineHeight: 1.85 }}>
               <p>
-                My current focus is <strong style={{ color: colors.heading }}>Henholib</strong>, a platform tackling one of Nigeria's most urgent problems: disconnected healthcare. We're building the infrastructure that links hospitals together and gives every patient a single health identity — one record that travels with them wherever they seek care.
+                My current focus is <strong style={{ color: colors.heading }}>Henholib</strong>, a platform tackling one of Nigeria's most urgent problems: disconnected healthcare. We're building the infrastructure that links hospitals together and gives every patient a single health identity, one record that travels with them wherever they seek care.
               </p>
               <p>
-                Beyond building Loopital, I'm a public speaker and a volunteer on projects driving positive change across innovation, education, environmental protection, climate action, and healthcare. I regularly share perspectives on public issues, and I train young people in schools across Nigeria to think, build, and lead with impact. I've also had the privilege of contributing to national policy — including the <strong style={{ color: colors.heading }}>Zero Draft of the National Research to Commercialization Policy</strong>, a joint initiative of the Federal Ministry of Education and the Federal Ministry of Innovation, Science and Technology.
+                Beyond building Loopital, I'm a public speaker and a volunteer on projects driving positive change across innovation, education, environmental protection, climate action, and healthcare. I regularly share perspectives on public issues, and I train young people in schools across Nigeria to think, build, and lead with impact. I've also had the privilege of contributing to national policy, including the <strong style={{ color: colors.heading }}>Zero Draft of the National Research to Commercialization Policy</strong>, a joint initiative of the Federal Ministry of Education and the Federal Ministry of Innovation, Science and Technology.
               </p>
               <p>
-                That path started early. At 16, I was named <strong style={{ color: colors.heading }}>Camper of the Year at CITY Camp</strong> (Catch and Inspire Them Young), organized by the Eagle's Hope Foundation. It planted a belief I still carry: leadership isn't about age or title — it's about the willingness to build, serve, and inspire change wherever you are.
+                That path started early. At 16, I was named <strong style={{ color: colors.heading }}>Camper of the Year at CITY Camp</strong> (Catch and Inspire Them Young), organized by the Eagle's Hope Foundation. It planted a belief I still carry: leadership isn't about age or title, it's about the willingness to build, serve, and inspire change wherever you are.
               </p>
             </div>
             <div className="mt-9">
@@ -122,7 +122,7 @@ export function FounderPage() {
         <Reveal className="max-w-4xl mx-auto px-6 text-center">
           <Sparkles size={28} style={{ color: "#7DD3FC", margin: "0 auto 28px" }} />
           <p style={{ color: "#F5F5F7", fontSize: "clamp(1.6rem,3.6vw,2.6rem)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.32 }}>
-            “I'm driven by a single goal — to build solutions and lead in ways that create lasting, positive impact, for <GradientText>Africa and for the world</GradientText>.”
+            “I'm driven by a single goal, to build solutions and lead in ways that create lasting, positive impact, for <GradientText>Africa and for the world</GradientText>.”
           </p>
         </Reveal>
       </section>
@@ -134,7 +134,7 @@ export function FounderPage() {
             Let's build something that lasts.
           </h2>
           <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "18px", lineHeight: 1.65, marginBottom: "34px", maxWidth: "560px", marginInline: "auto" }}>
-            Whether it's a partnership, a speaking invitation, or an idea worth pursuing — I'd love to hear from you.
+            Whether it's a partnership, a speaking invitation, or an idea worth pursuing, I'd love to hear from you.
           </p>
           <div className="flex flex-wrap gap-3 justify-center mb-10">
             <CTAButton href={`mailto:${CONTACT_EMAIL}`} variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>Get in touch</CTAButton>

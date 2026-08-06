@@ -62,7 +62,7 @@ export function ExamPanel({ token, courseId, courseCompleted }: { token: string;
           <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6 }}><Award size={15} style={{ color: colors.green, display: "inline", verticalAlign: "-2px" }} /> You passed! Your instructor can now issue your certificate.</p>
         ) : result.canRetake ? (
           <>
-            <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6, marginBottom: "14px" }}>Not quite — you have {result.attemptsLeft} attempt{result.attemptsLeft === 1 ? "" : "s"} left.</p>
+            <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6, marginBottom: "14px" }}>Not quite, you have {result.attemptsLeft} attempt{result.attemptsLeft === 1 ? "" : "s"} left.</p>
             <button onClick={() => { setAnswers({}); setResult(null); setMode("taking"); }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white" style={{ background: gradientBrand, fontSize: "14px" }}><RefreshCw size={15} /> Try again</button>
           </>
         ) : (
@@ -106,7 +106,7 @@ export function ExamPanel({ token, courseId, courseCompleted }: { token: string;
   return wrap(
     <div>
       {status?.passed ? (
-        <p style={{ color: colors.green, fontSize: "14.5px", fontWeight: 600 }}><CheckCircle2 size={16} style={{ display: "inline", verticalAlign: "-3px" }} /> Passed — best score {status.bestScore}%.</p>
+        <p style={{ color: colors.green, fontSize: "14.5px", fontWeight: 600 }}><CheckCircle2 size={16} style={{ display: "inline", verticalAlign: "-3px" }} /> Passed, best score {status.bestScore}%.</p>
       ) : (
         <>
           <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6, marginBottom: "14px" }}>
@@ -116,7 +116,7 @@ export function ExamPanel({ token, courseId, courseCompleted }: { token: string;
           {status?.canTake ? (
             <button onClick={() => { setAnswers({}); setResult(null); setError(null); setMode("taking"); }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white" style={{ background: gradientBrand, fontSize: "14px" }}><ClipboardCheck size={15} /> Take assessment</button>
           ) : (
-            <p style={{ color: colors.textSecondary, fontSize: "14px" }}><LifeBuoy size={14} style={{ display: "inline", verticalAlign: "-2px", color: colors.blue }} /> No attempts left — contact support or your instructor for another attempt.</p>
+            <p style={{ color: colors.textSecondary, fontSize: "14px" }}><LifeBuoy size={14} style={{ display: "inline", verticalAlign: "-2px", color: colors.blue }} /> No attempts left, contact support or your instructor for another attempt.</p>
           )}
         </>
       )}

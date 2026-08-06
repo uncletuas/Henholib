@@ -21,7 +21,7 @@ function glow(hex?: string): string {
 /**
  * Translucent frosted card. When interactive (and the device has a fine pointer
  * and no reduced-motion preference), it paints a cursor-tracked spotlight and a
- * subtle 3D tilt — the signature "lively glass" feel.
+ * subtle 3D tilt, the signature "lively glass" feel.
  */
 export function GlassCard({ children, accent, interactive = true, panel, className, style }: GlassCardProps) {
   const ref = useRef<HTMLDivElement>(null);

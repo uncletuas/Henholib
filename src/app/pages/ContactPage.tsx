@@ -50,7 +50,7 @@ export function ContactPage() {
               Let's talk.
             </h1>
             <p style={{ color: "#6B7280", fontSize: "18px", lineHeight: 1.8 }}>
-              Whether you have a question about our products, want to discuss a project, or are exploring a partnership — we're ready to hear from you.
+              Whether you have a question about our products, want to discuss a project, or are exploring a partnership, we're ready to hear from you.
             </p>
           </motion.div>
         </div>

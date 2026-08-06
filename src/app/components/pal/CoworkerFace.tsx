@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Living Coworker face — the exact face used inside the Pal workspace
+ * Living Coworker face, the exact face used inside the Pal workspace
  * (pal.loopital.com), kept in sync between the app and the loopital.com demo.
  *
  * The face is never frozen. Even at rest it blinks, glances, twitches its
@@ -39,7 +39,7 @@ interface BrowState {
   angle: number;
 }
 
-/** Moods that read as genuinely happy — used for smiling eyes + dimples. */
+/** Moods that read as genuinely happy, used for smiling eyes + dimples. */
 function isJoyful(mood: CoworkerMood): boolean {
   return mood === "happy" || mood === "excited";
 }
@@ -64,7 +64,7 @@ export function CoworkerFace({
   const [punching, setPunching] = useState(false);
   /** Subtle gaze drift, in svg units relative to centred eyes. */
   const [gaze, setGaze] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  /** Brow micro-twitch — distinct from mood baseline. */
+  /** Brow micro-twitch, distinct from mood baseline. */
   const [browTwitch, setBrowTwitch] = useState<BrowState>({ lift: 0, angle: 0 });
   /** Tiny head bob/tilt in degrees. */
   const [tilt, setTilt] = useState(0);
@@ -114,7 +114,7 @@ export function CoworkerFace({
   }, [mood]);
 
   // ── Gaze drift ────────────────────────────────────────────────────
-  // Eyes never sit perfectly still — small saccades every 1.5-4s give
+  // Eyes never sit perfectly still, small saccades every 1.5-4s give
   // the face an "I'm looking around, taking things in" quality.
   useEffect(() => {
     let cancelled = false;
@@ -156,7 +156,7 @@ export function CoworkerFace({
       } else if (mood === "sad") {
         setBrowTwitch({ lift: 0.5, angle: -10 });
       } else {
-        // Neutral / listening — occasional small lift to feel alive
+        // Neutral / listening, occasional small lift to feel alive
         setBrowTwitch({
           lift: Math.random() < 0.4 ? -0.4 : 0,
           angle: (Math.random() - 0.5) * 4,
@@ -389,7 +389,7 @@ export function CoworkerFace({
         </>
       )}
 
-      {/* Dimples — a couple of soft dots at the corners when joyful */}
+      {/* Dimples, a couple of soft dots at the corners when joyful */}
       {joyful && !speaking && (
         <>
           <circle cx="6.4" cy="19" r="0.7" fill="white" opacity="0.5" />
@@ -442,7 +442,7 @@ function restingMouthPath(mood: CoworkerMood, idle = 0.5): string {
     case "happy":
       return `M ${6.5 - w} 18 Q 14 ${22.6 + idle * 0.5} ${21.5 + w} 18`;
     case "excited":
-      // Open grin (filled by caller) — big and joyful.
+      // Open grin (filled by caller), big and joyful.
       return ellipsePath(14, 19.4, 4.6 + w, 2.3 + idle * 0.3);
     case "sad":
       return `M 7 20.6 Q 14 ${17.8 - idle * 0.3} 21 20.6`;
@@ -458,12 +458,12 @@ function restingMouthPath(mood: CoworkerMood, idle = 0.5): string {
 }
 
 function thinkingMouthPath(): string {
-  // Pursed, slightly off-centre, faint pinch — "hmm" look.
+  // Pursed, slightly off-centre, faint pinch, "hmm" look.
   return `M 11 19.5 Q 13.5 18.6 16 19.5`;
 }
 
 /**
- * Phoneme shapes — a wide, warm set so the mouth visibly re-shapes:
+ * Phoneme shapes, a wide, warm set so the mouth visibly re-shapes:
  *   - A : wide-open oval (loud)          - O : round, medium
  *   - E : wide + shallow (smile-shaped)  - I : narrow horizontal slit
  *   - U : small forward purse            - M / closed : gentle closed curve
@@ -487,7 +487,7 @@ function phonemePath(
       return `M 8.5 ${cy} Q 14 ${dip} 19.5 ${cy}`;
     }
     case "A": {
-      // Wide open oval — the biggest opening.
+      // Wide open oval, the biggest opening.
       const rx = 4.8 + t * 0.6;
       const ry = 2.6 + t * 0.9;
       return ellipsePath(14, 19.6 + cornerLift * 0.2, rx, ry);

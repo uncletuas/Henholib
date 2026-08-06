@@ -96,7 +96,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                               {sub && <span className="px-2 py-0.5 rounded-md text-xs" style={{ background: `${p.accent}14`, color: p.accent }}>{sub.plan}</span>}
                             </div>
                             <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>
-                              {sub ? `AI coworker active — renews ${fmtDate(sub.currentPeriodEnd)}` : "Workspace included free · AI coworker not added"}
+                              {sub ? `AI coworker active, renews ${fmtDate(sub.currentPeriodEnd)}` : "Workspace included free · AI coworker not added"}
                             </p>
                           </div>
                           <div className="flex items-center gap-2.5 flex-shrink-0">
@@ -128,7 +128,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
 
               <div className="p-5 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
                 <p style={{ fontWeight: 600, fontSize: "14px", color: "#1D4ED8", marginBottom: "4px" }}>One account, every app</p>
-                <p style={{ color: "#2563EB", fontSize: "13px", lineHeight: 1.65 }}>Sign in to Swift or Pal with this same email and password — your subscription activates automatically.</p>
+                <p style={{ color: "#2563EB", fontSize: "13px", lineHeight: 1.65 }}>Sign in to Swift or Pal with this same email and password, your subscription activates automatically.</p>
               </div>
             </div>
           )}

@@ -104,7 +104,7 @@ export function AcademyApplyPage() {
               {[
                 "Tell us a little about you and why you're interested.",
                 enrolling ? "We'll follow up with next steps and cohort dates." : "We'll email you the moment enrollment opens.",
-                "No payment now — this is an application, not a checkout.",
+                "No payment now, this is an application, not a checkout.",
               ].map((t) => (
                 <div key={t} className="flex items-start gap-3">
                   <span className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${accent}18` }}>
@@ -126,7 +126,7 @@ export function AcademyApplyPage() {
                   </div>
                   <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "10px" }}>You're all set.</h2>
                   <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.7, marginBottom: "24px" }}>
-                    Thanks, {name.split(" ")[0] || "there"} — we've received your {enrolling ? "application" : "waitlist request"} for <strong style={{ color: colors.heading }}>{course?.title}</strong>. We'll be in touch by email.
+                    Thanks, {name.split(" ")[0] || "there"}, we've received your {enrolling ? "application" : "waitlist request"} for <strong style={{ color: colors.heading }}>{course?.title}</strong>. We'll be in touch by email.
                   </p>
                   <CTAButton to="/academy" variant="outline">Browse more courses <ArrowRight size={15} /></CTAButton>
                 </div>

@@ -50,7 +50,7 @@ export function AcademyPage() {
               Practical AI training for the way you <GradientText>actually work</GradientText>.
             </h1>
             <p style={{ color: colors.textSecondary, fontSize: "19px", lineHeight: 1.7, maxWidth: "620px", marginBottom: "30px" }}>
-              Loopital Academy teaches individuals, businesses, and the public sector how to use AI well — through hands-on, live courses built around real outcomes, not hype. Learn from a team that ships production AI every day.
+              Loopital Academy teaches individuals, businesses, and the public sector how to use AI well, through hands-on, live courses built around real outcomes, not hype. Learn from a team that ships production AI every day.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <CTAButton href="#tracks" variant="gradient" size="lg">Browse courses <ArrowRight size={16} /></CTAButton>
@@ -126,7 +126,7 @@ export function AcademyPage() {
                 Bring Loopital Academy <GradientText>in-house</GradientText>.
               </h2>
               <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.8, marginBottom: "26px", maxWidth: "560px" }}>
-                Our public courses run online — but for organizations, we also deliver private, in-house training on special request. We run staff programs on <strong style={{ color: colors.heading }}>AI adoption and the future of work</strong>, tailored to your team, your sector, and your goals. We discuss the scope together and shape a cohort around it.
+                Our public courses run online, but for organizations, we also deliver private, in-house training on special request. We run staff programs on <strong style={{ color: colors.heading }}>AI adoption and the future of work</strong>, tailored to your team, your sector, and your goals. We discuss the scope together and shape a cohort around it.
               </p>
               <div className="flex flex-col gap-3 mb-8">
                 {orgOfferings.map((o) => (
@@ -171,7 +171,7 @@ export function AcademyPage() {
               Taught by people who build AI for a living.
             </h2>
             <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.8, marginBottom: "16px" }}>
-              Loopital Academy is led by <strong style={{ color: colors.heading }}>Tuamene Bestgod</strong>, founder and CEO of Loopital, alongside our engineering and product team. We build and ship production AI systems every day — and we teach from that practice, not from theory.
+              Loopital Academy is led by <strong style={{ color: colors.heading }}>Tuamene Bestgod</strong>, founder and CEO of Loopital, alongside our engineering and product team. We build and ship production AI systems every day, and we teach from that practice, not from theory.
             </p>
             <CTAButton to="/tuamene.bestgod" variant="outline">Meet the founder <ArrowRight size={15} /></CTAButton>
           </Reveal>
@@ -185,7 +185,7 @@ export function AcademyPage() {
             Start learning with Loopital Academy.
           </h2>
           <p style={{ color: "rgba(255,255,255,0.88)", fontSize: "18px", lineHeight: 1.65, marginBottom: "32px" }}>
-            Pick a course and join the next live cohort — or talk to us about training your whole team.
+            Pick a course and join the next live cohort, or talk to us about training your whole team.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <CTAButton href="#tracks" variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>Browse courses</CTAButton>

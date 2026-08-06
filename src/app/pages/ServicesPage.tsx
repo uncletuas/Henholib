@@ -35,7 +35,7 @@ const services = [
     id: "enterprise",
     title: "Enterprise Platforms",
     subtitle: "Large-scale digital infrastructure.",
-    desc: "We design and build enterprise software platforms — the kind of system that an entire organization depends on. We handle the architecture, security, scalability, and compliance requirements that come with building at enterprise scale.",
+    desc: "We design and build enterprise software platforms, the kind of system that an entire organization depends on. We handle the architecture, security, scalability, and compliance requirements that come with building at enterprise scale.",
     deliverables: ["Custom enterprise software", "ERP and operational systems", "Data platforms and warehouses", "System integrations", "Legacy system modernization"],
     image: serverImg,
   },
@@ -43,7 +43,7 @@ const services = [
     id: "digital",
     title: "Digital Systems",
     subtitle: "End-to-end digital transformation.",
-    desc: "We help organizations modernize their operations by designing and implementing complete digital systems — from process mapping and workflow design to implementation and ongoing support.",
+    desc: "We help organizations modernize their operations by designing and implementing complete digital systems, from process mapping and workflow design to implementation and ongoing support.",
     deliverables: ["Digital process design", "Workflow automation systems", "Document management systems", "Reporting and analytics platforms", "Digital operations consulting"],
     image: webImg,
   },
@@ -69,7 +69,7 @@ export function ServicesPage() {
               We build technology for your business too.
             </h1>
             <p style={{ color: "#6B7280", fontSize: "18px", lineHeight: 1.8 }}>
-              Beyond our own software products, Loopital works with businesses and organizations to design and build the technology they need — applying the same engineering depth and product thinking we bring to our own work.
+              Beyond our own software products, Loopital works with businesses and organizations to design and build the technology they need, applying the same engineering depth and product thinking we bring to our own work.
             </p>
           </motion.div>
         </div>
@@ -134,7 +134,7 @@ export function ServicesPage() {
                 Practical AI training for your team.
               </h2>
               <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px", lineHeight: 1.75 }}>
-                Beyond building software, we teach AI. Loopital Academy runs hands-on, live courses for individuals, businesses, and the public sector — across technical, business & leadership, and public sector tracks.
+                Beyond building software, we teach AI. Loopital Academy runs hands-on, live courses for individuals, businesses, and the public sector, across technical, business & leadership, and public sector tracks.
               </p>
             </div>
             <div className="flex lg:justify-end">

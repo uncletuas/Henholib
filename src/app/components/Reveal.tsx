@@ -7,7 +7,7 @@ interface RevealProps {
   from?: "up" | "down" | "left" | "right" | "none";
   /** Stagger delay in seconds. */
   delay?: number;
-  /** Travel distance in px (8–24 reads as quiet and intentional). */
+  /** Travel distance in px (8-24 reads as quiet and intentional). */
   distance?: number;
   className?: string;
   once?: boolean;

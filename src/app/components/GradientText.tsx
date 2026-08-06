@@ -9,7 +9,7 @@ interface GradientTextProps {
 
 /**
  * Paints the signature blue→green brand gradient onto its text.
- * Reserve for hero accent words and key moments — the one brand accent.
+ * Reserve for hero accent words and key moments, the one brand accent.
  */
 export function GradientText({ children, as: Tag = "span", className, style }: GradientTextProps) {
   return (

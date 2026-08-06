@@ -20,13 +20,13 @@ export const colors = {
   ink: "#06080F", // deep near-black for the rare dramatic dark beat
 } as const;
 
-// Signature blue→green gradient — the single brand accent. Use sparingly.
+// Signature blue→green gradient, the single brand accent. Use sparingly.
 export const gradientBrand =
   "linear-gradient(120deg, #2563EB 0%, #0EA5E9 45%, #10B981 100%)";
 export const gradientBrandSoft =
   "linear-gradient(120deg, rgba(37,99,235,0.12) 0%, rgba(14,165,233,0.10) 45%, rgba(16,185,129,0.12) 100%)";
 
-// Per-product accents — harmonized within the blue–green family.
+// Per-product accents, harmonized within the blue-green family.
 export const productAccent = {
   stack62: "#6D6AF0",
   sart34: "#0EA5E9",

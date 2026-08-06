@@ -10,7 +10,7 @@ export interface Testimonial {
 
 /**
  * Course testimonials. Intentionally renders nothing until the first cohort
- * produces real feedback — wired up now so adding testimonials is drop-in.
+ * produces real feedback, wired up now so adding testimonials is drop-in.
  */
 export function Testimonials({ items }: { items: Testimonial[] }) {
   if (!items || items.length === 0) return null;

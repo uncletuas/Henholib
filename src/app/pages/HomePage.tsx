@@ -16,7 +16,7 @@ import { useAuth } from "../context/AuthContext";
 
 const servicesImg = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200";
 
-// Rotating audiences for the hero headline — the kinds of people, organizations,
+// Rotating audiences for the hero headline, the kinds of people, organizations,
 // industries, and governments Loopital builds for.
 const AUDIENCES = [
   "modern organizations",
@@ -75,7 +75,7 @@ export function HomePage() {
           <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>THE LOOPITAL ECOSYSTEM</p>
           <h2 style={{ marginBottom: "12px" }}>Find the platform built for your need.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            From your own health to running a hospital, a facility, or a school — each platform solves a specific problem, works on its own, and connects to the rest.
+            From your own health to running a hospital, a facility, or a school, each platform solves a specific problem, works on its own, and connects to the rest.
           </p>
         </Reveal>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -90,7 +90,7 @@ export function HomePage() {
         <div className="mt-12">
           <Reveal className="mb-5 max-w-xl">
             <h3 style={{ fontSize: "1.15rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Also in the works</h3>
-            <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.55, marginTop: "4px" }}>AI products in active development — click through to join the waitlist and be first in.</p>
+            <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.55, marginTop: "4px" }}>AI products in active development, click through to join the waitlist and be first in.</p>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: "620px" }}>
             {inDevelopmentProducts.map((p, i) => (
@@ -108,7 +108,7 @@ export function HomePage() {
           <p style={{ color: colors.green, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>LOOPITAL ACADEMY</p>
           <h2 style={{ marginBottom: "12px" }}>Practical AI training, built for real work.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            We teach individuals, businesses, and the public sector to use AI well — hands-on live cohorts and real projects, online or in-house for your team.
+            We teach individuals, businesses, and the public sector to use AI well, hands-on live cohorts and real projects, online or in-house for your team.
           </p>
         </Reveal>
         <Reveal><AcademyShowcase /></Reveal>
@@ -124,9 +124,9 @@ export function HomePage() {
                   <Sparkles size={13} style={{ color: colors.blue }} />
                   <span style={{ color: colors.blue, fontSize: "12.5px", fontWeight: 600, letterSpacing: "0.03em" }}>AI AT THE CORE</span>
                 </span>
-                <h2 style={{ marginBottom: "14px" }}>AI built in from day one — <GradientText>not bolted on later</GradientText>.</h2>
+                <h2 style={{ marginBottom: "14px" }}>AI built in from day one, <GradientText>not bolted on later</GradientText>.</h2>
                 <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.7, marginBottom: "22px", maxWidth: "560px" }}>
-                  Led by Pal, intelligence runs through everything we build — research, content,
+                  Led by Pal, intelligence runs through everything we build, research, content,
                   automation, and decision support, so your people focus on higher-value work.
                 </p>
                 <button onClick={() => setWaitlist("stack62")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5" style={{ background: gradientBrand, fontSize: "14px" }}>Join the Pal waitlist <ArrowRight size={15} /></button>
@@ -149,7 +149,7 @@ export function HomePage() {
             <h2 style={{ marginBottom: "14px" }}>We build technology for other organizations too.</h2>
             <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.7, marginBottom: "22px" }}>
               Beyond our own products, Loopital designs and delivers websites, mobile apps, enterprise
-              platforms, and custom digital systems — held to the same engineering standard.
+              platforms, and custom digital systems, held to the same engineering standard.
             </p>
             <div className="grid grid-cols-2 gap-2 mb-7">
               {services.map((s) => (

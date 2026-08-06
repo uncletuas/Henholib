@@ -4,13 +4,13 @@ import { colors } from "../lib/brand";
 import { CoworkerFace, type CoworkerMood } from "./pal/CoworkerFace";
 
 const PAIRS: { q: string; a: string; mood: CoworkerMood }[] = [
-  { q: "Summarize the Q3 board deck", a: "Done — 5 key takeaways, 3 risks, and a one-line recommendation. Want the email draft too?", mood: "happy" },
+  { q: "Summarize the Q3 board deck", a: "Done, 5 key takeaways, 3 risks, and a one-line recommendation. Want the email draft too?", mood: "happy" },
   { q: "Draft a launch post for Swift", a: "Here's a punchy 3-line post with a clear CTA and 5 on-brand hashtags, ready to publish.", mood: "excited" },
-  { q: "Where are we losing users in onboarding?", a: "Four drop-off points. The biggest is step 3 — it asks for too much. I've proposed fixes.", mood: "neutral" },
+  { q: "Where are we losing users in onboarding?", a: "Four drop-off points. The biggest is step 3, it asks for too much. I've proposed fixes.", mood: "neutral" },
 ];
 
 /**
- * The Pal face on its gradient chip — the exact living coworker from
+ * The Pal face on its gradient chip, the exact living coworker from
  * pal.loopital.com. `speaking`/`thinking`/`mood` animate the face.
  */
 function PalChip({

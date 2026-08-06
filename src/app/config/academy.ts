@@ -1,4 +1,4 @@
-// Loopital Academy — shared types and track metadata. Course content itself is
+// Loopital Academy, shared types and track metadata. Course content itself is
 // DB-backed (served by the API and managed from the admin portal); this file
 // only holds the client-side shapes and the static track presentation.
 
@@ -174,19 +174,19 @@ export const TRACKS: TrackMeta[] = [
   {
     key: "technical",
     name: "Technical Track",
-    blurb: "Hands-on AI skills for builders — from generative AI foundations to shipping software and apps with AI.",
+    blurb: "Hands-on AI skills for builders, from generative AI foundations to shipping software and apps with AI.",
     accent: colors.blue,
   },
   {
     key: "business",
     name: "Business & Leadership Track",
-    blurb: "Practical AI for the people who run things — executives, marketers, and strategists driving real adoption.",
+    blurb: "Practical AI for the people who run things, executives, marketers, and strategists driving real adoption.",
     accent: colors.green,
   },
   {
     key: "public",
     name: "Public Sector Track",
-    blurb: "AI for government and public service — improving delivery responsibly, ethically, and accountably.",
+    blurb: "AI for government and public service, improving delivery responsibly, ethically, and accountably.",
     accent: colors.cyan,
   },
 ];

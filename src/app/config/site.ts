@@ -1,4 +1,4 @@
-// Central site configuration — single source of truth for external app URLs,
+// Central site configuration, single source of truth for external app URLs,
 // API endpoint, and brand contact details. Keeps references consistent across
 // the marketing site so launch-time changes happen in one place.
 
@@ -14,7 +14,7 @@ export const SART34_URL = "https://sart34.loopital.com";
 export const FMS13_URL = "https://fms13.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
 
-// Paystack public key (safe to expose) — used to redirect to hosted checkout.
+// Paystack public key (safe to expose), used to redirect to hosted checkout.
 export const PAYSTACK_PUBLIC_KEY = "pk_test_13449920aaa915f243a95926ec029dfe609dbbee";
 
 // SART34 is the only product with a mobile app. Replace these placeholders

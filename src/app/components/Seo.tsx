@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { SITE_URL, OG_IMAGE } from "../config/site";
 
 interface SeoProps {
-  /** Full <title>. Keep ~50–60 chars; brand is appended automatically unless includeBrand=false. */
+  /** Full <title>. Keep ~50-60 chars; brand is appended automatically unless includeBrand=false. */
   title: string;
   description: string;
   /** Path beginning with "/", e.g. "/products". Used for the canonical URL. */
@@ -11,7 +11,7 @@ interface SeoProps {
   noindex?: boolean;
   /** Absolute or root-relative social image. */
   image?: string;
-  /** og:type — "website" (default) or "article". */
+  /** og:type, "website" (default) or "article". */
   type?: "website" | "article";
   /** JSON-LD structured data object(s). */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];

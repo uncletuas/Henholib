@@ -3,13 +3,13 @@ import { Hammer, Users, Rocket, Sparkles } from "lucide-react";
 import { colors } from "../../lib/brand";
 
 const pillars = [
-  { icon: Hammer, title: "Learn by doing", desc: "Every course is hands-on — real labs and a capstone you actually keep and use.", accent: "#6D8BFF" },
+  { icon: Hammer, title: "Learn by doing", desc: "Every course is hands-on, real labs and a capstone you actually keep and use.", accent: "#6D8BFF" },
   { icon: Users, title: "Live cohorts", desc: "Small live sessions with real instruction and real people. Never pre-recorded lectures you watch alone.", accent: "#3ED0E0" },
-  { icon: Rocket, title: "Built for real work", desc: "Practical AI skills you apply the same week — for your job, your business, or your institution.", accent: "#34E4A8" },
+  { icon: Rocket, title: "Built for real work", desc: "Practical AI skills you apply the same week, for your job, your business, or your institution.", accent: "#34E4A8" },
 ];
 
 /**
- * The Academy "experience" band — an immersive, self-contained dark scene with
+ * The Academy "experience" band, an immersive, self-contained dark scene with
  * drifting gradient light and floating glass pillars. Motion pauses under
  * prefers-reduced-motion.
  */
@@ -63,7 +63,7 @@ export function AcademyExperience() {
                 A different kind of AI training.
               </h2>
               <p style={{ color: "rgba(229,231,235,0.75)", fontSize: "18px", lineHeight: 1.7, marginTop: "16px" }}>
-                Not another shelf of videos. Loopital Academy is live, practical, and built to change how you work — a world of its own.
+                Not another shelf of videos. Loopital Academy is live, practical, and built to change how you work, a world of its own.
               </p>
             </motion.div>
 

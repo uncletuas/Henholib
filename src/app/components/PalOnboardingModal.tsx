@@ -68,9 +68,9 @@ export function PalOnboardingModal() {
             <select style={input} value={teamSize} onChange={(e) => setTeamSize(e.target.value)}>
               <option value="">Team size…</option>
               <option>Just me</option>
-              <option>2–10</option>
-              <option>11–50</option>
-              <option>51–200</option>
+              <option>2-10</option>
+              <option>11-50</option>
+              <option>51-200</option>
               <option>200+</option>
             </select>
           </div>

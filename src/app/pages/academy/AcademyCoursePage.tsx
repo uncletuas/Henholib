@@ -98,7 +98,7 @@ export function AcademyCoursePage() {
                   <span style={{ color: colors.textTertiary, fontSize: "14px" }}>· {trackMeta(course.track).name.replace(" Track", "")}</span>
                 </div>
                 <p style={{ color: colors.textSecondary, fontSize: "14px", marginBottom: "20px" }}>
-                  {enrolling ? "Enrolling for the next live cohort." : "Not open yet — register your interest to be first to know."}
+                  {enrolling ? "Enrolling for the next live cohort." : "Not open yet, register your interest to be first to know."}
                 </p>
                 <div className="flex flex-col gap-3">
                   {facts.slice(0, 4).map((f) => (
@@ -217,7 +217,7 @@ export function AcademyCoursePage() {
           </h2>
           <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "18px", lineHeight: 1.65, marginBottom: "30px" }}>
             {enrolling
-              ? "Secure your place in the next live cohort — it's a small group, and spots are limited."
+              ? "Secure your place in the next live cohort, it's a small group, and spots are limited."
               : "Register your interest and we'll let you know the moment enrollment opens."}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">

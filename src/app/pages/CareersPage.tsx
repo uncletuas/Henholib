@@ -14,9 +14,9 @@ const openings = [
 ];
 
 const perks = [
-  { title: "Work that matters", desc: "You'll work on software used by real organizations to solve real problems — not side features on a product no one cares about." },
+  { title: "Work that matters", desc: "You'll work on software used by real organizations to solve real problems, not side features on a product no one cares about." },
   { title: "Remote-friendly culture", desc: "Many of our roles can be done remotely. We care about output, not where you sit." },
-  { title: "Learning & growth", desc: "We invest in the development of every team member — through training, resources, and space to explore new ideas." },
+  { title: "Learning & growth", desc: "We invest in the development of every team member, through training, resources, and space to explore new ideas." },
   { title: "Competitive compensation", desc: "We benchmark compensation against international technology companies, not just local market rates." },
 ];
 
@@ -33,7 +33,7 @@ export function CareersPage() {
                 Help us build what's next.
               </h1>
               <p style={{ color: "#6B7280", fontSize: "18px", lineHeight: 1.8 }}>
-                Loopital is growing. We're looking for engineers, designers, and product thinkers who want to build software that genuinely matters — and who want to do some of the best work of their careers.
+                Loopital is growing. We're looking for engineers, designers, and product thinkers who want to build software that genuinely matters, and who want to do some of the best work of their careers.
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>

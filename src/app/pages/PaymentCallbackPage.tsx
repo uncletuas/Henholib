@@ -31,7 +31,7 @@ export function PaymentCallbackPage() {
     </div>
   );
 
-  if (status === "verifying") return card(<Loader2 size={40} className="animate-spin" style={{ color: colors.blue }} />, "Confirming your payment…", "Hang tight — this only takes a moment.");
+  if (status === "verifying") return card(<Loader2 size={40} className="animate-spin" style={{ color: colors.blue }} />, "Confirming your payment…", "Hang tight, this only takes a moment.");
   if (status === "success") return card(
     <CheckCircle2 size={44} style={{ color: colors.green }} />,
     "You're upgraded 🎉",
@@ -40,14 +40,14 @@ export function PaymentCallbackPage() {
   );
   if (status === "pending") return card(
     <Loader2 size={40} className="animate-spin" style={{ color: colors.blue }} />,
-    "Payment received — activating…",
+    "Payment received, activating…",
     "We're finalizing your upgrade. This can take a minute. You can head to your workspace and it'll unlock shortly.",
     <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>Back to Loopital</Link>
   );
   return card(
     <XCircle size={44} style={{ color: "#DC2626" }} />,
     "We couldn't confirm the payment",
-    "If you were charged, it'll reflect shortly — or reach us at info@loopital.com. You can try the upgrade again from your account.",
+    "If you were charged, it'll reflect shortly, or reach us at info@loopital.com. You can try the upgrade again from your account.",
     <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>Back to Loopital</Link>
   );
 }

@@ -41,12 +41,12 @@ interface CourseSeo {
   desc: string;
 }
 const academyCourses: CourseSeo[] = [
-  { slug: "generative-ai-masterclass", name: "Generative AI Masterclass", price: 100, desc: "Go from zero to confidently using generative AI in your work — a hands-on 4-week live course for professionals, entrepreneurs, and students. No prior experience needed." },
-  { slug: "software-development-with-ai", name: "Software Development with AI", price: 100, desc: "Make AI a dependable part of your development workflow — generating, reviewing, and shipping code. A 4-week live course for developers and engineers." },
+  { slug: "generative-ai-masterclass", name: "Generative AI Masterclass", price: 100, desc: "Go from zero to confidently using generative AI in your work, a hands-on 4-week live course for professionals, entrepreneurs, and students. No prior experience needed." },
+  { slug: "software-development-with-ai", name: "Software Development with AI", price: 100, desc: "Make AI a dependable part of your development workflow, generating, reviewing, and shipping code. A 4-week live course for developers and engineers." },
   { slug: "application-development-with-ai", name: "Application Development with AI", price: 100, desc: "Turn an idea into a working app with AI, no engineering background required. A 4-week live course for founders, product people, and non-technical builders." },
-  { slug: "ai-for-business-executives", name: "AI for Business Executives", price: 200, desc: "Lead AI adoption with clarity — spot real opportunities, evaluate vendors, and drive responsible adoption. A 3-week live course for leaders and decision-makers." },
-  { slug: "ai-for-marketing", name: "AI for Marketing", price: 200, desc: "Build a practical AI marketing workflow — content at scale, AI creative, and data-driven campaigns. A 4-week live course for marketers and brand teams." },
-  { slug: "ai-for-research-and-planning", name: "AI for Research & Planning", price: 200, desc: "Use AI to research, analyze, and plan responsibly — without fabricated findings. A 4-week live course for analysts, planners, and academics." },
+  { slug: "ai-for-business-executives", name: "AI for Business Executives", price: 200, desc: "Lead AI adoption with clarity, spot real opportunities, evaluate vendors, and drive responsible adoption. A 3-week live course for leaders and decision-makers." },
+  { slug: "ai-for-marketing", name: "AI for Marketing", price: 200, desc: "Build a practical AI marketing workflow, content at scale, AI creative, and data-driven campaigns. A 4-week live course for marketers and brand teams." },
+  { slug: "ai-for-research-and-planning", name: "AI for Research & Planning", price: 200, desc: "Use AI to research, analyze, and plan responsibly, without fabricated findings. A 4-week live course for analysts, planners, and academics." },
   { slug: "ai-for-governance", name: "AI for Governance", price: 300, desc: "Help the public sector adopt AI to improve service delivery, responsibly and accountably. A 3-week live course for government officials and administrators." },
 ];
 
@@ -66,57 +66,57 @@ const academyCourseSeo: Record<string, PageSeo> = Object.fromEntries(
 
 export const pageSeo: Record<string, PageSeo> = {
   "/": {
-    title: "Loopital — Software, AI & Enterprise Platforms",
+    title: "Loopital, Software, AI & Enterprise Platforms",
     description:
-      "Loopital builds software products, AI, and enterprise platforms — Pal (AI coworker), Swift (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and FMS13 (facility management) — helping organizations and people operate more intelligently.",
+      "Loopital builds software products, AI, and enterprise platforms, Pal (AI coworker), Swift (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and FMS13 (facility management), helping organizations and people operate more intelligently.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
-    title: "Products — AI, Healthcare & Enterprise Software",
+    title: "Products, AI, Healthcare & Enterprise Software",
     description:
-      "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software — for businesses, hospitals, and individuals.",
+      "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software, for businesses, hospitals, and individuals.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/services": {
-    title: "Services — Web, Mobile, AI & Enterprise Development",
+    title: "Services, Web, Mobile, AI & Enterprise Development",
     description:
-      "Loopital designs and builds websites, mobile apps, AI solutions, enterprise platforms, and custom digital systems — applying the same engineering standards we hold our own products to.",
+      "Loopital designs and builds websites, mobile apps, AI solutions, enterprise platforms, and custom digital systems, applying the same engineering standards we hold our own products to.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Services", path: "/services" }]),
   },
   "/products/hms7": {
-    title: "HMS7 — Hospital Management System Software",
+    title: "HMS7, Hospital Management System Software",
     description:
-      "HMS7 is an enterprise hospital management system for patient records (EMR), appointments, billing, insurance, staff, pharmacy, and compliance — the hospital side of the Henholib care network. Free for the first 3 months; request access via a quick demo.",
+      "HMS7 is an enterprise hospital management system for patient records (EMR), appointments, billing, insurance, staff, pharmacy, and compliance, the hospital side of the Henholib care network. Free for the first 3 months; request access via a quick demo.",
     jsonLd: [
       softwareApplicationLd({
         name: "HMS7",
         category: "HealthApplication",
         description:
-          "Enterprise hospital management system for patient records, appointments, billing, staff, pharmacy, and compliance — connected to the Henholib patient app.",
+          "Enterprise hospital management system for patient records, appointments, billing, staff, pharmacy, and compliance, connected to the Henholib patient app.",
         path: "/products/hms7",
       }),
       productCrumb("HMS7", "/products/hms7"),
     ],
   },
   "/products/henholib": {
-    title: "Henholib — Book Doctors, Hospital Search & Emergency Alerts",
+    title: "Henholib, Book Doctors, Hospital Search & Emergency Alerts",
     description:
-      "Henholib is a personal health app to search hospitals, book doctor consultations, message your care team, and raise emergency alerts — the patient side of the HMS7 hospital network. Sign up free at henholib.loopital.com.",
+      "Henholib is a personal health app to search hospitals, book doctor consultations, message your care team, and raise emergency alerts, the patient side of the HMS7 hospital network. Sign up free at henholib.loopital.com.",
     jsonLd: [
       softwareApplicationLd({
         name: "Henholib",
         category: "HealthApplication",
         description:
-          "Personal health app for hospital search, doctor consultations, care-team messaging, and emergency alerts — connected to hospitals running HMS7.",
+          "Personal health app for hospital search, doctor consultations, care-team messaging, and emergency alerts, connected to hospitals running HMS7.",
         path: "/products/henholib",
       }),
       productCrumb("Henholib", "/products/henholib"),
     ],
   },
   "/products/fms13": {
-    title: "FMS13 — Facility Management System Software",
+    title: "FMS13, Facility Management System Software",
     description:
-      "FMS13 is a complete facility management system for assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site. Open it at fms13.loopital.com — free for the first 3 months.",
+      "FMS13 is a complete facility management system for assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site. Open it at fms13.loopital.com, free for the first 3 months.",
     jsonLd: [
       softwareApplicationLd({
         name: "FMS13",
@@ -129,9 +129,9 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/stack62": {
-    title: "Pal — AI Coworker Platform | Join the Waitlist",
+    title: "Pal, AI Coworker Platform | Join the Waitlist",
     description:
-      "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet — join the waitlist for early access.",
+      "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet, join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
         name: "Pal",
@@ -144,9 +144,9 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/edm73": {
-    title: "EDM73 — Education Management System | Join the Waitlist",
+    title: "EDM73, Education Management System | Join the Waitlist",
     description:
-      "EDM73 is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication — for schools, colleges, and training institutions. Not public yet — join the waitlist for early access.",
+      "EDM73 is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Not public yet, join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
         name: "EDM73",
@@ -159,9 +159,9 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/sart34": {
-    title: "Swift — AI Ads & CRM | Join the Waitlist",
+    title: "Swift, AI Ads & CRM | Join the Waitlist",
     description:
-      "Swift unifies AI-powered advertising and CRM in one workspace — run campaigns, manage every conversation, and grow your audience. Not public yet — join the waitlist for early access.",
+      "Swift unifies AI-powered advertising and CRM in one workspace, run campaigns, manage every conversation, and grow your audience. Not public yet, join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
         name: "Swift",
@@ -174,9 +174,9 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/academy": {
-    title: "Loopital Academy — Practical AI Training Courses",
+    title: "Loopital Academy, Practical AI Training Courses",
     description:
-      "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector — across a Technical Track, a Business & Leadership Track, and a Public Sector Track. Live cohorts, real-world projects.",
+      "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector, across a Technical Track, a Business & Leadership Track, and a Public Sector Track. Live cohorts, real-world projects.",
     jsonLd: [
       academyLd,
       breadcrumbLd([{ name: "Home", path: "/" }, { name: "Academy", path: "/academy" }]),
@@ -195,7 +195,7 @@ export const pageSeo: Record<string, PageSeo> = {
       "Product news, engineering, and perspectives from Loopital on software, AI, healthcare technology, and enterprise platforms.",
   },
   "/verify": {
-    title: "Verify a Certificate — Loopital Academy",
+    title: "Verify a Certificate, Loopital Academy",
     description:
       "Verify a Loopital Academy certificate of completion. Enter the certificate ID to confirm it's genuine and see the recipient, course, and issue date.",
   },
@@ -205,9 +205,9 @@ export const pageSeo: Record<string, PageSeo> = {
       "Get in touch with Loopital to explore our products or discuss a custom software, AI, or enterprise platform project. Book a demo or talk to our team.",
   },
   "/tuamene.bestgod": {
-    title: "Tuamene Bestgod — Founder & CEO of Loopital",
+    title: "Tuamene Bestgod, Founder & CEO of Loopital",
     description:
-      "Tuamene Bestgod is the founder and CEO of Loopital, building AI and software for businesses and governments across Africa — and Henholib, connecting Nigeria's hospitals with a single patient health identity. Speaker, volunteer, and advocate for impact.",
+      "Tuamene Bestgod is the founder and CEO of Loopital, building AI and software for businesses and governments across Africa, and Henholib, connecting Nigeria's hospitals with a single patient health identity. Speaker, volunteer, and advocate for impact.",
     image: FOUNDER_IMAGE,
     jsonLd: [
       personLd({
@@ -252,7 +252,7 @@ export function getPageSeo(pathname: string): PageSeo {
   // Public per-user achievements pages are shareable + indexable.
   if (key.startsWith("/u/")) {
     return {
-      title: "Achievements — Loopital Academy",
+      title: "Achievements, Loopital Academy",
       description: "Loopital Academy achievements and verified certificates of completion.",
     };
   }
@@ -260,7 +260,7 @@ export function getPageSeo(pathname: string): PageSeo {
   // Academy: application forms and the private portals stay out of the index.
   if (key === "/academy/admin" || key === "/academy/portal" || key === "/academy/learn" || key.startsWith("/academy/apply")) {
     return {
-      title: key === "/academy/learn" ? "My Learning — Loopital Academy" : key.startsWith("/academy/apply") ? "Apply — Loopital Academy" : "Academy Portal — Loopital",
+      title: key === "/academy/learn" ? "My Learning, Loopital Academy" : key.startsWith("/academy/apply") ? "Apply, Loopital Academy" : "Academy Portal, Loopital",
       description: "Loopital Academy.",
       noindex: true,
     };
@@ -269,7 +269,7 @@ export function getPageSeo(pathname: string): PageSeo {
   // indexable, with generic-but-relevant metadata.
   if (key.startsWith("/academy/")) {
     return {
-      title: "Loopital Academy — AI Training Course",
+      title: "Loopital Academy, AI Training Course",
       description:
         "A practical, hands-on AI training course from Loopital Academy. Learn to apply AI in your work through live cohorts and real-world projects.",
       jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Academy", path: "/academy" }]),

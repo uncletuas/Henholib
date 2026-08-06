@@ -18,7 +18,7 @@ export function ProductsPage() {
             One ecosystem, <GradientText>built around your needs</GradientText>.
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.65 }}>
-            A connected stack of platforms for how modern people and organizations run — each solving a specific problem, and stronger together. Pick the one built for you.
+            A connected stack of platforms for how modern people and organizations run, each solving a specific problem, and stronger together. Pick the one built for you.
           </p>
         </Reveal>
       </Section>

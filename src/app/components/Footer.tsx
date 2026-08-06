@@ -3,7 +3,7 @@ import loopitalLogo from "../../imports/loopital-logo.svg";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { products } from "../config/products";
 
-const productLinks = products.map((p) => ({ label: `${p.name} — ${p.category}`, href: p.detailHref, external: p.external }));
+const productLinks = products.map((p) => ({ label: `${p.name}, ${p.category}`, href: p.detailHref, external: p.external }));
 
 const columns = [
   {

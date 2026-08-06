@@ -56,7 +56,7 @@ export function AchievementsPage() {
       {profile.achievements.length === 0 ? (
         <div className="rounded-3xl p-10 text-center" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
           <GraduationCap size={30} style={{ color: colors.textTertiary, margin: "0 auto 12px" }} />
-          <p style={{ color: colors.textSecondary }}>No completed courses yet — the journey is just beginning.</p>
+          <p style={{ color: colors.textSecondary }}>No completed courses yet, the journey is just beginning.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -85,7 +85,7 @@ export function AchievementsPage() {
       )}
 
       <div className="mt-10 text-center">
-        <span style={{ color: colors.textSecondary, fontSize: "14px" }}>Earn your own — </span>
+        <span style={{ color: colors.textSecondary, fontSize: "14px" }}>Earn your own, </span>
         <Link to="/academy" style={{ color: colors.blue, fontSize: "14px", fontWeight: 600 }}>explore <GradientText>Loopital Academy</GradientText> →</Link>
       </div>
     </Section>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
 
 /**
- * Types out a phrase, holds, deletes it, then cycles to the next — used for the
+ * Types out a phrase, holds, deletes it, then cycles to the next, used for the
  * changing audience word in the hero headline. Renders the text with the brand
  * gradient plus a blinking caret. Static (first phrase) under reduced-motion.
  */

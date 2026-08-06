@@ -28,14 +28,14 @@ function ProgressBar({ pct }: { pct: number }) {
   );
 }
 
-// ── Sign-in prompt — the portal uses the one Loopital account (global auth) ──
+// ── Sign-in prompt, the portal uses the one Loopital account (global auth) ──
 function SignInPrompt({ onSignIn }: { onSignIn: () => void }) {
   return (
     <div className="min-h-[72vh] flex items-center justify-center px-6" style={{ background: colors.bg }}>
       <div className="w-full max-w-md rounded-3xl p-8 text-center" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.md }}>
         <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 mx-auto" style={{ background: gradientBrand }}><GraduationCap size={24} color="#fff" /></div>
         <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "8px" }}>Sign in to your learning</h1>
-        <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6, marginBottom: "22px" }}>Use your Loopital account to enroll, learn, and track your courses and certificates — one account across everything Loopital.</p>
+        <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6, marginBottom: "22px" }}>Use your Loopital account to enroll, learn, and track your courses and certificates, one account across everything Loopital.</p>
         <button onClick={onSignIn} style={{ ...btnPrimary, width: "100%" }}>Sign in or create account</button>
         <div className="mt-4"><Link to="/academy" style={{ color: colors.textTertiary, fontSize: "13px" }} className="hover:underline">← Back to Academy</Link></div>
       </div>
@@ -108,7 +108,7 @@ function Learn({ token, courseId, onBack }: { token: string; courseId: string; o
           {/* Intro video */}
           {c.introVideoUrl && (
             <section>
-              <div className="flex items-center gap-2 mb-3"><PlayCircle size={18} style={{ color: accent }} /><h2 style={{ fontSize: "1.15rem", fontWeight: 700 }}>Start here — intro video</h2></div>
+              <div className="flex items-center gap-2 mb-3"><PlayCircle size={18} style={{ color: accent }} /><h2 style={{ fontSize: "1.15rem", fontWeight: 700 }}>Start here, intro video</h2></div>
               <VideoEmbed url={c.introVideoUrl} title={`${c.title} intro`} />
               <label className="flex items-center gap-2 mt-3 cursor-pointer" style={{ fontSize: "14px", color: colors.heading }} onClick={() => toggle("intro")}>
                 {isDone("intro") ? <CheckCircle2 size={18} style={{ color: colors.green }} /> : <Circle size={18} style={{ color: colors.textTertiary }} />} I've watched the intro

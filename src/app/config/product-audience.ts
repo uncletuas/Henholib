@@ -4,7 +4,7 @@
 export const productAudience: Record<string, { audience: string; need: string }> = {
   henholib: {
     audience: "For patients & individuals",
-    need: "Find hospitals, book doctors, message your care team, and handle emergencies — your whole health, in your pocket.",
+    need: "Find hospitals, book doctors, message your care team, and handle emergencies, your whole health, in your pocket.",
   },
   fms13: {
     audience: "For facility managers",
@@ -12,11 +12,11 @@ export const productAudience: Record<string, { audience: string; need: string }>
   },
   hms7: {
     audience: "For hospitals & clinics",
-    need: "Patient records, billing, pharmacy, and staff — the operating system that runs your hospital.",
+    need: "Patient records, billing, pharmacy, and staff, the operating system that runs your hospital.",
   },
   edm73: {
     audience: "For schools & institutions",
-    need: "Admissions, students, grades, timetables, and fees — one platform to run your school end to end.",
+    need: "Admissions, students, grades, timetables, and fees, one platform to run your school end to end.",
   },
   stack62: {
     audience: "For teams & knowledge work",
@@ -24,6 +24,6 @@ export const productAudience: Record<string, { audience: string; need: string }>
   },
   sart34: {
     audience: "For marketers & sales",
-    need: "AI-powered advertising and CRM in one intelligent workspace — win attention and keep relationships.",
+    need: "AI-powered advertising and CRM in one intelligent workspace, win attention and keep relationships.",
   },
 };

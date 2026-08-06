@@ -66,7 +66,7 @@ function AdminAuth({ onToken }: { onToken: (t: string) => void }) {
         </h1>
         <p style={{ color: colors.textSecondary, fontSize: "14px", lineHeight: 1.6, marginBottom: "22px" }}>
           {mode === "bootstrap"
-            ? "Create the password you'll use to manage the Academy. Keep it safe — it's the key to the portal."
+            ? "Create the password you'll use to manage the Academy. Keep it safe, it's the key to the portal."
             : "Enter your admin password to manage courses and applications."}
         </p>
         {mode === "loading" ? (
@@ -111,7 +111,7 @@ interface Draft {
 }
 
 const DEFAULT_BIO =
-  "Tuamene Bestgod is the founder and CEO of Loopital, building AI and software for businesses, institutions, and governments across Africa. He teaches from real-world practice — shipping production AI systems and helping teams and leaders adopt them well.";
+  "Tuamene Bestgod is the founder and CEO of Loopital, building AI and software for businesses, institutions, and governments across Africa. He teaches from real-world practice, shipping production AI systems and helping teams and leaders adopt them well.";
 
 function toDraft(c?: Course): Draft {
   if (!c) return {
@@ -297,7 +297,7 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
           </div>
 
           <div>
-            <label style={label}>Intro video URL <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(YouTube/Vimeo — students watch before class)</span></label>
+            <label style={label}>Intro video URL <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(YouTube/Vimeo, students watch before class)</span></label>
             <input style={input} value={d.introVideoUrl} onChange={(e) => set("introVideoUrl", e.target.value)} placeholder="https://youtu.be/…" />
           </div>
 
@@ -315,7 +315,7 @@ function CourseEditor({ course, token, onClose, onSaved }: { course?: Course; to
                     <button type="button" onClick={() => set("selfPacedVideos", d.selfPacedVideos.filter((_, j) => j !== i))} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={16} /></button>
                   </div>
                 ))}
-                {d.selfPacedVideos.length === 0 && <p style={{ fontSize: "12.5px", color: colors.textTertiary }}>No videos yet — add lessons students can watch on their own.</p>}
+                {d.selfPacedVideos.length === 0 && <p style={{ fontSize: "12.5px", color: colors.textTertiary }}>No videos yet, add lessons students can watch on their own.</p>}
               </div>
             </div>
           )}
@@ -556,10 +556,10 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
                       <tr key={a.id} style={{ borderTop: `1px solid ${colors.hairline}` }}>
                         <td style={{ padding: "11px 14px", fontWeight: 600, color: colors.heading, whiteSpace: "nowrap" }}>{a.name}</td>
                         <td style={{ padding: "11px 14px", color: colors.textSecondary }}><a href={`mailto:${a.email}`} style={{ color: colors.blue }}>{a.email}</a></td>
-                        <td style={{ padding: "11px 14px", color: colors.textSecondary, whiteSpace: "nowrap" }}>{a.phone || "—"}</td>
+                        <td style={{ padding: "11px 14px", color: colors.textSecondary, whiteSpace: "nowrap" }}>{a.phone || "-"}</td>
                         <td style={{ padding: "11px 14px", color: colors.textSecondary }}>{a.courseTitle}</td>
-                        <td style={{ padding: "11px 14px", color: colors.textSecondary, maxWidth: "260px" }}>{a.motivation || "—"}</td>
-                        <td style={{ padding: "11px 14px", color: colors.textSecondary, whiteSpace: "nowrap" }}>{a.heardFrom || "—"}</td>
+                        <td style={{ padding: "11px 14px", color: colors.textSecondary, maxWidth: "260px" }}>{a.motivation || "-"}</td>
+                        <td style={{ padding: "11px 14px", color: colors.textSecondary, whiteSpace: "nowrap" }}>{a.heardFrom || "-"}</td>
                         <td style={{ padding: "11px 14px", color: colors.textTertiary, whiteSpace: "nowrap" }}>{new Date(a.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
