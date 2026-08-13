@@ -138,6 +138,9 @@ class LoopitalStack extends cdk.Stack {
     authFn.addEnvironment("PAYSTACK_CALLBACK_URL", process.env.PAYSTACK_CALLBACK_URL || "https://www.loopital.com/payment/callback");
     authFn.addEnvironment("RESEND_API_KEY", process.env.RESEND_API_KEY || "");
     authFn.addEnvironment("RESEND_FROM_EMAIL", process.env.RESEND_FROM_EMAIL || "");
+    // Google Sign-In (verifies the ID token from the frontend Google button).
+    authFn.addEnvironment("GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID || "");
+    authFn.addEnvironment("GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET || "");
 
     // ── HTTP API (API Gateway v2) ─────────────────────────────────────────
     const httpApi = new HttpApi(this, "HttpApi", { apiName: "loopital-api" });

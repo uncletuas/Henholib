@@ -10,12 +10,18 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 // Pal (formerly STACK62) is the workspace every Loopital account can open.
 export const PAL_URL = "https://pal.loopital.com";
 export const STACK62_URL = PAL_URL; // legacy alias
-export const SART34_URL = "https://sart34.loopital.com";
+export const SART34_URL = "https://swift.loopital.com";
 export const FMS13_URL = "https://fms13.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
 
 // Paystack public key (safe to expose), used to redirect to hosted checkout.
 export const PAYSTACK_PUBLIC_KEY = "pk_test_13449920aaa915f243a95926ec029dfe609dbbee";
+
+// Google Sign-In client ID (public, safe to expose). The Google button uses it
+// to obtain an ID token that the backend verifies. Configure loopital.com +
+// sart34.loopital.com as authorized JavaScript origins in the Google console.
+export const GOOGLE_CLIENT_ID =
+  "673117866604-4f0h5o89jdnams4h7aqej09lqsl3ngqk.apps.googleusercontent.com";
 
 // SART34 is the only product with a mobile app. Replace these placeholders
 // with the real store listings when available.

@@ -93,7 +93,6 @@ export function ContactPage() {
                 {[
                   { tag: "Product inquiries", desc: "Questions about Pal, Swift, HMS7, or FMS13" },
                   { tag: "Partnership opportunities", desc: "Business partnerships, reseller arrangements, and integrations" },
-                  { tag: "Services & projects", desc: "Web, mobile, AI, or enterprise development projects" },
                   { tag: "Support", desc: "Technical support for existing products or accounts" },
                 ].map(item => (
                   <div key={item.tag} className="flex flex-col gap-1 p-4 rounded-xl" style={{ background: "#F7F7FB", border: "1px solid rgba(0,0,0,0.06)" }}>
@@ -136,7 +135,6 @@ export function ContactPage() {
                           <option value="">Select a topic…</option>
                           <option>Product inquiry</option>
                           <option>Partnership opportunity</option>
-                          <option>Services / project</option>
                           <option>Support request</option>
                           <option>Careers</option>
                           <option>Other</option>

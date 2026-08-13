@@ -4,20 +4,10 @@ import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProductsPage } from "./pages/ProductsPage";
 import { Stack62Page } from "./pages/products/Stack62Page";
-import { Sart34Page } from "./pages/products/Sart34Page";
 import { Hms7Page } from "./pages/products/Hms7Page";
 import { HenholibPage } from "./pages/products/HenholibPage";
-import { Fms13Page } from "./pages/products/Fms13Page";
 import { Edm73Page } from "./pages/products/Edm73Page";
-import { ServicesPage } from "./pages/ServicesPage";
-import { AcademyPage } from "./pages/academy/AcademyPage";
-import { AcademyCoursePage } from "./pages/academy/AcademyCoursePage";
-import { AcademyApplyPage } from "./pages/academy/AcademyApplyPage";
-import { AcademyAdminPage } from "./pages/academy/AcademyAdminPage";
-import { FacilitatorPortalPage } from "./pages/academy/FacilitatorPortalPage";
-import { StudentPortalPage } from "./pages/academy/StudentPortalPage";
-import { VerifyPage } from "./pages/academy/VerifyPage";
-import { AchievementsPage } from "./pages/academy/AchievementsPage";
+import { SwiftRedirect, Fms13Redirect } from "./components/AppRedirects";
 import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
@@ -35,21 +25,12 @@ export const router = createBrowserRouter([
       { path: "about", Component: AboutPage },
       { path: "products", Component: ProductsPage },
       { path: "products/stack62", Component: Stack62Page },
-      { path: "products/sart34", Component: Sart34Page },
+      { path: "products/sart34", Component: SwiftRedirect },
       { path: "products/hms7", Component: Hms7Page },
       { path: "products/henholib", Component: HenholibPage },
-      { path: "products/fms13", Component: Fms13Page },
+      { path: "products/fms13", Component: Fms13Redirect },
       { path: "products/edm73", Component: Edm73Page },
-      { path: "services", Component: ServicesPage },
-      { path: "academy", Component: AcademyPage },
-      { path: "academy/admin", Component: AcademyAdminPage },
-      { path: "academy/portal", Component: FacilitatorPortalPage },
-      { path: "academy/learn", Component: StudentPortalPage },
-      { path: "verify", Component: VerifyPage },
-      { path: "u/:username", Component: AchievementsPage },
       { path: "payment/callback", Component: PaymentCallbackPage },
-      { path: "academy/apply/:slug", Component: AcademyApplyPage },
-      { path: "academy/:slug", Component: AcademyCoursePage },
       { path: "contact", Component: ContactPage },
       { path: "insights", Component: InsightsPage },
       { path: "privacy", Component: PrivacyPage },

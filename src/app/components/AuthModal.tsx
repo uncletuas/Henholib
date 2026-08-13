@@ -3,6 +3,7 @@ import { X, Eye, EyeOff } from "lucide-react";
 import loopitalLogo from "../../imports/loopital-logo.svg";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import { colors, gradientBrand } from "../lib/brand";
 
 interface AuthModalProps {
@@ -12,7 +13,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ mode, onClose, onToggleMode }: AuthModalProps) {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +39,12 @@ export function AuthModal({ mode, onClose, onToggleMode }: AuthModalProps) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setLoading(false);
     }
+  };
+
+  const handleGoogle = async (credential: string) => {
+    setError(""); setLoading(true);
+    try { await signInWithGoogle(credential); }
+    catch (err) { setError(err instanceof Error ? err.message : "Google sign-in failed."); setLoading(false); }
   };
 
   const focus = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = colors.blue; };
@@ -74,6 +81,17 @@ export function AuthModal({ mode, onClose, onToggleMode }: AuthModalProps) {
             </p>
           </div>
         </div>
+
+        {/* Google sign-in / up */}
+        <div className="flex flex-col gap-4">
+          <GoogleSignInButton text={mode === "signup" ? "signup_with" : "signin_with"} onCredential={handleGoogle} />
+          <div className="flex items-center gap-3">
+            <span className="flex-1 h-px" style={{ background: colors.hairline }} />
+            <span style={{ color: colors.textTertiary, fontSize: "12.5px" }}>or</span>
+            <span className="flex-1 h-px" style={{ background: colors.hairline }} />
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {mode === "signup" && (
             <div className="flex flex-col gap-1.5">

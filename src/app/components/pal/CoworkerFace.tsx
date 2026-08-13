@@ -44,6 +44,8 @@ function isJoyful(mood: CoworkerMood): boolean {
   return mood === "happy" || mood === "excited";
 }
 
+type Gesture = "nod" | "shake" | "turn" | "bump" | "tilt";
+
 export function CoworkerFace({
   speaking = false,
   thinking = false,
@@ -51,6 +53,8 @@ export function CoworkerFace({
   mood = "neutral",
   mouthPulse = 0,
   autonomous = false,
+  trackPointer = false,
+  interactive = false,
 }: {
   speaking?: boolean;
   thinking?: boolean;
@@ -58,7 +62,17 @@ export function CoworkerFace({
   mood?: CoworkerMood;
   mouthPulse?: number;
   autonomous?: boolean;
+  /** Eyes follow the mouse cursor across the whole page. */
+  trackPointer?: boolean;
+  /** Hovering the face makes it smile, widen its eyes and react with a gesture. */
+  interactive?: boolean;
 }) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [hovered, setHovered] = useState(false);
+  /** Live transform string driven by the gesture engine (nod/shake/turn/...). */
+  const [xform, setXform] = useState("");
+  /** True while the pointer is being tracked (eyes locked to cursor). */
+  const [tracking, setTracking] = useState(false);
   const [blink, setBlink] = useState(false);
   const [phonemeIdx, setPhonemeIdx] = useState(0);
   const [punching, setPunching] = useState(false);
@@ -66,8 +80,6 @@ export function CoworkerFace({
   const [gaze, setGaze] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   /** Brow micro-twitch, distinct from mood baseline. */
   const [browTwitch, setBrowTwitch] = useState<BrowState>({ lift: 0, angle: 0 });
-  /** Tiny head bob/tilt in degrees. */
-  const [tilt, setTilt] = useState(0);
   /** Subtle breathing scale (0.97..1.03). */
   const [breath, setBreath] = useState(1);
   /** Slow idle motion (0..1 sine) so the resting smile is never static. */
@@ -120,6 +132,11 @@ export function CoworkerFace({
     let cancelled = false;
     const tick = () => {
       if (cancelled) return;
+      // While locked to the cursor, the pointer effect owns the gaze.
+      if (tracking && !thinking) {
+        handle = window.setTimeout(tick, 400);
+        return;
+      }
       if (thinking) {
         // Pondering: look up-right, sustained.
         setGaze({ x: 0.8, y: -0.7 });
@@ -137,7 +154,38 @@ export function CoworkerFace({
       cancelled = true;
       window.clearTimeout(handle);
     };
-  }, [thinking]);
+  }, [thinking, tracking]);
+
+  // ── Eyes follow the mouse cursor ──────────────────────────────────
+  // When trackPointer is on, we read the face's on-screen centre and steer
+  // the pupils toward the pointer. Falls back to wander when the mouse is
+  // idle/away (tracking flips off after a short pause).
+  useEffect(() => {
+    if (!trackPointer || thinking) return;
+    let idle: number | null = null;
+    const onMove = (e: PointerEvent) => {
+      const el = svgRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy) || 1;
+      // Normalise then scale to the eye's travel range (svg units).
+      const gx = Math.max(-2.1, Math.min(2.1, (dx / dist) * Math.min(dist / 90, 1) * 2.1));
+      const gy = Math.max(-1.6, Math.min(1.6, (dy / dist) * Math.min(dist / 90, 1) * 1.6));
+      setGaze({ x: gx, y: gy });
+      setTracking(true);
+      if (idle) window.clearTimeout(idle);
+      idle = window.setTimeout(() => setTracking(false), 1400);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (idle) window.clearTimeout(idle);
+    };
+  }, [trackPointer, thinking]);
 
   // ── Brow micro-twitches ───────────────────────────────────────────
   useEffect(() => {
@@ -172,32 +220,64 @@ export function CoworkerFace({
     };
   }, [mood, thinking]);
 
-  // ── Head tilt / bob ───────────────────────────────────────────────
-  // Tiny rotation that drifts. Faster + larger when excited; subtle
-  // when sad or neutral. Stops while thinking (held pose).
+  // ── Head gestures ─────────────────────────────────────────────────
+  // Instead of a constant sway (which reads as "shaking"), the head is
+  // mostly still and occasionally plays a deliberate gesture — a nod, a
+  // "no" shake, a curious tilt, a look-to-the-side turn, or a little bump.
+  // Gestures fire more often (and immediately) while the face is hovered.
+  const gestureRef = useRef<{ type: Gesture; start: number; dur: number } | null>(null);
+  const playGesture = (type: Gesture) => {
+    const dur =
+      type === "shake" ? 720 : type === "turn" ? 1100 : type === "tilt" ? 1300 : type === "nod" ? 640 : 560;
+    gestureRef.current = { type, start: performance.now(), dur };
+  };
+
+  // Drive the transform every frame from the active gesture (+ a barely-there
+  // idle sway so a resting head isn't frozen, but never jitters).
   useEffect(() => {
-    if (thinking) {
-      setTilt(-3);
-      return;
-    }
     let cancelled = false;
-    const amplitude =
-      mood === "excited" ? 6 : mood === "happy" ? 4 : mood === "sad" ? 1.5 : 2.5;
-    const period = mood === "excited" ? 800 : 1600;
-    let t0 = performance.now();
-    const step = (t: number) => {
+    const rest0 = performance.now();
+    const loop = (t: number) => {
       if (cancelled) return;
-      const elapsed = t - t0;
-      const v = Math.sin(elapsed / period) * amplitude;
-      setTilt(v);
-      raf = requestAnimationFrame(step);
+      const g = gestureRef.current;
+      let tf = "";
+      if (g) {
+        const p = (t - g.start) / g.dur;
+        if (p >= 1) gestureRef.current = null;
+        else tf = gestureTransform(g.type, p);
+      }
+      if (!tf) {
+        if (thinking) tf = "rotate(-3deg)";
+        else tf = `rotate(${(Math.sin((t - rest0) / 2600) * 0.6).toFixed(2)}deg)`;
+      }
+      setXform(tf);
+      raf = requestAnimationFrame(loop);
     };
-    let raf = requestAnimationFrame(step);
+    let raf = requestAnimationFrame(loop);
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
     };
-  }, [mood, thinking]);
+  }, [thinking]);
+
+  // Schedule occasional idle gestures; brisker while hovered.
+  useEffect(() => {
+    if (thinking) return;
+    let cancelled = false;
+    const pool: Gesture[] = ["nod", "tilt", "turn", "shake", "bump"];
+    const tick = () => {
+      if (cancelled) return;
+      if (!speaking) playGesture(pool[Math.floor(Math.random() * pool.length)]);
+      const base = hovered ? 1500 : 5200;
+      const jitter = hovered ? 1400 : 4200;
+      handle = window.setTimeout(tick, base + Math.random() * jitter);
+    };
+    let handle = window.setTimeout(tick, hovered ? 200 : 2600);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [thinking, speaking, hovered]);
 
   // ── Breathing + idle mouth life ───────────────────────────────────
   useEffect(() => {
@@ -249,18 +329,22 @@ export function CoworkerFace({
     return () => window.clearTimeout(id);
   }, [mouthPulse]);
 
+  // Hovering the face lifts it into a big, warm reaction — a broad grin.
+  const reacting = interactive && hovered && !thinking;
+  const effMood: CoworkerMood = reacting ? "excited" : mood;
+
   // ── Compute mouth ─────────────────────────────────────────────────
   const phoneme: Phoneme = speaking ? PHONEME_CYCLE[phonemeIdx] : "closed";
   const openness = speaking ? (punching ? 1.0 : 0.86) : 0;
   const mouthPath = thinking
     ? thinkingMouthPath()
     : speaking
-      ? phonemePath(phoneme, mood, openness)
-      : restingMouthPath(mood, idle);
+      ? phonemePath(phoneme, effMood, openness)
+      : restingMouthPath(effMood, reacting ? 1 : idle);
   const mouthOpen =
     !thinking && openness > 0.3 && phoneme !== "M" && phoneme !== "closed";
   // A resting "excited" face keeps its mouth slightly open (a grin).
-  const restingGrin = !thinking && !speaking && mood === "excited";
+  const restingGrin = !thinking && !speaking && effMood === "excited";
   const mouthFilled = mouthOpen || restingGrin;
 
   // ── Eyes ──────────────────────────────────────────────────────────
@@ -268,21 +352,22 @@ export function CoworkerFace({
   const eyeRyBase =
     thinking
       ? 1.6
-      : mood === "excited"
+      : effMood === "excited"
         ? 1.35
-        : mood === "happy"
+        : effMood === "happy"
           ? 1.5
-          : mood === "sad"
+          : effMood === "sad"
             ? 1.3
             : 1.9;
-  const eyeRy = blink ? 0.2 : eyeRyBase;
-  const eyeY = mood === "sad" ? 13 : mood === "excited" ? 11 : 12;
+  // Eyes widen a touch on hover for an alert, delighted look.
+  const eyeRy = blink ? 0.2 : reacting ? Math.max(eyeRyBase, 1.75) : eyeRyBase;
+  const eyeY = effMood === "sad" ? 13 : effMood === "excited" ? 11 : 12;
   const leftEyeCx = 10 + gaze.x;
   const rightEyeCx = 18 + gaze.x;
   const eyesCy = eyeY + gaze.y;
   // Smiling eyes: for joyful moods, draw a soft upward arc over each eye
   // so the whole face reads as a genuine smile, not just a curved mouth.
-  const joyful = isJoyful(mood) && !thinking;
+  const joyful = isJoyful(effMood) && !thinking;
   const showSmileEyes = joyful && !blink;
 
   // ── Brows ─────────────────────────────────────────────────────────
@@ -292,15 +377,19 @@ export function CoworkerFace({
 
   return (
     <svg
+      ref={svgRef}
       viewBox="0 0 28 28"
       width={size}
       height={size}
       className="select-none"
       aria-hidden
+      onPointerEnter={interactive ? () => { setHovered(true); playGesture("bump"); } : undefined}
+      onPointerLeave={interactive ? () => setHovered(false) : undefined}
       style={{
-        transform: `rotate(${tilt * 0.3}deg) scale(${breath})`,
-        transition: "transform 0.25s ease-out",
+        transform: `${xform} scale(${breath})`,
         transformOrigin: "center",
+        cursor: interactive ? "pointer" : undefined,
+        pointerEvents: interactive ? "auto" : "none",
       }}
     >
       {/* Brows */}
@@ -411,6 +500,26 @@ export function CoworkerFace({
       />
     </svg>
   );
+}
+
+/* ── Head-gesture transforms ────────────────────────────────────────── */
+/** A deliberate head gesture as a function of progress p (0..1). */
+function gestureTransform(type: Gesture, p: number): string {
+  const env = Math.sin(p * Math.PI); // 0 → 1 → 0 ease envelope
+  switch (type) {
+    case "nod": // a "yes" pitch — dip down and back up
+      return `translateY(${(env * 1.7).toFixed(2)}px) scaleY(${(1 - env * 0.05).toFixed(3)})`;
+    case "shake": // a "no" yaw — quick left/right, damped
+      return `rotate(${(Math.sin(p * Math.PI * 3) * (1 - p) * 8).toFixed(2)}deg)`;
+    case "turn": // glance to the side and back
+      return `rotate(${(env * 9).toFixed(2)}deg) translateX(${(env * 1.3).toFixed(2)}px)`;
+    case "bump": // a happy little bob-forward pop
+      return `scale(${(1 + env * 0.13).toFixed(3)}) translateY(${(-env * 1.5).toFixed(2)}px)`;
+    case "tilt": // a curious slow head-tilt
+      return `rotate(${(env * 8).toFixed(2)}deg)`;
+    default:
+      return "";
+  }
 }
 
 /* ── Brow geometry ─────────────────────────────────────────────────── */

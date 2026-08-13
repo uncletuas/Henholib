@@ -11,20 +11,9 @@ const columns = [
     links: [...productLinks, { label: "All Products", href: "/products" }],
   },
   {
-    title: "Services",
-    links: [
-      { label: "Web Development", href: "/services#web" },
-      { label: "Mobile Applications", href: "/services#mobile" },
-      { label: "AI Solutions", href: "/services#ai" },
-      { label: "Enterprise Platforms", href: "/services#enterprise" },
-      { label: "Loopital Academy", href: "/academy" },
-    ],
-  },
-  {
     title: "Company",
     links: [
       { label: "About Loopital", href: "/about" },
-      { label: "Loopital Academy", href: "/academy" },
       { label: "News & Insights", href: "/insights" },
       { label: "Contact Us", href: "/contact" },
     ],

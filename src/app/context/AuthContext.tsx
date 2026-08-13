@@ -18,7 +18,11 @@ interface AuthContextType {
   initializing: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
+  /** Sign in / up with a Google ID token credential. */
+  signInWithGoogle: (credential: string) => Promise<void>;
   signOut: () => void;
+  /** Replace the cached user after a profile update (shared avatar/name/headline). */
+  updateUser: (user: AuthUser) => void;
   showAuth: AuthView;
   setShowAuth: (v: AuthView) => void;
   /** The product whose waitlist modal is open, or null when closed. */
@@ -27,9 +31,15 @@ interface AuthContextType {
   /** Pal workspace onboarding modal (personal vs team) open state. */
   showPalOnboarding: boolean;
   setShowPalOnboarding: (v: boolean) => void;
+  /** Pal plan-picker shown right after onboarding, before the workspace opens. */
+  showPalPlans: boolean;
+  setShowPalPlans: (v: boolean) => void;
   /** True when a "Try Pal" click is waiting for sign-in to complete. */
   pendingPal: boolean;
   setPendingPal: (v: boolean) => void;
+  /** Ecosystem "how to use it" guide. */
+  showGuide: boolean;
+  setShowGuide: (v: boolean) => void;
 }
 
 const TOKEN_KEY = "loopital_token";
@@ -42,7 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showAuth, setShowAuth] = useState<AuthView>("none");
   const [waitlist, setWaitlist] = useState<ProductId | null>(null);
   const [showPalOnboarding, setShowPalOnboarding] = useState(false);
+  const [showPalPlans, setShowPalPlans] = useState(false);
   const [pendingPal, setPendingPal] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Restore session from a stored token on first load.
   useEffect(() => {
@@ -77,6 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persist(res.token, res.user);
   };
 
+  const signInWithGoogle = async (credential: string) => {
+    const res = await authApi.google(credential);
+    persist(res.token, res.user);
+  };
+
   const signOut = () => {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
@@ -86,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, initializing, signIn, signUp, signOut, showAuth, setShowAuth, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, pendingPal, setPendingPal }}
+      value={{ user, token, initializing, signIn, signUp, signInWithGoogle, signOut, updateUser: setUser, showAuth, setShowAuth, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide }}
     >
       {children}
     </AuthContext.Provider>

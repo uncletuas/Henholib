@@ -2,7 +2,7 @@
 // Keeping it centralized means titles/descriptions/structured-data live in one
 // place and unknown paths (404s) default to noindex.
 
-import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd, academyLd, courseLd } from "./structured-data";
+import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd } from "./structured-data";
 import { FOUNDER_IMAGE, FOUNDER_SOCIALS } from "./site";
 
 export interface PageSeo {
@@ -22,48 +22,6 @@ const productCrumb = (name: string, path: string) =>
     { name, path },
   ]);
 
-const academyCrumb = (name: string, path: string) =>
-  breadcrumbLd([
-    { name: "Home", path: "/" },
-    { name: "Academy", path: "/academy" },
-    { name, path },
-  ]);
-
-// SEO for the launch course pages. Course *content* is DB-backed and editable
-// from the admin portal, but titles/descriptions for the known launch courses
-// are kept static here so each page is indexable with tailored metadata.
-// Courses added later via the portal fall back to a generic (still indexable)
-// academy entry in getPageSeo().
-interface CourseSeo {
-  slug: string;
-  name: string;
-  price: number;
-  desc: string;
-}
-const academyCourses: CourseSeo[] = [
-  { slug: "generative-ai-masterclass", name: "Generative AI Masterclass", price: 100, desc: "Go from zero to confidently using generative AI in your work, a hands-on 4-week live course for professionals, entrepreneurs, and students. No prior experience needed." },
-  { slug: "software-development-with-ai", name: "Software Development with AI", price: 100, desc: "Make AI a dependable part of your development workflow, generating, reviewing, and shipping code. A 4-week live course for developers and engineers." },
-  { slug: "application-development-with-ai", name: "Application Development with AI", price: 100, desc: "Turn an idea into a working app with AI, no engineering background required. A 4-week live course for founders, product people, and non-technical builders." },
-  { slug: "ai-for-business-executives", name: "AI for Business Executives", price: 200, desc: "Lead AI adoption with clarity, spot real opportunities, evaluate vendors, and drive responsible adoption. A 3-week live course for leaders and decision-makers." },
-  { slug: "ai-for-marketing", name: "AI for Marketing", price: 200, desc: "Build a practical AI marketing workflow, content at scale, AI creative, and data-driven campaigns. A 4-week live course for marketers and brand teams." },
-  { slug: "ai-for-research-and-planning", name: "AI for Research & Planning", price: 200, desc: "Use AI to research, analyze, and plan responsibly, without fabricated findings. A 4-week live course for analysts, planners, and academics." },
-  { slug: "ai-for-governance", name: "AI for Governance", price: 300, desc: "Help the public sector adopt AI to improve service delivery, responsibly and accountably. A 3-week live course for government officials and administrators." },
-];
-
-const academyCourseSeo: Record<string, PageSeo> = Object.fromEntries(
-  academyCourses.map((c) => [
-    `/academy/${c.slug}`,
-    {
-      title: `${c.name} | Loopital Academy`,
-      description: c.desc,
-      jsonLd: [
-        courseLd({ name: c.name, description: c.desc, path: `/academy/${c.slug}`, price: c.price }),
-        academyCrumb(c.name, `/academy/${c.slug}`),
-      ],
-    } as PageSeo,
-  ])
-);
-
 export const pageSeo: Record<string, PageSeo> = {
   "/": {
     title: "Loopital, Software, AI & Enterprise Platforms",
@@ -76,12 +34,6 @@ export const pageSeo: Record<string, PageSeo> = {
     description:
       "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software, for businesses, hospitals, and individuals.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
-  },
-  "/services": {
-    title: "Services, Web, Mobile, AI & Enterprise Development",
-    description:
-      "Loopital designs and builds websites, mobile apps, AI solutions, enterprise platforms, and custom digital systems, applying the same engineering standards we hold our own products to.",
-    jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Services", path: "/services" }]),
   },
   "/products/hms7": {
     title: "HMS7, Hospital Management System Software",
@@ -111,21 +63,6 @@ export const pageSeo: Record<string, PageSeo> = {
         path: "/products/henholib",
       }),
       productCrumb("Henholib", "/products/henholib"),
-    ],
-  },
-  "/products/fms13": {
-    title: "FMS13, Facility Management System Software",
-    description:
-      "FMS13 is a complete facility management system for assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site. Open it at fms13.loopital.com, free for the first 3 months.",
-    jsonLd: [
-      softwareApplicationLd({
-        name: "FMS13",
-        category: "BusinessApplication",
-        description:
-          "Complete facility management system for assets, maintenance, work orders, vendors, compliance, and multi-site operations.",
-        path: "/products/fms13",
-      }),
-      productCrumb("FMS13", "/products/fms13"),
     ],
   },
   "/products/stack62": {
@@ -158,31 +95,6 @@ export const pageSeo: Record<string, PageSeo> = {
       productCrumb("EDM73", "/products/edm73"),
     ],
   },
-  "/products/sart34": {
-    title: "Swift, AI Ads & CRM | Join the Waitlist",
-    description:
-      "Swift unifies AI-powered advertising and CRM in one workspace, run campaigns, manage every conversation, and grow your audience. Not public yet, join the waitlist for early access.",
-    jsonLd: [
-      softwareApplicationLd({
-        name: "Swift",
-        category: "BusinessApplication",
-        description:
-          "AI ads and CRM platform to run campaigns, manage conversations, and grow audiences from one workspace.",
-        path: "/products/sart34",
-      }),
-      productCrumb("Swift", "/products/sart34"),
-    ],
-  },
-  "/academy": {
-    title: "Loopital Academy, Practical AI Training Courses",
-    description:
-      "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector, across a Technical Track, a Business & Leadership Track, and a Public Sector Track. Live cohorts, real-world projects.",
-    jsonLd: [
-      academyLd,
-      breadcrumbLd([{ name: "Home", path: "/" }, { name: "Academy", path: "/academy" }]),
-    ],
-  },
-  ...academyCourseSeo,
   "/about": {
     title: "About Loopital",
     description:
@@ -193,11 +105,6 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "News & Insights",
     description:
       "Product news, engineering, and perspectives from Loopital on software, AI, healthcare technology, and enterprise platforms.",
-  },
-  "/verify": {
-    title: "Verify a Certificate, Loopital Academy",
-    description:
-      "Verify a Loopital Academy certificate of completion. Enter the certificate ID to confirm it's genuine and see the recipient, course, and issue date.",
   },
   "/contact": {
     title: "Contact Loopital",
@@ -248,32 +155,5 @@ const NOT_FOUND: PageSeo = {
 export function getPageSeo(pathname: string): PageSeo {
   const key = pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
   if (pageSeo[key]) return pageSeo[key];
-
-  // Public per-user achievements pages are shareable + indexable.
-  if (key.startsWith("/u/")) {
-    return {
-      title: "Achievements, Loopital Academy",
-      description: "Loopital Academy achievements and verified certificates of completion.",
-    };
-  }
-
-  // Academy: application forms and the private portals stay out of the index.
-  if (key === "/academy/admin" || key === "/academy/portal" || key === "/academy/learn" || key.startsWith("/academy/apply")) {
-    return {
-      title: key === "/academy/learn" ? "My Learning, Loopital Academy" : key.startsWith("/academy/apply") ? "Apply, Loopital Academy" : "Academy Portal, Loopital",
-      description: "Loopital Academy.",
-      noindex: true,
-    };
-  }
-  // A course added later via the admin portal (not in the static map): still
-  // indexable, with generic-but-relevant metadata.
-  if (key.startsWith("/academy/")) {
-    return {
-      title: "Loopital Academy, AI Training Course",
-      description:
-        "A practical, hands-on AI training course from Loopital Academy. Learn to apply AI in your work through live cohorts and real-world projects.",
-      jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Academy", path: "/academy" }]),
-    };
-  }
   return NOT_FOUND;
 }

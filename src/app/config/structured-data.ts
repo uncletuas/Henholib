@@ -80,45 +80,6 @@ export function personLd(input: {
   };
 }
 
-/** EducationalOrganization schema for the Academy landing page. */
-export const academyLd: Record<string, unknown> = {
-  "@context": "https://schema.org",
-  "@type": "EducationalOrganization",
-  name: "Loopital Academy",
-  url: `${SITE_URL}/academy`,
-  parentOrganization: { "@type": "Organization", name: "Loopital", url: SITE_URL },
-  description:
-    "Loopital Academy offers practical, hands-on AI training for individuals, businesses, and the public sector, across technical, business & leadership, and public sector tracks.",
-};
-
-/** Course schema for an individual Academy course page. */
-export function courseLd(input: {
-  name: string;
-  description: string;
-  path: string;
-  price?: number; // major units, e.g. 100
-  currency?: string;
-}): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Course",
-    name: input.name,
-    description: input.description,
-    url: `${SITE_URL}${input.path}`,
-    provider: { "@type": "Organization", name: "Loopital Academy", url: `${SITE_URL}/academy` },
-    ...(input.price != null
-      ? {
-          offers: {
-            "@type": "Offer",
-            price: String(input.price),
-            priceCurrency: input.currency || "USD",
-            category: "Paid",
-          },
-        }
-      : {}),
-  };
-}
-
 /** BreadcrumbList for a page nested under the site root. */
 export function breadcrumbLd(trail: Array<{ name: string; path: string }>): Record<string, unknown> {
   return {

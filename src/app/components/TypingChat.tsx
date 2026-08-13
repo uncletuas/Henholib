@@ -20,6 +20,8 @@ function PalChip({
   thinking = false,
   mood = "neutral",
   mouthPulse = 0,
+  trackPointer = false,
+  interactive = false,
 }: {
   size?: number;
   dot?: boolean;
@@ -27,6 +29,8 @@ function PalChip({
   thinking?: boolean;
   mood?: CoworkerMood;
   mouthPulse?: number;
+  trackPointer?: boolean;
+  interactive?: boolean;
 }) {
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -40,6 +44,8 @@ function PalChip({
           thinking={thinking}
           mood={mood}
           mouthPulse={mouthPulse}
+          trackPointer={trackPointer}
+          interactive={interactive}
         />
       </div>
       {dot && (
@@ -95,7 +101,7 @@ export function TypingChat() {
     <div className="glass-panel relative overflow-hidden text-left" style={{ borderRadius: "26px", padding: "18px" }}>
       {/* header */}
       <div className="flex items-center gap-2.5 pb-3.5 mb-3.5" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
-        <PalChip size={38} speaking={phase === "answer"} thinking={phase === "think"} mood={pair.mood} mouthPulse={pulse} />
+        <PalChip size={38} speaking={phase === "answer"} thinking={phase === "think"} mood={pair.mood} mouthPulse={pulse} trackPointer interactive />
         <div className="flex-1">
           <p style={{ fontSize: "13px", fontWeight: 700, color: colors.heading, lineHeight: 1.1 }}>Pal</p>
           <p style={{ fontSize: "11px", color: colors.textTertiary }}>AI coworker</p>

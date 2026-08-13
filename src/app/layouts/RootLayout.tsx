@@ -6,6 +6,8 @@ import { AuthModal } from "../components/AuthModal";
 import { AccountDashboard } from "../components/AccountDashboard";
 import { WaitlistModal } from "../components/WaitlistModal";
 import { PalOnboardingModal } from "../components/PalOnboardingModal";
+import { PalPlansModal } from "../components/PalPlansModal";
+import { PlatformGuideModal } from "../components/PlatformGuideModal";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { Seo } from "../components/Seo";
 import { getPageSeo } from "../config/seo-pages";
@@ -14,16 +16,13 @@ import { palApi } from "../lib/api";
 import { launchWorkspace } from "../lib/pal";
 
 export function RootLayout() {
-  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, pendingPal, setPendingPal } = useAuth();
+  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide } = useAuth();
   const location = useLocation();
   const [params] = useSearchParams();
   const seo = getPageSeo(location.pathname);
 
-  // App shells (the Academy student + facilitator portals) are full-app
-  // experiences — hide the marketing site chrome (nav + footer) there.
-  const isAppShell =
-    location.pathname.startsWith("/academy/learn") ||
-    location.pathname.startsWith("/academy/portal");
+  // No in-site app shells — Pal and Swift are separate apps (external redirects).
+  const isAppShell = false;
 
   // Deep-link from the Pal app's "Add the coworker" upgrade CTA:
   // `?upgrade=coworker` opens the account dashboard (where "Add coworker"
@@ -42,6 +41,16 @@ export function RootLayout() {
       .then((pr) => { if (!pr.onboarded) setShowPalOnboarding(true); else launchWorkspace(token); })
       .catch(() => launchWorkspace(token));
   }, [user, token, pendingPal, setPendingPal, setShowPalOnboarding]);
+
+  // Show the ecosystem guide once, the first time a signed-in user lands.
+  useEffect(() => {
+    if (!user) return;
+    try {
+      if (localStorage.getItem("loopital_guide_seen")) return;
+      localStorage.setItem("loopital_guide_seen", "1");
+      setShowGuide(true);
+    } catch { /* storage blocked — skip */ }
+  }, [user, setShowGuide]);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#FBFBFD" }}>
@@ -71,6 +80,15 @@ export function RootLayout() {
         <WaitlistModal product={waitlist} onClose={() => setWaitlist(null)} />
       )}
       {showPalOnboarding && <PalOnboardingModal />}
+      {showPalPlans && token && (
+        <PalPlansModal
+          token={token}
+          currentPlan="free"
+          onContinueFree={() => { setShowPalPlans(false); launchWorkspace(token); }}
+          onClose={() => { setShowPalPlans(false); launchWorkspace(token); }}
+        />
+      )}
+      {showGuide && <PlatformGuideModal onClose={() => setShowGuide(false)} />}
     </div>
   );
 }

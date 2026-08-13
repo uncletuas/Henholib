@@ -3,7 +3,6 @@ import { X, User, Users, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
 import { palApi } from "../lib/api";
-import { launchWorkspace } from "../lib/pal";
 import { productById } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 
@@ -11,7 +10,7 @@ const pal = productById("stack62");
 const input: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: "12px", border: `1px solid ${colors.hairline}`, background: colors.surfaceMuted, fontSize: "14px", color: colors.heading, outline: "none" };
 
 export function PalOnboardingModal() {
-  const { token, setShowPalOnboarding } = useAuth();
+  const { token, setShowPalOnboarding, setShowPalPlans } = useAuth();
   const [useType, setUseType] = useState<"personal" | "team" | "">("");
   const [orgName, setOrgName] = useState("");
   const [teamSize, setTeamSize] = useState("");
@@ -25,7 +24,7 @@ export function PalOnboardingModal() {
     try {
       await palApi.saveOnboarding(token, { useType, orgName: useType === "team" ? orgName : undefined, teamSize: useType === "team" ? teamSize : undefined });
       setShowPalOnboarding(false);
-      await launchWorkspace(token); // same-tab redirect into the workspace
+      setShowPalPlans(true); // choose a plan before the workspace opens
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
       setBusy(false);
@@ -78,7 +77,7 @@ export function PalOnboardingModal() {
 
         {error && <p style={{ color: "#EF4444", fontSize: "13px" }}>{error}</p>}
         <button onClick={submit} disabled={busy} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold text-white transition-all hover:opacity-95 disabled:opacity-60" style={{ background: gradientBrand, fontSize: "15px" }}>
-          {busy ? "Setting up…" : <>Enter workspace <ArrowRight size={16} /></>}
+          {busy ? "Setting up…" : <>Choose your plan <ArrowRight size={16} /></>}
         </button>
         <p style={{ fontSize: "12px", color: colors.textTertiary, textAlign: "center", lineHeight: 1.5 }}>The workspace is free. The AI coworker is a paid upgrade you can add anytime.</p>
       </div>

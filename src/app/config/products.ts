@@ -7,6 +7,7 @@ import {
   FMS13_URL,
   HENHOLIB_URL,
   PAL_URL,
+  SART34_URL,
 } from "./site";
 import { productAccent } from "../lib/brand";
 import type { Platform } from "../components/PlatformPills";
@@ -90,11 +91,13 @@ export const products: Product[] = [
       "Swift unifies advertising and customer relationships in one place, run AI-powered ad campaigns, manage every conversation, and grow your audience from a single intelligent workspace, on any device.",
     platforms: ["web", "desktop", "mobile"],
     accent: productAccent.sart34,
-    detailHref: "/products/sart34",
-    stage: "coming_soon",
-    external: false,
-    accountLinked: false,
-    ctaType: "waitlist",
+    // Swift has no on-site landing page — every link opens the live app directly.
+    detailHref: SART34_URL,
+    stage: "available",
+    external: true,
+    accountLinked: true,
+    ctaType: "launch",
+    appHref: SART34_URL,
     highlights: ["AI ad campaigns", "Unified CRM", "Audience engagement", "Cross-platform publishing"],
   },
   {
@@ -147,10 +150,11 @@ export const products: Product[] = [
       "FMS13 is a complete facility management system, managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale. Open it and get started right away, or talk to us about a rollout.",
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
-    detailHref: "/products/fms13",
+    // FMS13 has no on-site landing page — links go straight to the app sign-in.
+    detailHref: FMS13_URL,
     stage: "available",
     appHref: FMS13_URL,
-    external: false,
+    external: true,
     accountLinked: false,
     ctaType: "launch",
     offer: "Free for the first 3 months",

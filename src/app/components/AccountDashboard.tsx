@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { X, CreditCard, LogOut, ChevronRight, ArrowUpRight, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
-import { accountApi, launchProductApp, palApi, type Subscription, type Invoice, type AccountProductId } from "../lib/api";
+import { accountApi, launchProductApp, type Subscription, type Invoice, type AccountProductId, type AuthUser, type PalPlan } from "../lib/api";
 import { accountProducts, productById } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
+import { PalPlansModal } from "./PalPlansModal";
 
 interface AccountDashboardProps {
   user: { name: string; email: string };
@@ -26,8 +27,20 @@ const fmtDate = (iso: string) => {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
+/** Shared profile avatar — the photo the user set on Loopital, or their initial. */
+function AccountAvatar({ url, name, size = 48, radius = 16 }: { url?: string | null; name: string; size?: number; radius?: number }) {
+  if (url) {
+    return <img src={url} alt={name} className="object-cover flex-shrink-0" style={{ width: size, height: size, borderRadius: radius, border: `1px solid ${colors.hairline}` }} />;
+  }
+  return (
+    <div className="flex items-center justify-center text-white font-bold flex-shrink-0" style={{ width: size, height: size, borderRadius: radius, background: gradientBrand, fontSize: size * 0.4 }}>
+      {(name || "?")[0].toUpperCase()}
+    </div>
+  );
+}
+
 export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardProps) {
-  const { token } = useAuth();
+  const { token, user: authUser, updateUser } = useAuth();
   const [tab, setTab] = useState<Tab>("overview");
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -44,23 +57,18 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
   }, [token]);
 
   const subFor = (id: AccountProductId) => subs.find((s) => s.product === id);
-  const [upgrading, setUpgrading] = useState(false);
-  const upgradeCoworker = async () => {
-    if (!token) return;
-    setUpgrading(true);
-    try { const r = await palApi.subscribe(token); window.location.href = r.authorizationUrl; }
-    catch { setUpgrading(false); }
-  };
+  const [showPlans, setShowPlans] = useState(false);
+  const palPlan = (subFor("stack62")?.plan as PalPlan | undefined);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.45)", backdropFilter: "blur(16px)" }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="relative w-full max-w-2xl rounded-[28px] flex flex-col" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.2)", maxHeight: "90vh" }}>
         {/* Header */}
         <div className="flex items-center gap-4 px-8 py-6" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold text-white flex-shrink-0" style={{ background: gradientBrand }}>{user.name[0].toUpperCase()}</div>
+          <AccountAvatar url={authUser?.avatarUrl} name={user.name} />
           <div className="flex-1 min-w-0">
             <p style={{ color: colors.heading, fontSize: "16px", fontWeight: 600 }}>{user.name}</p>
-            <p style={{ color: colors.textTertiary, fontSize: "13px" }}>{user.email}</p>
+            <p style={{ color: colors.textTertiary, fontSize: "13px" }}>{authUser?.headline || user.email}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}><X size={18} /></button>
         </div>
@@ -104,9 +112,9 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                             <button onClick={() => p.appHref && launchProductApp(p.appHref, p.id as AccountProductId, token)} className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-colors hover:bg-[#F5F5F7]" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}>
                               Open workspace <ArrowUpRight size={12} />
                             </button>
-                            {!sub && (
-                              <button onClick={upgradeCoworker} disabled={upgrading} className="px-3.5 py-2 rounded-full text-xs font-semibold text-white transition-all hover:opacity-95 disabled:opacity-60" style={{ background: gradientBrand }}>
-                                {upgrading ? "…" : "Add coworker"}
+                            {p.id === "stack62" && (
+                              <button onClick={() => setShowPlans(true)} className="px-3.5 py-2 rounded-full text-xs font-semibold text-white transition-all hover:opacity-95" style={{ background: gradientBrand }}>
+                                {sub ? "Change plan" : "Add coworker"}
                               </button>
                             )}
                           </div>
@@ -175,20 +183,89 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
           )}
 
           {tab === "settings" && (
-            <div className="flex flex-col gap-6">
-              {[{ label: "Full name", val: user.name, type: "text" }, { label: "Email address", val: user.email, type: "email" }].map(f => (
-                <div key={f.label} className="flex flex-col gap-2">
-                  <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>{f.label}</label>
-                  <input type={f.type} defaultValue={f.val} className="w-full px-4 py-3 rounded-2xl outline-none" style={{ background: colors.bg, border: "1px solid rgba(0,0,0,0.10)", color: colors.heading, fontSize: "15px" }} onFocus={e => { (e.target as HTMLInputElement).style.borderColor = colors.blue; }} onBlur={e => { (e.target as HTMLInputElement).style.borderColor = "rgba(0,0,0,0.10)"; }} />
-                </div>
-              ))}
-              <button className="self-start px-6 py-2.5 rounded-full font-semibold text-sm text-white hover:opacity-95" style={{ background: gradientBrand }}>Save changes</button>
-              <div style={{ borderTop: `1px solid ${colors.hairline}`, paddingTop: "24px" }}>
-                <button onClick={onSignOut} className="flex items-center gap-2 transition-colors text-sm" style={{ color: colors.textTertiary }}><LogOut size={15} />Sign out of all devices</button>
-              </div>
-            </div>
+            <ProfileSettings
+              email={user.email}
+              current={authUser}
+              token={token}
+              onSaved={updateUser}
+              onSignOut={onSignOut}
+            />
           )}
         </div>
+      </div>
+      {showPlans && <PalPlansModal token={token} currentPlan={palPlan ?? "free"} onClose={() => setShowPlans(false)} />}
+    </div>
+  );
+}
+
+/** The shared-profile editor (name, photo, headline) — one identity everywhere. */
+function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
+  email: string;
+  current: AuthUser | null;
+  token: string | null;
+  onSaved: (user: AuthUser) => void;
+  onSignOut: () => void;
+}) {
+  const [name, setName] = useState(current?.name ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(current?.avatarUrl ?? "");
+  const [headline, setHeadline] = useState(current?.headline ?? "");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const inputStyle = { background: colors.bg, border: "1px solid rgba(0,0,0,0.10)", color: colors.heading, fontSize: "15px" } as const;
+
+  const save = async () => {
+    if (!token) return;
+    setBusy(true); setMsg(null);
+    try {
+      const r = await accountApi.updateProfile(token, { name: name.trim(), avatarUrl: avatarUrl.trim(), headline: headline.trim() });
+      onSaved(r.user);
+      setMsg({ ok: true, text: "Saved — this updates your profile across Loopital, Pal and Swift." });
+    } catch (e) {
+      setMsg({ ok: false, text: e instanceof Error ? e.message : "Couldn't save your profile." });
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="p-4 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
+        <p style={{ fontWeight: 600, fontSize: "13.5px", color: "#1D4ED8", marginBottom: "2px" }}>Your profile, everywhere</p>
+        <p style={{ color: "#2563EB", fontSize: "12.5px", lineHeight: 1.6 }}>This is the name and photo people see across Loopital, Pal and Swift, one account, one identity.</p>
+      </div>
+
+      {/* Avatar */}
+      <div className="flex items-center gap-4">
+        <AccountAvatar url={avatarUrl || null} name={name} size={64} radius={20} />
+        <div className="flex-1 flex flex-col gap-2 min-w-0">
+          <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Profile photo URL</label>
+          <input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://…/your-photo.jpg" className="w-full px-4 py-2.5 rounded-2xl outline-none" style={inputStyle} />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Full name</label>
+        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-2xl outline-none" style={inputStyle} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Headline <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(optional)</span></label>
+        <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Founder at Acme · Growth marketer" className="w-full px-4 py-3 rounded-2xl outline-none" style={inputStyle} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Email address</label>
+        <input type="email" value={email} disabled className="w-full px-4 py-3 rounded-2xl outline-none" style={{ ...inputStyle, opacity: 0.65 }} />
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button onClick={save} disabled={busy} className="self-start px-6 py-2.5 rounded-full font-semibold text-sm text-white hover:opacity-95 disabled:opacity-60 inline-flex items-center gap-2" style={{ background: gradientBrand }}>
+          {busy ? <Loader2 size={15} className="animate-spin" /> : null} Save changes
+        </button>
+        {msg && <span style={{ color: msg.ok ? "#10B981" : "#DC2626", fontSize: "12.5px" }}>{msg.text}</span>}
+      </div>
+
+      <div style={{ borderTop: `1px solid ${colors.hairline}`, paddingTop: "24px" }}>
+        <button onClick={onSignOut} className="flex items-center gap-2 transition-colors text-sm" style={{ color: colors.textTertiary }}><LogOut size={15} />Sign out of all devices</button>
       </div>
     </div>
   );

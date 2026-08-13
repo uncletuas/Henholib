@@ -32,20 +32,22 @@ export function ProductsPage() {
         </div>
       </Section>
 
-      {/* In development */}
-      <Section background={colors.surface} pad="md">
-        <Reveal className="max-w-2xl mb-6">
-          <h2 style={{ marginBottom: "10px" }}>Also in the works.</h2>
-          <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            These AI products are in active development. Click through to join the waitlist and be first in line.
-          </p>
-        </Reveal>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: "620px" }}>
-          {inDevelopmentProducts.map((p, i) => (
-            <Reveal key={p.id} delay={i * 0.05}><EcosystemCard product={p} /></Reveal>
-          ))}
-        </div>
-      </Section>
+      {/* In development — only shown when there is something in development */}
+      {inDevelopmentProducts.length > 0 && (
+        <Section background={colors.surface} pad="md">
+          <Reveal className="max-w-2xl mb-6">
+            <h2 style={{ marginBottom: "10px" }}>Also in the works.</h2>
+            <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
+              These AI products are in active development. Click through to join the waitlist and be first in line.
+            </p>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: "620px" }}>
+            {inDevelopmentProducts.map((p, i) => (
+              <Reveal key={p.id} delay={i * 0.05}><EcosystemCard product={p} /></Reveal>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* Upcoming note */}
       <Section background={colors.bg} pad="md" width="narrow">

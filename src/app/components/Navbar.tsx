@@ -10,15 +10,6 @@ import { useAuth } from "../context/AuthContext";
 import { openPalWorkspace } from "../lib/pal";
 import loopitalLogo from "../../imports/loopital-logo.svg";
 
-const services = [
-  { label: "Web Development", href: "/services#web" },
-  { label: "Mobile Applications", href: "/services#mobile" },
-  { label: "AI & Machine Learning", href: "/services#ai" },
-  { label: "Enterprise Platforms", href: "/services#enterprise" },
-  { label: "Digital Systems", href: "/services#digital" },
-  { label: "Technology Consulting", href: "/services#consulting" },
-];
-
 const company = [
   { label: "About Loopital", href: "/about" },
   { label: "News & Insights", href: "/insights" },
@@ -105,27 +96,6 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Services */}
-            <div onMouseEnter={() => openMenu("services")} onMouseLeave={closeMenu} className="relative">
-              <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-colors" style={{ color: linkColor("services") }}>
-                Services <ChevronDown size={14} className={`transition-transform ${activeMenu === "services" ? "rotate-180" : ""}`} />
-              </button>
-              {activeMenu === "services" && (
-                <div className="absolute top-full left-0 pt-3 w-64" onMouseEnter={() => openMenu("services")} onMouseLeave={closeMenu}>
-                  <div className="rounded-2xl overflow-hidden p-2" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.05)" }}>
-                    {services.map((s) => (
-                      <Link key={s.label} to={s.href} className="block px-4 py-2.5 rounded-xl text-sm transition-colors hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{s.label}</Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Academy */}
-            <Link to="/academy" className="px-4 py-2 rounded-lg text-sm transition-colors" style={{ color: colors.textSecondary }}>
-              Academy
-            </Link>
-
             {/* Company */}
             <div onMouseEnter={() => openMenu("company")} onMouseLeave={closeMenu} className="relative">
               <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm transition-colors" style={{ color: linkColor("company") }}>
@@ -145,7 +115,7 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-2.5">
-            <button onClick={tryPal} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>Try Pal <ArrowRight size={15} /></button>
+            <button onClick={tryPal} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
             {user ? (
               <AccountMenu />
             ) : (
@@ -176,21 +146,14 @@ export function Navbar() {
             </ProductLink>
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
-          <p className="text-xs font-semibold px-3 py-2" style={{ color: colors.textTertiary, letterSpacing: "0.06em" }}>SERVICES</p>
-          {services.map((s) => (
-            <Link key={s.label} to={s.href} className="block px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{s.label}</Link>
-          ))}
-          <div className="h-px my-2" style={{ background: colors.hairline }} />
-          <Link to="/academy" className="block px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F5F5F7]" style={{ color: colors.heading }}>Academy</Link>
           {company.map((c) => (
             <Link key={c.label} to={c.href} className="block px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
           <div className="flex flex-col gap-2 mt-2">
-            <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 rounded-full text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>Try Pal <ArrowRight size={15} /></button>
+            <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 rounded-full text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
             {user ? (
               <>
-                <Link to="/academy/learn" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F5F5F7]" style={{ color: colors.heading }}>My Learning</Link>
                 <button onClick={() => { setShowAuth("dashboard"); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Manage account</button>
                 <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Sign out</button>
               </>

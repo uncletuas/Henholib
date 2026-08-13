@@ -8,7 +8,7 @@ const officeImg = "https://images.unsplash.com/photo-1531972111231-7482a960e109?
 const values = [
   { title: "Product over process", desc: "We measure everything by the quality and impact of what we build. Great products come from focused engineering, clear thinking, and a relentless user focus." },
   { title: "Built to last", desc: "We build software that organizations can depend on, reliable, secure, well-documented, and designed with long operational lifespans in mind." },
-  { title: "Global from day one", desc: "Our products and services are designed to serve organizations anywhere in the world. We build with international standards and diverse operational contexts in mind." },
+  { title: "Global from day one", desc: "Our products are designed to serve organizations anywhere in the world. We build with international standards and diverse operational contexts in mind." },
   { title: "Intelligence in everything", desc: "We believe AI should be embedded in operational software from the ground up, not bolted on. Every product we build incorporates intelligent capabilities where they create real value." },
 ];
 
@@ -93,7 +93,7 @@ export function AboutPage() {
                   Global products built from Port Harcourt.
                 </h2>
                 <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
-                  Loopital is headquartered at Pyale Hub in Port Harcourt, Rivers State, Nigeria. From here, we build software products and deliver technology services to clients and users around the world. We are proudly a Nigerian technology company with global ambition.
+                  Loopital is headquartered at Pyale Hub in Port Harcourt, Rivers State, Nigeria. From here, we build software products for users and organizations around the world. We are proudly a Nigerian technology company with global ambition.
                 </p>
               </div>
               <div className="flex flex-col gap-2 pt-4 pl-4" style={{ borderLeft: "3px solid #2563EB" }}>

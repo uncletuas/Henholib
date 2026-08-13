@@ -243,6 +243,9 @@ const statements = [
   // Public username handle for the shareable achievements page (/u/<username>).
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT`,
   `CREATE UNIQUE INDEX IF NOT EXISTS users_username_key ON users (lower(username))`,
+  // Shared "Google-style" profile: one identity across Loopital, Pal & Swift.
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS headline TEXT`,
 
   // Course reviews (one per student per course).
   `CREATE TABLE IF NOT EXISTS academy_reviews (
@@ -348,6 +351,11 @@ const statements = [
                     CHECK (status IN ('pending','success','failed')),
      created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
    )`,
+  // Pal pricing tiers (Free / Pro / Business): which plan and how many seats
+  // the active subscription covers. Additive — defaults keep existing rows valid.
+  `ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS seats INTEGER NOT NULL DEFAULT 1`,
+  `ALTER TABLE pal_payments ADD COLUMN IF NOT EXISTS plan TEXT`,
+  `ALTER TABLE pal_payments ADD COLUMN IF NOT EXISTS seats INTEGER NOT NULL DEFAULT 1`,
 ];
 
 async function run() {

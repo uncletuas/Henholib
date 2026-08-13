@@ -110,7 +110,15 @@ function json(statusCode, body) {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function publicUser(row) {
-  return { id: row.id, name: row.name, email: row.email };
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    // Shared profile fields (null until set; present once selected).
+    username: row.username || null,
+    avatarUrl: row.avatar_url || null,
+    headline: row.headline || null,
+  };
 }
 
 async function signup(body) {
@@ -143,6 +151,7 @@ async function signup(body) {
     "New Loopital signup",
     `A new account was created.\n\nName: ${user.name}\nEmail: ${user.email}`
   );
+  await sendUserEmail(user.email, welcomeEmail(user.name));
   return json(201, { token, user: publicUser(user) });
 }
 
@@ -166,6 +175,7 @@ async function joinWaitlist(body) {
     `New waitlist signup — ${product}`,
     `Someone joined a product waitlist.\n\nProduct: ${product}\nEmail: ${email}\nName: ${name || "—"}`
   );
+  await sendUserEmail(email, waitlistEmail(name, product));
   return json(201, { ok: true });
 }
 
@@ -193,6 +203,64 @@ async function signin(body) {
 }
 
 /**
+ * Sign in / up with Google. The frontend Google button returns a signed ID
+ * token (credential); we verify it with Google, then find-or-create the loopital
+ * user by email and issue our own session. New accounts inherit the Google name
+ * and photo as their shared profile. One account across Loopital, Pal & Swift.
+ */
+async function googleAuth(body) {
+  const credential = body.credential || body.idToken || "";
+  if (!credential) return json(400, { error: "Missing Google credential." });
+  const clientId = process.env.GOOGLE_CLIENT_ID || "";
+  if (!clientId) return json(500, { error: "Google sign-in is not configured." });
+
+  let info;
+  try {
+    const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+    info = await res.json();
+    if (!res.ok) return json(401, { error: "Google sign-in failed. Please try again." });
+  } catch (_) {
+    return json(502, { error: "Couldn't reach Google to verify your sign-in." });
+  }
+  if (info.aud !== clientId) return json(401, { error: "This Google sign-in isn't authorized for Loopital." });
+  if (info.email_verified !== "true" && info.email_verified !== true)
+    return json(401, { error: "Your Google email address isn't verified." });
+
+  const email = String(info.email || "").trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return json(401, { error: "Google didn't return a valid email." });
+  const name = String(info.name || info.given_name || email.split("@")[0]).trim();
+  const picture = info.picture || null;
+
+  const rows = await sql(
+    "SELECT id, name, email, username, avatar_url, headline FROM users WHERE email = :email",
+    { email }
+  );
+  let user;
+  if (rows.length === 0) {
+    const created = await sql(
+      `INSERT INTO users (name, email, password_hash, avatar_url)
+       VALUES (:name, :email, :password_hash, :avatar)
+       RETURNING id, name, email, username, avatar_url, headline`,
+      { name, email, password_hash: "google-oauth-no-password", avatar: picture }
+    );
+    user = created[0];
+    await notifyAdmins(
+      "New Loopital signup (Google)",
+      `A new account was created via Google.\n\nName: ${user.name}\nEmail: ${user.email}`
+    );
+  } else {
+    user = rows[0];
+    if (!user.avatar_url && picture) {
+      await sql("UPDATE users SET avatar_url = :a WHERE id = :id::uuid", { a: picture, id: user.id });
+      user.avatar_url = picture;
+    }
+  }
+  const secret = await getJwtSecret();
+  const token = jwt.sign({ sub: user.id, email: user.email }, secret, { expiresIn: TOKEN_TTL });
+  return json(200, { token, user: publicUser(user) });
+}
+
+/**
  * Verify the Bearer token and return its JWT payload, or null when missing or
  * invalid. Shared by every authenticated route.
  */
@@ -214,8 +282,40 @@ async function me(headers) {
 
   // id is a uuid column; the Data API passes :id as text, so cast explicitly.
   const rows = await sql(
-    "SELECT id, name, email FROM users WHERE id = :id::uuid",
+    "SELECT id, name, email, username, avatar_url, headline FROM users WHERE id = :id::uuid",
     { id: payload.sub }
+  );
+  if (rows.length === 0) return json(401, { error: "Account not found." });
+  return json(200, { user: publicUser(rows[0]) });
+}
+
+/**
+ * Update the shared profile (name, avatar, headline) — the single identity
+ * surfaced across Loopital, Pal and Swift. Auth = loopital session JWT.
+ */
+async function updateProfile(headers, body) {
+  const payload = await authenticate(headers);
+  if (!payload) return json(401, { error: "Session expired. Please sign in again." });
+
+  const name = typeof body.name === "string" ? body.name.trim() : undefined;
+  const avatarUrl = typeof body.avatarUrl === "string" ? body.avatarUrl.trim() : undefined;
+  const headline = typeof body.headline === "string" ? body.headline.trim() : undefined;
+
+  if (name !== undefined && !name) return json(400, { error: "Name can't be empty." });
+  if (avatarUrl && !/^https?:\/\//i.test(avatarUrl))
+    return json(400, { error: "Avatar must be a valid image URL (https://…)." });
+
+  const sets = [];
+  const params = { id: payload.sub };
+  if (name !== undefined) { sets.push("name = :name"); params.name = name; }
+  if (avatarUrl !== undefined) { sets.push("avatar_url = :avatarUrl"); params.avatarUrl = avatarUrl || null; }
+  if (headline !== undefined) { sets.push("headline = :headline"); params.headline = headline || null; }
+  if (sets.length === 0) return json(400, { error: "Nothing to update." });
+
+  const rows = await sql(
+    `UPDATE users SET ${sets.join(", ")} WHERE id = :id::uuid
+     RETURNING id, name, email, username, avatar_url, headline`,
+    params
   );
   if (rows.length === 0) return json(401, { error: "Account not found." });
   return json(200, { user: publicUser(rows[0]) });
@@ -323,20 +423,30 @@ async function exchangeSsoToken(body) {
     return json(401, { error: "Not an SSO token." });
 
   const rows = await sql(
-    "SELECT id, name, email, pal_onboarded, pal_use_type, pal_org_name FROM users WHERE id = :id::uuid",
+    "SELECT id, name, email, username, avatar_url, headline, pal_onboarded, pal_use_type, pal_org_name FROM users WHERE id = :id::uuid",
     { id: payload.sub }
   );
   if (rows.length === 0) return json(401, { error: "Account not found." });
   const u = rows[0];
   // Entitlements the product app (e.g. Pal) uses to gate paid features.
   const paid = await sql(
-    "SELECT 1 AS ok FROM subscriptions WHERE user_id = :id::uuid AND product = :product AND status IN ('active','trialing')",
+    "SELECT plan, seats FROM subscriptions WHERE user_id = :id::uuid AND product = :product AND status IN ('active','trialing') LIMIT 1",
     { id: payload.sub, product }
   );
+  const active = paid.length > 0;
+  const planKey = active && PAL_PLANS[paid[0].plan] ? paid[0].plan : (active ? "pro" : "free");
+  const seats = active ? (Number(paid[0].seats) || 1) : 0;
+  const limits = active && PAL_PLANS[planKey] ? PAL_PLANS[planKey].limits : PAL_FREE_LIMITS;
   return json(200, {
     user: publicUser(u),
-    entitlements: { coworker: paid.length > 0 },
+    entitlements: { coworker: active, plan: planKey, seats, limits },
     profile: {
+      // Shared identity — the same name/avatar the user set on Loopital.
+      name: u.name,
+      email: u.email,
+      username: u.username || null,
+      avatarUrl: u.avatar_url || null,
+      headline: u.headline || null,
       onboarded: u.pal_onboarded === true || u.pal_onboarded === "true",
       useType: u.pal_use_type || null,
       orgName: u.pal_org_name || null,
@@ -348,8 +458,33 @@ async function exchangeSsoToken(body) {
 // NOTE: the Paystack account currently only supports NGN (USD → "unsupported_currency").
 // Amount is in the currency's subunit (kobo for NGN). PLACEHOLDER price — confirm.
 const PAYSTACK_CURRENCY = process.env.PAYSTACK_CURRENCY || "NGN";
-const PAL_COWORKER_AMOUNT = Number(process.env.PAL_COWORKER_AMOUNT) || 3500000; // ₦35,000/mo
 const PAYSTACK_API = "https://api.paystack.co";
+
+// Pal pricing tiers. `amountNgn` is the actual Paystack charge (kobo); `usd` is a
+// display-only reference (Paystack charges NGN, so foreign cards pay the NGN
+// equivalent). Business is per-seat with a seat minimum. `limits` is handed to
+// the Pal app via the SSO entitlement so it can meter the coworker per plan.
+const PAL_PLANS = {
+  pro: {
+    label: "Pro",
+    amountNgn: Number(process.env.PAL_PRO_AMOUNT) || 3500000, // ₦35,000/mo ($25)
+    usd: 25,
+    seatBased: false,
+    minSeats: 1,
+    limits: { messagesPerDay: null, tokensPerMo: 3000000 },
+  },
+  business: {
+    label: "Business",
+    amountNgn: Number(process.env.PAL_BUSINESS_AMOUNT) || 4200000, // ₦42,000/user/mo ($30)
+    usd: 30,
+    seatBased: true,
+    minSeats: 3,
+    limits: { messagesPerDay: null, tokensPerMo: 5000000 }, // per seat
+  },
+};
+const PAL_FREE_LIMITS = { messagesPerDay: 5, tokensPerDay: 50000, tokensPerMo: null };
+// Legacy env kept for backwards-compat; unused when PAL_PLANS is present.
+const PAL_COWORKER_AMOUNT = Number(process.env.PAL_COWORKER_AMOUNT) || 3500000;
 
 async function palProfile(headers) {
   const p = await authenticate(headers);
@@ -357,13 +492,16 @@ async function palProfile(headers) {
   const rows = await sql("SELECT pal_onboarded, pal_use_type, pal_org_name, pal_team_size FROM users WHERE id = :id::uuid", { id: p.sub });
   if (!rows.length) return json(401, { error: "Account not found." });
   const u = rows[0];
-  const coworker = (await sql("SELECT 1 AS ok FROM subscriptions WHERE user_id = :id::uuid AND product = 'stack62' AND status IN ('active','trialing')", { id: p.sub })).length > 0;
+  const sub = await sql("SELECT plan, seats FROM subscriptions WHERE user_id = :id::uuid AND product = 'stack62' AND status IN ('active','trialing') LIMIT 1", { id: p.sub });
+  const active = sub.length > 0;
   return json(200, {
     onboarded: u.pal_onboarded === true || u.pal_onboarded === "true",
     useType: u.pal_use_type || null,
     orgName: u.pal_org_name || null,
     teamSize: u.pal_team_size || null,
-    coworker,
+    coworker: active,
+    plan: active ? (PAL_PLANS[sub[0].plan] ? sub[0].plan : "pro") : "free",
+    seats: active ? (Number(sub[0].seats) || 1) : 0,
   });
 }
 
@@ -407,15 +545,24 @@ async function paystackVerify(reference) {
   return data.data; // { status: 'success' | ... }
 }
 
-async function palSubscribe(headers) {
+async function palSubscribe(headers, body) {
   const p = await authenticate(headers);
   if (!p) return json(401, { error: "Not authenticated." });
   if (!PAYSTACK_SECRET_KEY) return json(503, { error: "Payments aren't configured yet." });
+  const planKey = PAL_PLANS[body && body.plan] ? body.plan : "pro";
+  const plan = PAL_PLANS[planKey];
+  const seats = plan.seatBased
+    ? Math.max(plan.minSeats, Math.min(500, Number(body && body.seats) || plan.minSeats))
+    : 1;
+  const amount = plan.amountNgn * seats; // NGN kobo — Paystack charges NGN
   const reference = "PAL-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
-  await sql("INSERT INTO pal_payments (user_id, reference, amount_cents, currency, status) VALUES (:uid::uuid, :ref, :amt::int, :cur, 'pending')", { uid: p.sub, ref: reference, amt: PAL_COWORKER_AMOUNT, cur: PAYSTACK_CURRENCY });
+  await sql(
+    "INSERT INTO pal_payments (user_id, reference, amount_cents, currency, status, plan, seats) VALUES (:uid::uuid, :ref, :amt::int, :cur, 'pending', :plan, :seats::int)",
+    { uid: p.sub, ref: reference, amt: amount, cur: PAYSTACK_CURRENCY, plan: planKey, seats }
+  );
   try {
-    const init = await paystackInit({ email: p.email, amountCents: PAL_COWORKER_AMOUNT, reference, metadata: { userId: p.sub, purpose: "pal_coworker" }, callbackUrl: PAYSTACK_CALLBACK_URL });
-    return json(200, { authorizationUrl: init.authorization_url, reference });
+    const init = await paystackInit({ email: p.email, amountCents: amount, reference, metadata: { userId: p.sub, purpose: "pal_coworker", plan: planKey, seats }, callbackUrl: PAYSTACK_CALLBACK_URL });
+    return json(200, { authorizationUrl: init.authorization_url, reference, plan: planKey, seats, amount });
   } catch (e) {
     await sql("UPDATE pal_payments SET status = 'failed' WHERE reference = :ref", { ref: reference });
     console.error("paystackInit failed:", (e && e.message) || e);
@@ -425,16 +572,25 @@ async function palSubscribe(headers) {
 
 // Mark a payment successful + activate the Pal coworker subscription (idempotent).
 async function activatePalPayment(reference) {
-  const rows = await sql("SELECT user_id, status FROM pal_payments WHERE reference = :ref", { ref: reference });
+  const rows = await sql(
+    `SELECT p.user_id, p.status, p.plan, p.seats, u.email, u.name
+       FROM pal_payments p JOIN users u ON u.id = p.user_id
+      WHERE p.reference = :ref`,
+    { ref: reference }
+  );
   if (!rows.length) return false;
   if (rows[0].status !== "success") {
+    const plan = PAL_PLANS[rows[0].plan] ? rows[0].plan : "pro";
+    const seats = Number(rows[0].seats) || 1;
     await sql("UPDATE pal_payments SET status = 'success' WHERE reference = :ref", { ref: reference });
     await sql(
-      `INSERT INTO subscriptions (user_id, product, plan, status, current_period_end)
-       VALUES (:uid::uuid, 'stack62', 'coworker', 'active', now() + interval '30 days')
-       ON CONFLICT (user_id, product) DO UPDATE SET status = 'active', plan = 'coworker', current_period_end = now() + interval '30 days'`,
-      { uid: rows[0].user_id }
+      `INSERT INTO subscriptions (user_id, product, plan, seats, status, current_period_end)
+       VALUES (:uid::uuid, 'stack62', :plan, :seats::int, 'active', now() + interval '30 days')
+       ON CONFLICT (user_id, product) DO UPDATE SET status = 'active', plan = :plan, seats = :seats::int, current_period_end = now() + interval '30 days'`,
+      { uid: rows[0].user_id, plan, seats }
     );
+    await sendUserEmail(rows[0].email, palActivatedEmail(rows[0].name, plan, seats));
+    await notifyAdmins("Pal subscription activated", `${rows[0].name} (${rows[0].email}) activated Pal ${plan}${plan === "business" ? ` × ${seats} seats` : ""}.`);
   }
   return true;
 }
@@ -1553,6 +1709,74 @@ async function notifyAdmins(subject, text) {
   }
 }
 
+// Best-effort transactional email to a user — never blocks the primary action.
+async function sendUserEmail(to, tpl) {
+  try {
+    await sendSimpleEmail(to, tpl.subject, tpl.text);
+  } catch (e) {
+    console.error("sendUserEmail failed:", (e && e.message) || e);
+  }
+}
+
+// ── Ecosystem message copy (transactional email) ────────────────────────
+// One warm, plain-text voice across Loopital, Pal and Swift. First-name only,
+// clear next step, no marketing fluff.
+const MAIL_SIGNOFF = "\n\n— The Loopital team\nwww.loopital.com";
+const firstName = (name) => (String(name || "there").trim().split(/\s+/)[0] || "there");
+
+function welcomeEmail(name) {
+  return {
+    subject: "Welcome to Loopital",
+    text:
+`Hi ${firstName(name)},
+
+Welcome to Loopital — one account for everything we build.
+
+Here's what's ready for you right now:
+
+• Pal — your AI workspace. It's free to use; switch on the AI coworker for research, content, automation and decisions whenever you're ready.
+• Swift — AI ads and CRM. Build and publish campaigns across Meta, Google, TikTok, WhatsApp, LinkedIn and X, and turn every lead into a sale.
+
+You sign in to every Loopital app with this same email — nothing else to set up.
+
+Have a question? Just reply to this message; a real person will read it.${MAIL_SIGNOFF}`,
+  };
+}
+
+function palActivatedEmail(name, plan, seats) {
+  const planName = plan === "business" ? "Business" : "Pro";
+  const seatLine = plan === "business" ? `\nSeats included: ${seats}` : "";
+  return {
+    subject: `Your Pal ${planName} plan is active`,
+    text:
+`Hi ${firstName(name)},
+
+Your payment went through and your Pal ${planName} coworker is now switched on.${seatLine}
+
+Open your workspace and put it to work — it can research, draft, automate and help you decide, right where you already work:
+https://pal.loopital.com
+
+Your plan renews every 30 days. You can change or cancel it anytime from your account on loopital.com.
+
+Thanks for upgrading.${MAIL_SIGNOFF}`,
+  };
+}
+
+function waitlistEmail(name, product) {
+  const label = product === "sart34" ? "Swift" : product === "stack62" ? "Pal" : "Loopital";
+  return {
+    subject: `You're on the ${label} waitlist`,
+    text:
+`Hi ${firstName(name)},
+
+You're on the list — thank you for your interest in ${label}.
+
+We're rolling out access in batches. The moment your spot is ready, we'll email you an invite with everything you need to get started.
+
+In the meantime, you can explore what else we're building at www.loopital.com.${MAIL_SIGNOFF}`,
+  };
+}
+
 async function handleContact(body) {
   const name = (body.name || "").trim();
   const email = (body.email || "").trim().toLowerCase();
@@ -1596,9 +1820,11 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/health") return json(200, { status: "ok" });
     if (method === "POST" && route === "/auth/signup") return await signup(body);
     if (method === "POST" && route === "/auth/signin") return await signin(body);
+    if (method === "POST" && route === "/auth/google") return await googleAuth(body);
     if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
     if (method === "POST" && route === "/contact") return await handleContact(body);
     if (method === "GET" && route === "/auth/me") return await me(headers);
+    if ((method === "POST" || method === "PUT") && route === "/account/profile") return await updateProfile(headers, body);
     if (method === "GET" && route === "/account/subscriptions") return await getSubscriptions(headers);
     if (method === "GET" && route === "/account/invoices") return await getInvoices(headers);
     if (method === "POST" && route === "/sso/token") return await issueSsoToken(headers, body);
@@ -1607,7 +1833,7 @@ exports.handler = async (event) => {
     // Pal workspace: profile/onboarding + billing (Loopital-billed coworker)
     if (method === "GET" && route === "/account/pal") return await palProfile(headers);
     if (method === "POST" && route === "/account/pal/onboarding") return await palOnboarding(headers, body);
-    if (method === "POST" && route === "/account/pal/subscribe") return await palSubscribe(headers);
+    if (method === "POST" && route === "/account/pal/subscribe") return await palSubscribe(headers, body);
     if (method === "GET" && route === "/account/pay/verify") return await payVerify(headers, qs("reference"));
     if (method === "POST" && route === "/paystack/webhook") return await paystackWebhook(event, body);
 

@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router";
-import { LogOut, Settings, GraduationCap, ChevronDown, ArrowRight } from "lucide-react";
+import { LogOut, Settings, ChevronDown, ArrowRight, HelpCircle } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "../context/AuthContext";
 import { openPalWorkspace } from "../lib/pal";
+import { launchProductApp } from "../lib/api";
 import { productById } from "../config/products";
+import { SART34_URL } from "../config/site";
 import { colors, gradientBrand } from "../lib/brand";
 
 const initials = (name: string) =>
@@ -12,7 +14,7 @@ const initials = (name: string) =>
 
 /** Google-style account button: avatar → dropdown with an app launcher. */
 export function AccountMenu() {
-  const { user, token, signOut, setShowAuth, setShowPalOnboarding, setPendingPal } = useAuth();
+  const { user, token, signOut, setShowAuth, setShowPalOnboarding, setPendingPal, setShowGuide } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -26,19 +28,22 @@ export function AccountMenu() {
   const pal = productById("stack62");
   const swift = productById("sart34");
   const launchPal = () => { setOpen(false); openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal }); };
+  const launchSwift = () => { setOpen(false); launchProductApp(SART34_URL, "sart34", token); };
 
-  // Apps this one account unlocks. Pal + Academy are live; Swift is in development.
+  // Apps this one account unlocks — all live, all one login (SSO).
   const apps = [
     { name: pal.name, onClick: launchPal, node: <ImageWithFallback src={pal.logo} alt={pal.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: false },
-    { name: "Academy", to: "/academy/learn", node: <GraduationCap size={20} color="#fff" />, chip: gradientBrand, soon: false },
-    { name: swift.name, to: swift.detailHref, node: <ImageWithFallback src={swift.logo} alt={swift.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: true },
+    { name: swift.name, onClick: launchSwift, node: <ImageWithFallback src={swift.logo} alt={swift.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: false },
   ];
 
-  const avatar = (size: number) => (
-    <span className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ width: size, height: size, background: gradientBrand, fontSize: size * 0.4 }}>
-      {initials(user.name)}
-    </span>
-  );
+  const avatar = (size: number) =>
+    user.avatarUrl ? (
+      <img src={user.avatarUrl} alt={user.name} className="rounded-full object-cover flex-shrink-0" style={{ width: size, height: size }} />
+    ) : (
+      <span className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ width: size, height: size, background: gradientBrand, fontSize: size * 0.4 }}>
+        {initials(user.name)}
+      </span>
+    );
 
   const tileInner = (a: typeof apps[number]) => (
     <>
@@ -85,6 +90,9 @@ export function AccountMenu() {
           </div>
 
           <div className="p-2" style={{ borderTop: `1px solid ${colors.hairline}` }}>
+            <button onClick={() => { setShowGuide(true); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
+              <HelpCircle size={16} style={{ color: colors.textSecondary }} /> How to use Loopital
+            </button>
             <button onClick={() => { setShowAuth("dashboard"); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
               <Settings size={16} style={{ color: colors.textSecondary }} /> Manage account
             </button>
