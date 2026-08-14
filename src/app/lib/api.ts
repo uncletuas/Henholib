@@ -196,3 +196,21 @@ export const payApi = {
   verify: (token: string, reference: string) =>
     request<{ status: string }>(`/account/pay/verify?reference=${encodeURIComponent(reference)}`, { headers: authHeader(token) }),
 };
+
+// ── Unified checkout ────────────────────────────────────────────────────
+// One checkout portal for every product. The product is passed by the caller
+// (from the page/nav you're already on), so the checkout NEVER shows a product
+// list — it just processes the payment for that one service, on the single
+// Paystack account. Each service has its own plans/pricing page that calls this.
+export type BillingProduct = "stack62" | "sart34" | "fms13" | "edm73";
+
+export const billingApi = {
+  checkout: (
+    token: string,
+    input: { product: BillingProduct; purpose: "subscription" | "credits"; plan?: string; bundle?: string; seats?: number }
+  ) =>
+    request<{ authorizationUrl: string; reference: string; amount: number }>(
+      "/billing/checkout",
+      { method: "POST", headers: authHeader(token), body: JSON.stringify(input) }
+    ),
+};

@@ -16,7 +16,7 @@ import stack62Logo from "../../imports/stack62_logo.png";
 import sart34Logo from "../../imports/sart34_logo.png";
 import hms7Logo from "../../imports/hms7-logo.svg";
 import henholibLogo from "../../imports/henholib-logo.svg";
-import fms13Logo from "../../imports/fms13_logo.png";
+import fms13Logo from "../../imports/modus-logo.svg";
 import edm73Logo from "../../imports/edm73-logo.svg";
 
 export type ProductId = "stack62" | "sart34" | "hms7" | "henholib" | "fms13" | "edm73";
