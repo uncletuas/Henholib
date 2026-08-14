@@ -91,7 +91,7 @@ export async function uploadToS3(uploadUrl: string, file: File): Promise<void> {
 // ── Unified account portal ─────────────────────────────────────────────
 // loopital.com is the single portal for the account-linked products
 // (SART34 + STACK62). Subscriptions are kept separate per product. HMS7 and
-// FMS13 are demo-led and never appear here.
+// Modus are demo-led and never appear here.
 
 export type AccountProductId = "sart34" | "stack62";
 

@@ -47,7 +47,7 @@ const statements = [
   `CREATE TABLE IF NOT EXISTS subscriptions (
      id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
      user_id            UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-     product            TEXT NOT NULL CHECK (product IN ('sart34','stack62')),
+     product            TEXT NOT NULL CHECK (product IN ('sart34','stack62','fms13','edm73')),
      plan               TEXT NOT NULL,
      status             TEXT NOT NULL DEFAULT 'active'
                           CHECK (status IN ('active','trialing','past_due','canceled')),
@@ -356,6 +356,33 @@ const statements = [
   `ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS seats INTEGER NOT NULL DEFAULT 1`,
   `ALTER TABLE pal_payments ADD COLUMN IF NOT EXISTS plan TEXT`,
   `ALTER TABLE pal_payments ADD COLUMN IF NOT EXISTS seats INTEGER NOT NULL DEFAULT 1`,
+
+  // ── Unified billing hub ────────────────────────────────────────────────
+  // One Paystack account, one checkout, many products. Every payment (any
+  // product, subscription or credits) is recorded here and fulfilled by the
+  // /paystack/webhook dispatcher based on product + purpose.
+  `CREATE TABLE IF NOT EXISTS payments (
+     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     user_id      UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     product      TEXT NOT NULL,               -- stack62 | sart34 | fms13 | edm73
+     purpose      TEXT NOT NULL,               -- subscription | credits
+     reference    TEXT NOT NULL UNIQUE,
+     amount_cents INTEGER NOT NULL,
+     currency     TEXT NOT NULL DEFAULT 'NGN',
+     plan         TEXT,                          -- for subscriptions
+     credits      INTEGER,                       -- for credit top-ups
+     seats        INTEGER NOT NULL DEFAULT 1,
+     status       TEXT NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending','success','failed')),
+     fulfilled    BOOLEAN NOT NULL DEFAULT false,
+     metadata     JSONB,
+     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS payments_user_idx ON payments (user_id, product)`,
+  // Widen the subscriptions product constraint for existing DBs (fresh ones get
+  // it from CREATE above). Recreate the check idempotently.
+  `ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS subscriptions_product_check`,
+  `ALTER TABLE subscriptions ADD CONSTRAINT subscriptions_product_check CHECK (product IN ('sart34','stack62','fms13','edm73'))`,
 ];
 
 async function run() {

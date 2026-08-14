@@ -336,7 +336,7 @@ async function getSubscriptions(headers) {
     `SELECT product, plan, status, current_period_end
        FROM subscriptions
       WHERE user_id = :id::uuid
-        AND product IN ('sart34','stack62')
+        AND product IN ('sart34','stack62','fms13','edm73')
       ORDER BY product`,
     { id: payload.sub }
   );
@@ -357,7 +357,7 @@ async function getInvoices(headers) {
     `SELECT id, product, amount_cents, currency, status, issued_at
        FROM invoices
       WHERE user_id = :id::uuid
-        AND product IN ('sart34','stack62')
+        AND product IN ('sart34','stack62','fms13','edm73')
       ORDER BY issued_at DESC
       LIMIT 50`,
     { id: payload.sub }
@@ -595,13 +595,112 @@ async function activatePalPayment(reference) {
   return true;
 }
 
+// ── Unified billing hub ───────────────────────────────────────────────────
+// One Paystack account, one checkout, many products. Any product asks loopital
+// to start a payment; loopital prices it server-side, tags it with metadata,
+// and the single webhook fulfills the right thing (subscription or credits).
+const SWIFT_CREDIT_URL = process.env.SWIFT_CREDIT_URL || ""; // Swift's internal top-up hook
+const BILLING_HOOK_SECRET = process.env.BILLING_HOOK_SECRET || "";
+
+// Server-side price catalog (NGN kobo). The client only names product + purpose
+// + plan/bundle; the amount is resolved here so it can't be tampered with.
+const BILLING_CATALOG = {
+  stack62: {
+    subscription: {
+      pro: { amountNgn: () => PAL_PLANS.pro.amountNgn, seatBased: false },
+      business: { amountNgn: () => PAL_PLANS.business.amountNgn, seatBased: true, minSeats: PAL_PLANS.business.minSeats },
+    },
+  },
+  sart34: {
+    credits: {
+      starter: { amountNgn: 500000, credits: 100 },
+      growth: { amountNgn: 1200000, credits: 300 },
+      pro: { amountNgn: 3000000, credits: 800 },
+      business: { amountNgn: 8500000, credits: 2500 },
+      scale: { amountNgn: 18000000, credits: 6000 },
+    },
+  },
+  // Modus (fms13) + Beacon (edm73): reserved. Add tiers here when they launch.
+  fms13: { subscription: {} },
+  edm73: { subscription: {} },
+};
+
+async function billingCheckout(headers, body) {
+  const p = await authenticate(headers);
+  if (!p) return json(401, { error: "Not authenticated." });
+  if (!PAYSTACK_SECRET_KEY) return json(503, { error: "Payments aren't configured yet." });
+  const product = String((body && body.product) || "").toLowerCase();
+  const purpose = body && body.purpose === "credits" ? "credits" : "subscription";
+  const cat = BILLING_CATALOG[product] && BILLING_CATALOG[product][purpose];
+  if (!cat) return json(400, { error: "This product isn't available for purchase yet." });
+  const key = String((body && (body.plan || body.bundle)) || "").toLowerCase();
+  const item = cat[key];
+  if (!item) return json(400, { error: "Unknown plan or bundle." });
+  const seats = item.seatBased
+    ? Math.max(item.minSeats || 1, Math.min(500, Number(body && body.seats) || item.minSeats || 1))
+    : 1;
+  const baseAmount = typeof item.amountNgn === "function" ? item.amountNgn() : item.amountNgn;
+  const amount = baseAmount * (item.seatBased ? seats : 1);
+  const credits = purpose === "credits" ? item.credits || null : null;
+  const reference = "PAY-" + product.toUpperCase() + "-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
+  await sql(
+    "INSERT INTO payments (user_id, product, purpose, reference, amount_cents, currency, plan, credits, seats, status, metadata) VALUES (:uid::uuid, :product, :purpose, :ref, :amt::int, :cur, :plan, :credits::int, :seats::int, 'pending', :meta::jsonb)",
+    { uid: p.sub, product, purpose, ref: reference, amt: amount, cur: PAYSTACK_CURRENCY, plan: purpose === "subscription" ? key : null, credits, seats, meta: JSON.stringify({ item: key }) }
+  );
+  try {
+    const init = await paystackInit({ email: p.email, amountCents: amount, reference, metadata: { userId: p.sub, product, purpose, plan: purpose === "subscription" ? key : null, credits, seats }, callbackUrl: PAYSTACK_CALLBACK_URL });
+    return json(200, { authorizationUrl: init.authorization_url, reference, amount });
+  } catch (e) {
+    await sql("UPDATE payments SET status = 'failed' WHERE reference = :ref", { ref: reference });
+    console.error("billing checkout failed:", (e && e.message) || e);
+    return json(502, { error: "Couldn't start payment. Please try again." });
+  }
+}
+
+// Fulfill a successful payment by product + purpose. Handles the unified
+// `payments` table; falls back to the legacy pal_payments flow so existing
+// Pal checkouts keep working.
+async function fulfillPayment(reference) {
+  const rows = await sql(
+    "SELECT p.user_id, p.product, p.purpose, p.plan, p.credits, p.seats, p.fulfilled, u.email, u.name FROM payments p JOIN users u ON u.id = p.user_id WHERE p.reference = :ref",
+    { ref: reference }
+  );
+  if (!rows.length) return activatePalPayment(reference); // legacy pal_payments
+  const pay = rows[0];
+  if (pay.fulfilled === true) return true;
+  await sql("UPDATE payments SET status = 'success', fulfilled = true WHERE reference = :ref", { ref: reference });
+  if (pay.purpose === "subscription") {
+    const plan = pay.plan || "pro";
+    const seats = Number(pay.seats) || 1;
+    await sql(
+      `INSERT INTO subscriptions (user_id, product, plan, seats, status, current_period_end)
+       VALUES (:uid::uuid, :product, :plan, :seats::int, 'active', now() + interval '30 days')
+       ON CONFLICT (user_id, product) DO UPDATE SET status = 'active', plan = :plan, seats = :seats::int, current_period_end = now() + interval '30 days'`,
+      { uid: pay.user_id, product: pay.product, plan, seats }
+    );
+    if (pay.product === "stack62") await sendUserEmail(pay.email, palActivatedEmail(pay.name, plan, seats));
+  } else if (pay.purpose === "credits" && pay.product === "sart34" && SWIFT_CREDIT_URL) {
+    // Credits live in Swift's own wallet — call its internal top-up hook.
+    try {
+      await fetch(SWIFT_CREDIT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-billing-secret": BILLING_HOOK_SECRET },
+        body: JSON.stringify({ email: pay.email, userId: pay.user_id, credits: pay.credits, reference }),
+      });
+    } catch (e) {
+      console.error("swift credit hook failed:", (e && e.message) || e); // payment recorded; Swift can reconcile
+    }
+  }
+  return true;
+}
+
 async function payVerify(headers, reference) {
   const p = await authenticate(headers);
   if (!p) return json(401, { error: "Not authenticated." });
   if (!reference) return json(400, { error: "Missing reference." });
   try {
     const data = await paystackVerify(reference);
-    if (data.status === "success") { await activatePalPayment(reference); return json(200, { status: "success" }); }
+    if (data.status === "success") { await fulfillPayment(reference); return json(200, { status: "success" }); }
     return json(200, { status: data.status || "pending" });
   } catch (e) {
     console.error("payVerify failed:", (e && e.message) || e);
@@ -615,7 +714,7 @@ async function paystackWebhook(event, body) {
   const expected = crypto.createHmac("sha512", PAYSTACK_SECRET_KEY || "").update(raw).digest("hex");
   if (!sig || sig !== expected) return json(401, { error: "Invalid signature." });
   if (body && body.event === "charge.success" && body.data && body.data.reference) {
-    await activatePalPayment(body.data.reference);
+    await fulfillPayment(body.data.reference);
   }
   return json(200, { ok: true });
 }
@@ -1834,6 +1933,7 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/account/pal") return await palProfile(headers);
     if (method === "POST" && route === "/account/pal/onboarding") return await palOnboarding(headers, body);
     if (method === "POST" && route === "/account/pal/subscribe") return await palSubscribe(headers, body);
+    if (method === "POST" && route === "/billing/checkout") return await billingCheckout(headers, body);
     if (method === "GET" && route === "/account/pay/verify") return await payVerify(headers, qs("reference"));
     if (method === "POST" && route === "/paystack/webhook") return await paystackWebhook(event, body);
 

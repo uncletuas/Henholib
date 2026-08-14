@@ -50,7 +50,7 @@ export interface Product {
   ctaType: CtaType;
   /** Launch stage: "available" (usable now) or "coming_soon" (in development / waitlist). */
   stage: "available" | "coming_soon";
-  /** Flagship products we actively promote (Henholib + EDM73). */
+  /** Flagship products we actively promote (Henholib + Beacon). */
   flagship?: boolean;
   /** Optional launch offer, e.g. "Free for the first 3 months". */
   offer?: string;
@@ -141,16 +141,16 @@ export const products: Product[] = [
   },
   {
     id: "fms13",
-    name: "FMS13",
+    name: "Modus",
     logo: fms13Logo,
     category: "Facility Management",
     theme: "The Future of Facility Operations",
     tagline: "Every facility, fully under control.",
     description:
-      "FMS13 is a complete facility management system, managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale. Open it and get started right away, or talk to us about a rollout.",
+      "Modus is a complete facility management system, managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale. Open it and get started right away, or talk to us about a rollout.",
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
-    // FMS13 has no on-site landing page — links go straight to the app sign-in.
+    // Modus has no on-site landing page — links go straight to the app sign-in.
     detailHref: FMS13_URL,
     stage: "available",
     appHref: FMS13_URL,
@@ -162,13 +162,13 @@ export const products: Product[] = [
   },
   {
     id: "edm73",
-    name: "EDM73",
+    name: "Beacon",
     logo: edm73Logo,
     category: "Education Management",
     theme: "The Future of Education Operations",
     tagline: "The operating system for schools and training institutions.",
     description:
-      "EDM73 is a complete educational-organization management system, admissions, students, staff, classes, timetables, grades, fees, and communication in one platform, so schools, colleges, and training institutions run smoothly end to end. Not open to the public yet; join the waitlist for early access.",
+      "Beacon is a complete educational-organization management system, admissions, students, staff, classes, timetables, grades, fees, and communication in one platform, so schools, colleges, and training institutions run smoothly end to end. Not open to the public yet; join the waitlist for early access.",
     platforms: ["web", "desktop"],
     accent: productAccent.edm73,
     detailHref: "/products/edm73",

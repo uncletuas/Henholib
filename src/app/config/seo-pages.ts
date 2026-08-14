@@ -26,13 +26,13 @@ export const pageSeo: Record<string, PageSeo> = {
   "/": {
     title: "Loopital, Software, AI & Enterprise Platforms",
     description:
-      "Loopital builds software products, AI, and enterprise platforms, Pal (AI coworker), Swift (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and FMS13 (facility management), helping organizations and people operate more intelligently.",
+      "Loopital builds software products, AI, and enterprise platforms, Pal (AI coworker), Swift (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and Modus (facility management), helping organizations and people operate more intelligently.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
     title: "Products, AI, Healthcare & Enterprise Software",
     description:
-      "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and FMS13 facility management software, for businesses, hospitals, and individuals.",
+      "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and Modus facility management software, for businesses, hospitals, and individuals.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/products/hms7": {
@@ -81,18 +81,18 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/edm73": {
-    title: "EDM73, Education Management System | Join the Waitlist",
+    title: "Beacon, Education Management System | Join the Waitlist",
     description:
-      "EDM73 is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Not public yet, join the waitlist for early access.",
+      "Beacon is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Not public yet, join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
-        name: "EDM73",
+        name: "Beacon",
         category: "BusinessApplication",
         description:
           "Educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication.",
         path: "/products/edm73",
       }),
-      productCrumb("EDM73", "/products/edm73"),
+      productCrumb("Beacon", "/products/edm73"),
     ],
   },
   "/about": {

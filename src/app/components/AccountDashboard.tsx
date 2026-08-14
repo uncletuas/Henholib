@@ -127,7 +127,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
 
               {/* Enterprise products are demo-led, not account-managed */}
               <div className="p-5 rounded-2xl" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
-                <p style={{ fontWeight: 600, fontSize: "14px", color: colors.heading, marginBottom: "4px" }}>Looking for HMS7 or FMS13?</p>
+                <p style={{ fontWeight: 600, fontSize: "14px", color: colors.heading, marginBottom: "4px" }}>Looking for HMS7 or Modus?</p>
                 <p style={{ color: colors.textSecondary, fontSize: "13px", lineHeight: 1.6 }}>
                   Our enterprise platforms are set up with your team directly.{" "}
                   <a href="/contact" onClick={onClose} style={{ color: colors.blue, fontWeight: 500 }}>Book a demo →</a>
