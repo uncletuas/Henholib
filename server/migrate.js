@@ -2,7 +2,7 @@
 // Runs the byte-identical DDL from schema.js (extracted from the original
 // infra/scripts/migrate.mjs) against Postgres. Safe to run on every boot —
 // every statement is CREATE ... IF NOT EXISTS / ALTER ... IF NOT EXISTS.
-const { pool } = require("./db");
+const { pool, SCHEMA } = require("./db");
 const statements = require("./schema");
 
 async function migrate() {
@@ -14,6 +14,9 @@ async function migrate() {
     console.error(`migrate: database unreachable, skipping schema (${err.message}).`);
     return;
   }
+  // Ensure loopital's dedicated schema exists (search_path points every
+  // connection at it, so the DDL below lands here — isolated from Pal's tables).
+  await pool.query(`CREATE SCHEMA IF NOT EXISTS ${SCHEMA}`);
   for (const statement of statements) {
     const label = statement.split("\n")[0].slice(0, 64);
     try {

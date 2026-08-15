@@ -19,9 +19,15 @@ if (!connectionString) {
 const needsSsl = /sslmode=require/.test(connectionString || "") ||
   /[?&]ssl=true/.test(connectionString || "");
 
+// loopital shares the pal-db instance but lives in its OWN schema so its tables
+// (users, subscriptions, payments, …) never collide with Pal's public tables.
+// Setting search_path at connection startup scopes every query to that schema.
+const SCHEMA = process.env.DB_SCHEMA || "loopital";
+
 const pool = new Pool({
   connectionString,
   ...(needsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+  options: `-c search_path=${SCHEMA}`,
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 15_000,
@@ -53,4 +59,4 @@ async function sql(statement, params = {}) {
   return res.rows;
 }
 
-module.exports = { pool, sql };
+module.exports = { pool, sql, SCHEMA };
