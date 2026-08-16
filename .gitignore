@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-zina/
 server/node_modules/
 .env
 .env.local

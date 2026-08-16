@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Zina — the Loopital control plane.
+ *
+ * Governing rule, inherited from the Modus portal and worth repeating: colour
+ * is a signal, not decoration. Six apps are on screen at once and each carries
+ * its own accent; if the chrome were also tinted, an accent would stop meaning
+ * "this belongs to Beacon" and a red would stop meaning "this is broken".
+ *
+ * So: neutrals everywhere, per-app accent applied only to the small marks that
+ * identify an app, and saturation otherwise reserved for state. Dark by default
+ * because this is a console someone sits in front of, with light available for
+ * anyone who prefers it.
+ */
+
+:root {
+  --font-size: 15px;
+
+  --background: #f7f8fa;
+  --foreground: #0f1319;
+  --card: #ffffff;
+  --muted-surface: #f1f3f6;
+
+  --primary: #b07d16;
+  --primary-foreground: #ffffff;
+
+  --muted-foreground: #626d7c;
+  --subtle-foreground: #8b95a3;
+
+  --success: #127a4b;
+  --warning: #a86a00;
+  --danger: #b8232e;
+  --info: #1c5d99;
+
+  --border: #e2e6eb;
+  --border-strong: #cfd6de;
+  --input-background: #ffffff;
+
+  --ring: #d0a03a;
+
+  --sidebar: #0d1117;
+  --sidebar-foreground: #d5dde6;
+  --sidebar-muted: #8794a4;
+  --sidebar-accent: #1a212b;
+  --sidebar-border: #1b222c;
+
+  --chart-1: #2f6fb0;
+  --chart-2: #c25f0d;
+  --chart-3: #00897b;
+  --chart-4: #7f4fb5;
+  --chart-5: #9a7a10;
+
+  --radius: 0.625rem;
+
+  --elevation-sm: 0 1px 2px rgba(15, 19, 25, 0.05);
+  --elevation-md: 0 4px 14px rgba(15, 19, 25, 0.08);
+  --elevation-lg: 0 16px 40px rgba(15, 19, 25, 0.14);
+}
+
+/* Dark is chosen, not inverted — its own steps against a dark ground. */
+.dark {
+  --background: #0b0f14;
+  --foreground: #e6ecf3;
+  --card: #131920;
+  --muted-surface: #171e26;
+
+  --primary: #f4b942;
+  --primary-foreground: #100c02;
+
+  --muted-foreground: #94a1b1;
+  --subtle-foreground: #6c7887;
+
+  --success: #3fb87f;
+  --warning: #e0a338;
+  --danger: #f0666f;
+  --info: #56a2e8;
+
+  --border: #222c37;
+  --border-strong: #2f3b48;
+  --input-background: #0f151c;
+
+  --ring: #f4b942;
+
+  --sidebar: #080b0f;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-muted: #7b8899;
+  --sidebar-accent: #151c24;
+  --sidebar-border: #161d26;
+
+  --chart-1: #4a8fd4;
+  --chart-2: #d9772e;
+  --chart-3: #12a08f;
+  --chart-4: #9a72d0;
+  --chart-5: #ab8419;
+
+  --elevation-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --elevation-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --elevation-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-surface: var(--muted-surface);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle: var(--subtle-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    font-size: var(--font-size);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "Inter var", Inter, ui-sans-serif, system-ui, -apple-system,
+      "Segoe UI Variable Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.014em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  /* Figures in a column must not shift width as they change. */
+  table, .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  code, .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-variant-ligatures: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

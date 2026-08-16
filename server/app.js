@@ -41,6 +41,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
+// Zina — the control plane at zina.loopital.com. It owns the /zina/* routes and
+// the signed machine-to-machine endpoints the other apps call (/notify/send,
+// /zina/ingest/*). Every email in the ecosystem now goes out through ./notify,
+// which is the only holder of the Resend key and logs every send.
+const zina = require("./zina");
+const { sendNotification } = require("./notify");
+
 // S3 (academy materials / avatar uploads) and SES (email fallback) are retained
 // for parity but not exercised on Render: academy is retired from the frontend
 // and email is sent via Resend. They construct lazily and only fail if called.
@@ -1738,30 +1745,28 @@ async function verifyCertificate(serial) {
   return json(200, { valid: true, name: rows[0].student_name, courseTitle: rows[0].course_title, issuedAt: rows[0].issued_at, serial: s });
 }
 
-// ── Notification + contact emails (SES) ────────────────────────────────────
+// ── Notification + contact emails ──────────────────────────────────────────
 const NOTIFY_EMAILS = ["admin@loopital.com", "tuamenebestgod@gmail.com"];
 
-// Sends via Resend (https://resend.com) when configured; falls back to SES.
-async function sendSimpleEmail(to, subject, text, replyTo) {
-  const recipients = Array.isArray(to) ? to : [to];
-  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: RESEND_FROM_EMAIL, to: recipients, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
-    });
-    if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
-    return;
-  }
-  if (!SES_FROM) return;
-  await ses.send(
-    new SendEmailCommand({
-      FromEmailAddress: SES_FROM,
-      Destination: { ToAddresses: recipients },
-      ...(replyTo ? { ReplyToAddresses: [replyTo] } : {}),
-      Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } },
-    })
-  );
+/**
+ * Every email this API sends goes through the one ecosystem notifier.
+ *
+ * The Resend call, the branded template and the delivery log all live in
+ * ./notify now, so a message sent from here is visible on Zina's notifications
+ * screen next to the ones Beacon and Modus send. The signature is unchanged and
+ * still throws on failure, because the callers below already treat a bounce as
+ * best-effort and swallow it.
+ */
+async function sendSimpleEmail(to, subject, text, replyTo, appId = "loopital") {
+  const result = await sendNotification({
+    appId,
+    to,
+    subject,
+    body: text,
+    replyTo,
+    template: "loopital.api",
+  });
+  if (!result.ok) throw new Error(result.error || "Email failed");
 }
 
 // Best-effort admin notification — never blocks or fails the primary action.
@@ -1849,6 +1854,15 @@ async function handleContact(body) {
   if (!name || !EMAIL_RE.test(email) || !message)
     return json(400, { error: "Please add your name, a valid email, and a message." });
   const text = `New contact form submission\n\nName: ${name}\nEmail: ${email}\nTopic: ${subject}\n\nMessage:\n${message}`;
+
+  // Into the one support queue first. The email that follows is a heads-up, not
+  // the record — a contact form that only ever became an inbox message is how
+  // things get lost, and Zina's support screen is meant to be the whole picture.
+  try {
+    await zina.ingestTicket({ name, email, subject, message }, { appId: "loopital" });
+  } catch (e) {
+    console.error("contact ticket failed:", (e && e.message) || e);
+  }
   try {
     await sendSimpleEmail(NOTIFY_EMAILS, `[Loopital] ${subject} — ${name}`, text, email);
   } catch (e) {
@@ -1882,6 +1896,19 @@ exports.handler = async (event) => {
   try {
     const headers = event.headers || {};
     if (method === "GET" && route === "/health") return json(200, { status: "ok" });
+
+    // Zina (the control plane) and the signed endpoints the other apps call.
+    // Returns null when the path isn't its own, so the routes below still run.
+    const zinaResponse = await zina.route({
+      method,
+      path: route,
+      headers,
+      body,
+      qs,
+      event,
+      billingCatalogSource: BILLING_CATALOG,
+    });
+    if (zinaResponse) return zinaResponse;
     if (method === "POST" && route === "/auth/signup") return await signup(body);
     if (method === "POST" && route === "/auth/signin") return await signin(body);
     if (method === "POST" && route === "/auth/google") return await googleAuth(body);

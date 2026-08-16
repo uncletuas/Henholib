@@ -8,6 +8,7 @@
 const express = require("express");
 const { handler } = require("./app");
 const { migrate } = require("./migrate");
+const { seedApps } = require("./connectors");
 
 const app = express();
 
@@ -38,9 +39,13 @@ app.all(/.*/, async (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 
-// Apply the schema (idempotent) before accepting traffic, then listen.
+// Apply the schema (idempotent), then make sure Zina's app registry knows about
+// every product in the ecosystem, then listen. Both steps are best-effort: a
+// database that's briefly unreachable should delay the control plane, not stop
+// the API that customers actually sign in through.
 migrate()
-  .catch((e) => console.error("migrate failed (continuing):", e.message))
+  .then(() => seedApps())
+  .catch((e) => console.error("boot setup failed (continuing):", e.message))
   .finally(() => {
     app.listen(PORT, () => console.log(`loopital API listening on :${PORT}`));
   });

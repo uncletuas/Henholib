@@ -3,7 +3,10 @@
 // infra/scripts/migrate.mjs) against Postgres. Safe to run on every boot —
 // every statement is CREATE ... IF NOT EXISTS / ALTER ... IF NOT EXISTS.
 const { pool, SCHEMA } = require("./db");
-const statements = require("./schema");
+// The original ecosystem DDL, plus Zina's control-plane tables. Zina's are kept
+// in their own file so the historical schema stays byte-identical to the one
+// extracted from infra/scripts/migrate.mjs.
+const statements = [...require("./schema"), ...require("./zina-schema")];
 
 async function migrate() {
   // Fail fast if the database is unreachable, rather than retrying 59 DDL
