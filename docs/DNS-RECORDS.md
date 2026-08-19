@@ -68,35 +68,63 @@ immediately:
 | `swift.loopital.com` | ISSUED | **blocked** | no |
 | `beacon.loopital.com` | pending | n/a (Amplify) | no |
 
-## The three blocked names
+## Moving a name off another AWS account — the TXT route
 
-`loopital.com`, `www.loopital.com` and `swift.loopital.com` fail to attach with:
+`loopital.com`, `www.loopital.com` and `swift.loopital.com` were refused with
+`CNAMEAlreadyExists`. AWS's own API says who held them:
 
+```sh
+aws cloudfront list-conflicting-aliases --distribution-id <ours> --alias www.loopital.com
 ```
-CNAMEAlreadyExists: One or more of the CNAMEs you provided are
-already associated with a different resource.
+
+| Name | Held by distribution | In account |
+|---|---|---|
+| `loopital.com`, `www.loopital.com` | `*******8RTC2GG` | `******947630` |
+| `swift.loopital.com` | `******T1RSBAA` | `******947630` |
+
+Not this account (`703592322789`) — the old one. Swift was there because it ran
+on **App Runner**, and an App Runner custom domain provisions a CloudFront
+distribution behind the scenes; the name gets claimed without it ever feeling
+like you hosted anything.
+
+**This does not need AWS Support.** `associate-alias` moves a name to a
+distribution in an account you control, given two things:
+
+1. **The certificate already attached to the target distribution**, with no
+   alias set. Setting the alias directly is what trips `CNAMEAlreadyExists`;
+   attaching only the certificate satisfies the check without it.
+2. **A TXT record proving control of the name** — `_<name>` pointing at the
+   *target* distribution's CloudFront domain.
+
+| Type | Host | Value |
+|---|---|---|
+| TXT | `_www` | `d2ghi415n55ybx.cloudfront.net` |
+| TXT | `_swift` | `d1xys9q3rm8esr.cloudfront.net` |
+
+Then:
+
+```sh
+aws cloudfront associate-alias --target-distribution-id E1PBUW0DUIWZRH --alias www.loopital.com
+aws cloudfront associate-alias --target-distribution-id E2OEWOXKEJSP3N --alias swift.loopital.com
 ```
 
-Nothing in **this** account holds them — all five distributions here were listed
-and only zina/pal/modus have aliases. The names are still claimed by CloudFront
-distributions in the **old, suspended AWS account**, which is exactly the set of
-domains that account served. CloudFront refuses to let two distributions claim
-the same CNAME, across accounts included, and a suspended account's
-distributions do not release their claims.
+Both moved on the first try once the TXT records resolved. The errors along the
+way are a ladder, not a wall — each one names the next missing piece:
+`CNAMEAlreadyExists` → attach the cert → `InvalidArgument: must attach a trusted
+certificate` → wait for deploy → `IllegalUpdate: Invalid or missing alias DNS
+TXT records` → add the TXT → done.
 
-The subdomains that *did* attach — zina, pal, modus — are the ones that were
-never on CloudFront in the old account.
+### The apex is still on Render
 
-**This needs AWS Support.** They can release a CNAME held by an account you no
-longer control, given proof you own the domain. Open a case under
-*Account and billing → Service: CloudFront → Alternate domain names*, quote the
-error, and list the three names plus the old account id if you have it. Proof of
-ownership is usually a TXT record they will ask you to add — which you can do at
-Hostinger.
+`loopital.com` (no subdomain) still resolves to Render and 301-redirects to
+`https://www.loopital.com/`, which now serves from CloudFront. That works, and
+it is why the apex was never broken.
 
-Until then those three stay on Render, which is where they currently work:
-`loopital.com` and `www` resolve to Render, and `swift.loopital.com` likewise.
-Nothing is broken; the AWS copies simply sit unused on their CloudFront domains.
+To move the apex itself, add `_` (or whatever bare-underscore host Hostinger
+accepts) as TXT → `d2ghi415n55ybx.cloudfront.net`, then
+`associate-alias --alias loopital.com`. A zone apex cannot be a CNAME, so the
+record itself would have to be an ALIAS/ANAME if Hostinger supports one —
+otherwise keeping the redirect is the right answer.
 
 ## Step 3 — attach each alias once its certificate is ISSUED
 
