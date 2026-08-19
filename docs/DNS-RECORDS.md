@@ -56,6 +56,48 @@ immediately:
 | Pal | https://d12uk9pozt4c5w.cloudfront.net | `E3Q7WRXKSQP4SW` |
 | Modus | https://duzbjy60tt1hq.cloudfront.net | `E3QUR5M6JBTA6C` |
 
+## Status after attaching (2026-08-19)
+
+| Domain | Certificate | Alias attached | Live |
+|---|---|---|---|
+| `zina.loopital.com` | ISSUED | yes | **yes — HTTPS 200** |
+| `pal.loopital.com` | ISSUED | yes | needs the CNAME |
+| `modus.loopital.com` | ISSUED | yes | needs the CNAME |
+| `loopital.com` | ISSUED | **blocked** | no |
+| `www.loopital.com` | ISSUED | **blocked** | no |
+| `swift.loopital.com` | ISSUED | **blocked** | no |
+| `beacon.loopital.com` | pending | n/a (Amplify) | no |
+
+## The three blocked names
+
+`loopital.com`, `www.loopital.com` and `swift.loopital.com` fail to attach with:
+
+```
+CNAMEAlreadyExists: One or more of the CNAMEs you provided are
+already associated with a different resource.
+```
+
+Nothing in **this** account holds them — all five distributions here were listed
+and only zina/pal/modus have aliases. The names are still claimed by CloudFront
+distributions in the **old, suspended AWS account**, which is exactly the set of
+domains that account served. CloudFront refuses to let two distributions claim
+the same CNAME, across accounts included, and a suspended account's
+distributions do not release their claims.
+
+The subdomains that *did* attach — zina, pal, modus — are the ones that were
+never on CloudFront in the old account.
+
+**This needs AWS Support.** They can release a CNAME held by an account you no
+longer control, given proof you own the domain. Open a case under
+*Account and billing → Service: CloudFront → Alternate domain names*, quote the
+error, and list the three names plus the old account id if you have it. Proof of
+ownership is usually a TXT record they will ask you to add — which you can do at
+Hostinger.
+
+Until then those three stay on Render, which is where they currently work:
+`loopital.com` and `www` resolve to Render, and `swift.loopital.com` likewise.
+Nothing is broken; the AWS copies simply sit unused on their CloudFront domains.
+
 ## Step 3 — attach each alias once its certificate is ISSUED
 
 ```sh
@@ -91,7 +133,49 @@ the old, suspended AWS account. The frontend will load and then fail every
 request until a Modus API is deployed somewhere and the site is rebuilt with
 `VITE_API_BASE` pointing at it.
 
-## Beacon is not here, and cannot be
+## Beacon — hosting created, still needs a database
+
+`beacon.loopital.com` is **Next.js 16 with server actions, API routes and
+Prisma**, so it cannot be a static site: there is no `dist/` to put in a bucket,
+and `output: "export"` would break authentication, the payment webhooks and
+every server action.
+
+An **Amplify Hosting** app has been created for it (Amplify supports Next SSR
+and bills per request rather than per hour):
+
+| | |
+|---|---|
+| App id | `d2em8xn2cx0h33` |
+| Branch | `main` (platform `WEB_COMPUTE`) |
+| Domain | `beacon.loopital.com`, status `PENDING_VERIFICATION` |
+
+Amplify issues and renews its own certificate, so it needs its own two records —
+these are **not** the CloudFront ones:
+
+| Type | Host | Value |
+|---|---|---|
+| CNAME | `_fbb4bf28a906f019e956c5c433af784b` | `_117a40da6951dfc0d2d3b2c24709e043.jkddzztszm.acm-validations.aws.` |
+| CNAME | `beacon` | `d1tul2pfahlhr9.cloudfront.net` |
+
+**It still will not serve, because Beacon has no database.** Its `.env` carries a
+placeholder (`postgresql://user:pass@host:5432/beacon`) and local development
+runs on SQLite — Beacon has never been deployed to production anywhere. Before
+it can start it needs:
+
+1. A Postgres. On a new AWS account RDS `db.t4g.micro` is free for 12 months
+   (~$15/month after), or Supabase/Neon have free tiers that need no VPC work.
+2. `prisma migrate deploy` run against it.
+3. Env vars set on the Amplify branch: `DATABASE_URL`, `DATABASE_PROVIDER`,
+   `AUTH_SECRET`, `APP_ENCRYPTION_KEY`, `APP_URL`, `ZINA_OPS_SECRET`,
+   `LOOPITAL_API_URL`, `LOOPITAL_PAYSTACK_SECRET_KEY`.
+4. A first deployment — either connect the GitHub repo in the Amplify console
+   (an OAuth flow, so it needs a person) or push a manual `.amplify-hosting`
+   bundle.
+
+Provisioning a database is a cost and data-residency decision, so it is not
+something to do silently. Say which you want and it takes one pass.
+
+## The original note on why Beacon is not static
 
 `beacon.loopital.com` is **Next.js 16 with server actions, API routes and
 Prisma**. It is not a static site — there is no `dist/` to put in a bucket, and
