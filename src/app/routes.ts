@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import { RootLayout } from "./layouts/RootLayout";
 import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
@@ -7,7 +7,7 @@ import { Stack62Page } from "./pages/products/Stack62Page";
 import { Hms7Page } from "./pages/products/Hms7Page";
 import { HenholibPage } from "./pages/products/HenholibPage";
 import { Edm73Page } from "./pages/products/Edm73Page";
-import { SwiftRedirect, Fms13Redirect } from "./components/AppRedirects";
+import { SwiftRedirect, ModusRedirect } from "./components/AppRedirects";
 import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
@@ -24,12 +24,21 @@ export const router = createBrowserRouter([
       { index: true, Component: HomePage },
       { path: "about", Component: AboutPage },
       { path: "products", Component: ProductsPage },
-      { path: "products/stack62", Component: Stack62Page },
-      { path: "products/sart34", Component: SwiftRedirect },
-      { path: "products/hms7", Component: Hms7Page },
+      // Product pages live at the product's name. The codename paths are kept
+      // as 301-style redirects rather than deleted: they are in search results
+      // and in the company profile PDF, and a dead link is a worse outcome than
+      // an old one that forwards.
+      { path: "products/pal", Component: Stack62Page },
+      { path: "products/swift", Component: SwiftRedirect },
+      { path: "products/modus", Component: ModusRedirect },
+      { path: "products/beacon", Component: Edm73Page },
       { path: "products/henholib", Component: HenholibPage },
-      { path: "products/fms13", Component: Fms13Redirect },
-      { path: "products/edm73", Component: Edm73Page },
+      { path: "products/hms7", Component: Hms7Page },
+
+      { path: "products/stack62", loader: () => redirect("/products/pal") },
+      { path: "products/sart34", Component: SwiftRedirect },
+      { path: "products/fms13", Component: ModusRedirect },
+      { path: "products/edm73", loader: () => redirect("/products/beacon") },
       { path: "payment/callback", Component: PaymentCallbackPage },
       { path: "contact", Component: ContactPage },
       { path: "insights", Component: InsightsPage },

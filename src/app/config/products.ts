@@ -4,10 +4,10 @@
 // account-linking rules stay consistent everywhere.
 
 import {
-  FMS13_URL,
+  MODUS_URL,
   HENHOLIB_URL,
   PAL_URL,
-  SART34_URL,
+  SWIFT_URL,
 } from "./site";
 import { productAccent } from "../lib/brand";
 import type { Platform } from "../components/PlatformPills";
@@ -72,7 +72,7 @@ export const products: Product[] = [
       "Pal is your AI workspace, included with every Loopital account. Organize your work in one place, and switch on the AI coworker, research, content, automation, and decision support, whenever you're ready. Free to use; the coworker is a paid upgrade.",
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
-    detailHref: "/products/stack62",
+    detailHref: "/products/pal",
     stage: "available",
     external: false,
     accountLinked: true,
@@ -92,12 +92,12 @@ export const products: Product[] = [
     platforms: ["web", "desktop", "mobile"],
     accent: productAccent.sart34,
     // Swift has no on-site landing page — every link opens the live app directly.
-    detailHref: SART34_URL,
+    detailHref: SWIFT_URL,
     stage: "available",
     external: true,
     accountLinked: true,
     ctaType: "launch",
-    appHref: SART34_URL,
+    appHref: SWIFT_URL,
     highlights: ["AI ad campaigns", "Unified CRM", "Audience engagement", "Cross-platform publishing"],
   },
   {
@@ -151,9 +151,9 @@ export const products: Product[] = [
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
     // Modus has no on-site landing page — links go straight to the app sign-in.
-    detailHref: FMS13_URL,
+    detailHref: MODUS_URL,
     stage: "available",
-    appHref: FMS13_URL,
+    appHref: MODUS_URL,
     external: true,
     accountLinked: false,
     ctaType: "launch",
@@ -171,7 +171,7 @@ export const products: Product[] = [
       "Beacon is a complete educational-organization management system, admissions, students, staff, classes, timetables, grades, fees, and communication in one platform, so schools, colleges, and training institutions run smoothly end to end. Not open to the public yet; join the waitlist for early access.",
     platforms: ["web", "desktop"],
     accent: productAccent.edm73,
-    detailHref: "/products/edm73",
+    detailHref: "/products/beacon",
     stage: "coming_soon",
     flagship: true,
     external: false,

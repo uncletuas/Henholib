@@ -12,7 +12,7 @@ interface ProductLinkProps {
 
 /**
  * Links to a product's "learn more" destination, rendering an external anchor
- * for products whose landing page lives on a subdomain (STACK62, SART34) and an
+ * for products whose landing page lives on a subdomain (Pal, Swift) and an
  * in-site route for the rest (HMS7, Modus).
  */
 export function ProductLink({ product, children, className, style, onClick }: ProductLinkProps) {

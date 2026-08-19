@@ -66,7 +66,7 @@ export const authApi = {
 };
 
 // ── Waitlist ───────────────────────────────────────────────────────────
-// Public capture for products not yet open to the public (STACK62, SART34).
+// Public capture for products not yet open to the public (Pal, Swift).
 export const waitlistApi = {
   join: (product: string, email: string, name?: string) =>
     request<{ ok: boolean }>("/waitlist", {
@@ -90,7 +90,7 @@ export async function uploadToS3(uploadUrl: string, file: File): Promise<void> {
 
 // ── Unified account portal ─────────────────────────────────────────────
 // loopital.com is the single portal for the account-linked products
-// (SART34 + STACK62). Subscriptions are kept separate per product. HMS7 and
+// (Swift + Pal). Subscriptions are kept separate per product. HMS7 and
 // Modus are demo-led and never appear here.
 
 export type AccountProductId = "sart34" | "stack62";
@@ -129,7 +129,7 @@ export const accountApi = {
 };
 
 // ── Single sign-on ──────────────────────────────────────────────────────
-// loopital is the identity provider. To open a federated app (SART34/STACK62)
+// loopital is the identity provider. To open a federated app (Swift/Pal)
 // for a logged-in user, mint a short-lived SSO token and carry it to the app,
 // which exchanges it server-side for the loopital user.
 

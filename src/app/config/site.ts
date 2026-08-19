@@ -7,26 +7,34 @@ export const SITE_URL = "https://www.loopital.com";
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 // Externally-hosted product apps (their own landing pages live on subdomains).
-// Pal (formerly STACK62) is the workspace every Loopital account can open.
+//
+// Named after the products, not the codenames they shipped under. The codenames
+// still exist as ids in the database and in the SSO handshake — renaming those
+// would break federation — but nothing a visitor can click should carry one,
+// because those subdomains are gone. fms13.loopital.com in particular is dead:
+// Modus moved to modus.loopital.com and the old host now serves nothing.
 export const PAL_URL = "https://pal.loopital.com";
-export const STACK62_URL = PAL_URL; // legacy alias
-export const SART34_URL = "https://swift.loopital.com";
-export const FMS13_URL = "https://fms13.loopital.com";
+export const SWIFT_URL = "https://swift.loopital.com";
+export const MODUS_URL = "https://modus.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
+// Beacon has a subdomain but no deployment behind it yet, so it is deliberately
+// not linked from anywhere on the marketing site — a live link to a placeholder
+// is worse than no link. Add it to the Beacon product entry once it serves.
+export const BEACON_URL = "https://beacon.loopital.com";
 
 // Paystack public key (safe to expose), used to redirect to hosted checkout.
 export const PAYSTACK_PUBLIC_KEY = "pk_test_13449920aaa915f243a95926ec029dfe609dbbee";
 
 // Google Sign-In client ID (public, safe to expose). The Google button uses it
 // to obtain an ID token that the backend verifies. Configure loopital.com +
-// sart34.loopital.com as authorized JavaScript origins in the Google console.
+// swift.loopital.com as authorized JavaScript origins in the Google console.
 export const GOOGLE_CLIENT_ID =
   "673117866604-4f0h5o89jdnams4h7aqej09lqsl3ngqk.apps.googleusercontent.com";
 
-// SART34 is the only product with a mobile app. Replace these placeholders
+// Swift is the only product with a mobile app. Replace these placeholders
 // with the real store listings when available.
-export const SART34_APP_STORE_URL = "#";
-export const SART34_PLAY_STORE_URL = "#";
+export const SWIFT_APP_STORE_URL = "#";
+export const SWIFT_PLAY_STORE_URL = "#";
 
 // Backend API base. Injected at build time via Vite env (VITE_API_BASE_URL);
 // falls back to same-origin "/api" for local dev behind a proxy.

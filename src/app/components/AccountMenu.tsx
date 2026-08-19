@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { openPalWorkspace } from "../lib/pal";
 import { launchProductApp } from "../lib/api";
 import { productById } from "../config/products";
-import { SART34_URL } from "../config/site";
+import { SWIFT_URL } from "../config/site";
 import { colors, gradientBrand } from "../lib/brand";
 
 const initials = (name: string) =>
@@ -28,7 +28,7 @@ export function AccountMenu() {
   const pal = productById("stack62");
   const swift = productById("sart34");
   const launchPal = () => { setOpen(false); openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal }); };
-  const launchSwift = () => { setOpen(false); launchProductApp(SART34_URL, "sart34", token); };
+  const launchSwift = () => { setOpen(false); launchProductApp(SWIFT_URL, "sart34", token); };
 
   // Apps this one account unlocks — all live, all one login (SSO).
   const apps = [

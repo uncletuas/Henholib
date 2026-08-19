@@ -65,7 +65,7 @@ export const pageSeo: Record<string, PageSeo> = {
       productCrumb("Henholib", "/products/henholib"),
     ],
   },
-  "/products/stack62": {
+  "/products/pal": {
     title: "Pal, AI Coworker Platform | Join the Waitlist",
     description:
       "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet, join the waitlist for early access.",
@@ -75,12 +75,12 @@ export const pageSeo: Record<string, PageSeo> = {
         category: "BusinessApplication",
         description:
           "AI coworker platform for research, knowledge management, content generation, and workflow automation.",
-        path: "/products/stack62",
+        path: "/products/pal",
       }),
-      productCrumb("Pal", "/products/stack62"),
+      productCrumb("Pal", "/products/pal"),
     ],
   },
-  "/products/edm73": {
+  "/products/beacon": {
     title: "Beacon, Education Management System | Join the Waitlist",
     description:
       "Beacon is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Not public yet, join the waitlist for early access.",
@@ -90,9 +90,9 @@ export const pageSeo: Record<string, PageSeo> = {
         category: "BusinessApplication",
         description:
           "Educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication.",
-        path: "/products/edm73",
+        path: "/products/beacon",
       }),
-      productCrumb("Beacon", "/products/edm73"),
+      productCrumb("Beacon", "/products/beacon"),
     ],
   },
   "/about": {

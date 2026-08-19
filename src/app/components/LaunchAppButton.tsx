@@ -23,7 +23,7 @@ const sizeMap = {
 };
 
 /**
- * "Launch STACK62 / SART34" button. When the user is signed into loopital, it
+ * "Launch Pal / Swift" button. When the user is signed into loopital, it
  * performs the SSO handoff so they arrive at the app already authenticated;
  * otherwise it opens the app normally. Only for account-linked products.
  */

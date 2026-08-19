@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SART34_URL, FMS13_URL } from "../config/site";
+import { SWIFT_URL, MODUS_URL } from "../config/site";
 
 /**
  * Swift and Modus no longer have on-site landing pages — their old
@@ -11,11 +11,11 @@ function goto(url: string) {
 }
 
 export function SwiftRedirect() {
-  useEffect(() => goto(SART34_URL), []);
+  useEffect(() => goto(SWIFT_URL), []);
   return null;
 }
 
-export function Fms13Redirect() {
-  useEffect(() => goto(FMS13_URL), []);
+export function ModusRedirect() {
+  useEffect(() => goto(MODUS_URL), []);
   return null;
 }
