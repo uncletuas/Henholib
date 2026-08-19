@@ -306,6 +306,80 @@ export interface DatabaseView {
   }[];
 }
 
+export interface ServiceVarApp {
+  appId: string;
+  set: boolean;
+  secretId: string | null;
+  preview: string | null;
+  rotatedAt: string | null;
+}
+
+export interface ServiceVar {
+  key: string;
+  secret: boolean;
+  note: string | null;
+  apps: ServiceVarApp[];
+}
+
+export interface ExternalService {
+  id: string;
+  name: string;
+  category: string;
+  purpose: string;
+  console: string | null;
+  critical: boolean;
+  selfHosted: boolean;
+  total: number;
+  set: number;
+  vars: ServiceVar[];
+}
+
+/** A connector-backed section: present, or explained by its absence. */
+export interface OpsSection<T> {
+  available: boolean;
+  reason: string | null;
+  detail: string | null;
+  data: T | null;
+}
+
+export interface AppDashboard {
+  app: {
+    id: string;
+    name: string;
+    tagline: string | null;
+    accent: string;
+    appUrl: string | null;
+    adminUrl: string | null;
+    connected: boolean;
+    hasSecret: boolean;
+  };
+  health: {
+    status: HealthStatus;
+    latencyMs: number | null;
+    version: string | null;
+    db_status: string | null;
+    detail: string | null;
+  };
+  summary: OpsSection<Record<string, unknown>>;
+  metrics: OpsSection<{ metrics: { metric: string; day: string; value: number }[] }>;
+  users: OpsSection<{ users: Record<string, unknown>[] }>;
+  money: {
+    recentPayments: Payment[];
+    collectedMinor: number;
+    subscriptions: { plan: string; status: string; count: number; seats: number }[];
+  };
+  email30d: Record<string, number>;
+  tickets: {
+    id: string;
+    subject: string;
+    email: string;
+    status: string;
+    priority: string;
+    updatedAt: string;
+  }[];
+  config: { envVar: string; label: string; rotatedAt: string | null }[];
+}
+
 export interface BillingCatalog {
   currency: string;
   configured: boolean;
@@ -352,6 +426,17 @@ export const api = {
     ),
   checkHealth: (appId?: string) =>
     get<{ health: unknown[] }>(`/zina/health${query({ appId })}`),
+  /** One app's whole picture, assembled in Zina rather than behind its own login. */
+  appDashboard: (id: string) =>
+    get<AppDashboard>(`/zina/apps/${encodeURIComponent(id)}/dashboard`),
+
+  /** Every external service the ecosystem depends on, set or not. */
+  services: () =>
+    get<{
+      configured: boolean;
+      services: ExternalService[];
+      uncatalogued: { id: string; appId: string | null; envVar: string; label: string }[];
+    }>("/zina/services"),
 
   users: (params: { q?: string; limit?: number; offset?: number } = {}) =>
     get<{ users: DirectoryUser[]; total: number; limit: number; offset: number }>(

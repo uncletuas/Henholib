@@ -6,6 +6,8 @@ import { Loading } from "./components/ui";
 import { LoginPage } from "./pages/login";
 import { OverviewPage } from "./pages/overview";
 import { AppsPage } from "./pages/apps";
+import { AppDetailPage } from "./pages/app-detail";
+
 import { UsersPage } from "./pages/users";
 import { UserDetailPage } from "./pages/user-detail";
 import { PaymentsPage } from "./pages/payments";
@@ -42,6 +44,8 @@ function Routed() {
       <Routes>
         <Route path="/" element={<OverviewPage />} />
         <Route path="/apps" element={<AppsPage />} />
+        <Route path="/apps/:id" element={<AppDetailPage />} />
+        
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/users/:id" element={<UserDetailPage />} />

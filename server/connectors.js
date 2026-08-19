@@ -78,7 +78,7 @@ const SEED_APPS = [
     name: "Pal",
     tagline: "AI workspace",
     app_url: "https://pal.loopital.com",
-    admin_url: "",
+    admin_url: "https://assembly.loopital.com",
     ops_base_url: process.env.OPS_URL_PAL || "",
     accent: "#4f46e5",
     sort_order: 1,
@@ -88,7 +88,7 @@ const SEED_APPS = [
     name: "Swift",
     tagline: "AI ads and CRM",
     app_url: "https://swift.loopital.com",
-    admin_url: "",
+    admin_url: "https://senate.loopital.com",
     ops_base_url: process.env.OPS_URL_SWIFT || "",
     accent: "#059669",
     sort_order: 2,
@@ -98,7 +98,7 @@ const SEED_APPS = [
     name: "Modus",
     tagline: "Facility and fleet operations",
     app_url: "https://fms13.loopital.com",
-    admin_url: "",
+    admin_url: "https://ministry.loopital.com",
     ops_base_url: process.env.OPS_URL_MODUS || "",
     accent: "#c2410c",
     sort_order: 3,
@@ -108,7 +108,7 @@ const SEED_APPS = [
     name: "Beacon",
     tagline: "Institutions, students and certification",
     app_url: "https://beacon.loopital.com",
-    admin_url: "",
+    admin_url: "https://beacon.loopital.com/academia",
     ops_base_url: process.env.OPS_URL_BEACON || "",
     accent: "#a3122b",
     sort_order: 4,
@@ -118,7 +118,7 @@ const SEED_APPS = [
     name: "Henholib",
     tagline: "Health records and care",
     app_url: "https://henholib.loopital.com",
-    admin_url: "",
+    admin_url: "https://council.loopital.com",
     ops_base_url: process.env.OPS_URL_HENHOLIB || "",
     accent: "#0369a1",
     sort_order: 5,
@@ -141,6 +141,8 @@ async function seedApps() {
        VALUES (:id, :name, :tagline, :app_url, :admin_url, :ops, :accent, :sort::int)
        ON CONFLICT (id) DO UPDATE
          SET ops_base_url = COALESCE(NULLIF(:ops, ''), zina_apps.ops_base_url),
+             -- Fill a blank admin URL, but never overwrite one someone set.
+             admin_url    = COALESCE(NULLIF(zina_apps.admin_url, ''), :admin_url),
              updated_at   = now()`,
       {
         id: app.id,

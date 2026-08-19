@@ -6,7 +6,6 @@ import {
   BarChart3,
   CreditCard,
   Database,
-  ExternalLink,
   FileClock,
   Grid2x2,
   KeyRound,
@@ -103,8 +102,6 @@ function useTheme() {
 function SwitchInto({ onNavigate }: { onNavigate?: () => void }) {
   const { can } = useSession();
   const [apps, setApps] = useState<ManagedApp[]>([]);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!can("app:read")) return;
@@ -116,44 +113,34 @@ function SwitchInto({ onNavigate }: { onNavigate?: () => void }) {
 
   if (!can("app:switch") || !apps.length) return null;
 
-  async function stepInto(app: ManagedApp) {
-    setBusy(app.id);
-    setNote(null);
-    try {
-      const { url, mode, note } = await api.switchInto(app.id);
-      if (mode === "link" && note) setNote(`${app.name}: ${note}`);
-      window.open(url, "_blank", "noopener");
-      onNavigate?.();
-    } catch (e) {
-      setNote(e instanceof Error ? e.message : "Couldn't open that app.");
-    } finally {
-      setBusy(null);
-    }
-  }
-
   return (
     <div className="px-3 py-4">
       <p className="mb-2 px-2 text-[10.5px] font-semibold uppercase tracking-[0.09em] text-[color:var(--sidebar-muted)]">
-        Manage directly
+        Manage
       </p>
       <ul className="space-y-0.5">
         {apps.map((app) => (
           <li key={app.id}>
-            <button
-              onClick={() => stepInto(app)}
-              disabled={busy === app.id}
-              className="group flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[13px] text-[color:var(--sidebar-foreground)] transition-colors hover:bg-[color:var(--sidebar-accent)] disabled:opacity-60"
+            {/* Straight to the app's dashboard inside Zina. The hop out to its
+                own portal lives on that page, where it can explain itself. */}
+            <NavLink
+              to={`/apps/${app.id}`}
+              onClick={onNavigate}
+              className={({ isActive }) =>
+                cx(
+                  "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[13px] transition-colors",
+                  isActive
+                    ? "bg-[color:var(--sidebar-accent)] font-semibold text-white"
+                    : "text-[color:var(--sidebar-foreground)] hover:bg-[color:var(--sidebar-accent)]"
+                )
+              }
             >
               <AppMark name={app.name} accent={app.accent} size={20} />
               <span className="min-w-0 flex-1 truncate">{app.name}</span>
-              <ExternalLink className="size-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-60" />
-            </button>
+            </NavLink>
           </li>
         ))}
       </ul>
-      {note && (
-        <p className="mt-2 px-2 text-[11.5px] leading-snug text-[color:var(--sidebar-muted)]">{note}</p>
-      )}
     </div>
   );
 }

@@ -1,26 +1,25 @@
-import { useState } from "react";
-import { Eye, KeyRound, Plus, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Eye, ExternalLink, Plus, Search, Trash2 } from "lucide-react";
 
 import { api } from "../lib/api";
-import type { Secret } from "../lib/api";
+import type { ExternalService, ManagedApp, Secret, ServiceVar } from "../lib/api";
 import { useLoad, useSession } from "../lib/session";
-import { date } from "../lib/format";
 import {
   AppMark,
   Badge,
   Button,
+  Chip,
   Empty,
   ErrorNote,
   Field,
+  FilterBar,
   Input,
   Loading,
   Modal,
   PageHeader,
   Panel,
   Select,
-  TableWrap,
-  Td,
-  Th,
+  cx,
 } from "../components/ui";
 
 const KINDS = [
@@ -34,185 +33,179 @@ const KINDS = [
 ];
 
 /**
- * The credential vault — and the ecosystem's live configuration.
+ * Every external service the ecosystem runs on — and the live values behind it.
  *
- * Every key, connection string and service URL the group runs on, in one place.
- * That is only defensible because of how it's stored: sealed with AES-256-GCM
- * under a key that lives in the environment and never in the database, shown as
- * a masked preview, and revealed only by an explicit click that writes an audit
- * entry.
+ * This screen is a catalog first and a vault second. It lists every service we
+ * depend on whether or not anyone has configured it, because the questions an
+ * operator actually has are "what are we paying for", "which app breaks if this
+ * expires" and "where do I change it" — and an empty screen answers none of
+ * them.
  *
  * **A value with a variable name is live.** Each service pulls its own set from
- * `/ops-config` at startup and re-checks every minute, so rotating a key or
- * repointing a URL takes effect without a code change or a redeploy. That is
- * the whole reason this screen exists rather than a spreadsheet: a two-person
- * team shouldn't have to ship a release to change a Paystack key.
+ * the hub at startup and re-checks every minute, so rotating a key or switching
+ * a provider takes effect without a code change or a redeploy.
  *
- * A value with no variable name is recorded but never injected — useful for
- * keeping track of a credential an app doesn't read from its environment.
+ * Storage is what makes centralising this defensible: sealed with AES-256-GCM
+ * under a key that lives in the environment and never in the database, shown as
+ * a masked preview, and revealed only by an explicit click that is audited.
  */
 export function KeysPage() {
   const { can } = useSession();
-  const { data, error, loading, reload } = useLoad(() => api.secrets());
+  const services = useLoad(() => api.services());
   const apps = useLoad(() => api.apps());
+  const [term, setTerm] = useState("");
+  const [category, setCategory] = useState("");
+  const [editing, setEditing] = useState<{ envVar: string; appId: string; secret: boolean } | null>(null);
   const [adding, setAdding] = useState(false);
-  const [revealed, setRevealed] = useState<Record<string, string>>({});
 
-  async function reveal(secret: Secret) {
-    try {
-      const { value } = await api.revealSecret(secret.id);
-      setRevealed((r) => ({ ...r, [secret.id]: value }));
-    } catch (e) {
-      setRevealed((r) => ({
-        ...r,
-        [secret.id]: e instanceof Error ? e.message : "Couldn't reveal that.",
-      }));
-    }
-  }
+  const categories = useMemo(
+    () => Array.from(new Set((services.data?.services ?? []).map((s) => s.category))),
+    [services.data]
+  );
 
-  async function remove(secret: Secret) {
-    if (!confirm(`Delete “${secret.label}”? This only removes Zina's record of it.`)) return;
-    await api.deleteSecret(secret.id);
-    reload();
-  }
+  const shown = useMemo(() => {
+    const q = term.trim().toLowerCase();
+    return (services.data?.services ?? []).filter((s) => {
+      if (category && s.category !== category) return false;
+      if (!q) return true;
+      return (
+        s.name.toLowerCase().includes(q) ||
+        s.purpose.toLowerCase().includes(q) ||
+        s.vars.some((v) => v.key.toLowerCase().includes(q))
+      );
+    });
+  }, [services.data, term, category]);
 
-  const grouped = new Map<string, Secret[]>();
-  for (const secret of data?.secrets || []) {
-    const key = secret.appId || "shared";
-    if (!grouped.has(key)) grouped.set(key, []);
-    grouped.get(key)!.push(secret);
-  }
+  const totals = useMemo(() => {
+    const all = services.data?.services ?? [];
+    return {
+      set: all.reduce((n, s) => n + s.set, 0),
+      total: all.reduce((n, s) => n + s.total, 0),
+      missingCritical: all.filter((s) => s.critical && s.set < s.total).length,
+    };
+  }, [services.data]);
 
   return (
     <>
       <PageHeader
         title="API keys & credentials"
-        description="What every app runs on, sealed at rest. Recording a key here is a record, not a deploy — the live value still lives in each service's environment."
+        description="Every service the group depends on. Anything with a variable name is live — the app pulls it at startup and re-checks every minute, so changing a key here needs no redeploy."
         action={
           can("secret:manage") ? (
-            <Button variant="primary" onClick={() => setAdding(true)}>
-              <Plus className="size-3.5" /> Add a credential
+            <Button onClick={() => setAdding(true)}>
+              <Plus className="size-3.5" /> Add something not listed
             </Button>
           ) : undefined
         }
       />
 
-      {data && !data.configured && (
+      {services.data && !services.data.configured && (
         <div className="mb-5">
-          <ErrorNote message="ZINA_ENCRYPTION_KEY isn't set on the API, so credentials can't be stored or read. Set it, then reload." />
+          <ErrorNote message="ZINA_ENCRYPTION_KEY isn't set on the API, so credentials can't be stored or read. Set it, redeploy, then reload." />
         </div>
       )}
 
-      {loading ? (
-        <Loading />
-      ) : error ? (
-        <ErrorNote message={error} onRetry={reload} />
-      ) : grouped.size === 0 ? (
-        <Panel>
-          <Empty
-            title="Nothing recorded yet"
-            description="Add the keys each app depends on so rotating one doesn't start with a search through old messages."
-          />
-        </Panel>
+      {services.loading ? (
+        <Loading label="Reading the catalog" />
+      ) : services.error ? (
+        <ErrorNote message={services.error} onRetry={services.reload} />
       ) : (
-        <div className="space-y-5">
-          {[...grouped.entries()].map(([appId, secrets]) => {
-            const app = apps.data?.apps.find((a) => a.id === appId);
-            const live = secrets.filter((s) => s.envVar).length;
-            return (
+        <>
+          <div className="mb-5 flex flex-wrap items-center gap-4 text-[13px]">
+            <span className="text-[color:var(--muted-foreground)]">
+              <strong className="text-[color:var(--foreground)]">{totals.set}</strong> of {totals.total}{" "}
+              values configured
+            </span>
+            {totals.missingCritical > 0 && (
+              <Badge tone="warning">
+                {totals.missingCritical} critical service{totals.missingCritical === 1 ? "" : "s"} incomplete
+              </Badge>
+            )}
+          </div>
+
+          <FilterBar>
+            <Chip active={category === ""} onClick={() => setCategory("")}>
+              All
+            </Chip>
+            {categories.map((c) => (
+              <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
+                {c}
+              </Chip>
+            ))}
+            <div className="relative ml-auto w-64">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[color:var(--subtle-foreground)]" />
+              <Input
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                placeholder="Service or variable"
+                className="pl-9"
+              />
+            </div>
+          </FilterBar>
+
+          {shown.length === 0 ? (
+            <Panel>
+              <Empty title="Nothing matches" description="Try a different service or variable name." />
+            </Panel>
+          ) : (
+            <div className="space-y-5">
+              {shown.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  apps={apps.data?.apps ?? []}
+                  canManage={can("secret:manage")}
+                  canReveal={can("secret:reveal")}
+                  onEdit={(envVar, appId, isSecret) => setEditing({ envVar, appId, secret: isSecret })}
+                  onChanged={services.reload}
+                />
+              ))}
+            </div>
+          )}
+
+          {(services.data?.uncatalogued.length ?? 0) > 0 && (
+            <div className="mt-5">
               <Panel
-                key={appId}
-                padded={false}
-                title={
-                  <span className="flex items-center gap-2">
-                    <AppMark name={app?.name || "Shared"} accent={app?.accent} size={20} />
-                    {app?.name || "Not tied to an app"}
-                  </span>
-                }
-                description={
-                  appId === "shared"
-                    ? "Recorded for reference. Nothing here is sent to any app."
-                    : live > 0
-                      ? `${live} of ${secrets.length} are live configuration — ${app?.name ?? appId} pulls them at startup and re-checks every minute.`
-                      : "None of these have a variable name, so none are sent to the app."
-                }
+                title="Not in the catalog"
+                description="Stored by hand and not described by any service. Worth adding to the catalog so it's not a mystery later."
               >
-                <TableWrap>
-                  <thead>
-                    <tr>
-                      <Th>Credential</Th>
-                      <Th>Kind</Th>
-                      <Th>Value</Th>
-                      <Th align="right">Rotated</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {secrets.map((secret) => (
-                      <tr key={secret.id}>
-                        <Td>
-                          <p className="flex items-center gap-2 font-medium">
-                            {secret.label}
-                            {secret.envVar && <Badge tone="success">live</Badge>}
-                          </p>
-                          {secret.envVar && (
-                            <p className="mono text-[11.5px] text-[color:var(--muted-foreground)]">
-                              {secret.envVar}
-                            </p>
-                          )}
-                          {secret.hint && (
-                            <p className="text-[11.5px] text-[color:var(--muted-foreground)]">
-                              {secret.hint}
-                            </p>
-                          )}
-                        </Td>
-                        <Td>
-                          <Badge>{KINDS.find((k) => k.id === secret.kind)?.label || secret.kind}</Badge>
-                        </Td>
-                        <Td>
-                          <div className="flex items-center gap-2">
-                            <code className="mono break-all text-[12px]">
-                              {revealed[secret.id] ?? secret.preview}
-                            </code>
-                            {can("secret:reveal") && !revealed[secret.id] && (
-                              <Button size="sm" variant="ghost" onClick={() => reveal(secret)}>
-                                <Eye className="size-3.5" /> Reveal
-                              </Button>
-                            )}
-                          </div>
-                        </Td>
-                        <Td align="right">
-                          <div className="flex items-center justify-end gap-2">
-                            <span className="text-[12.5px] text-[color:var(--muted-foreground)]">
-                              {date(secret.rotatedAt || secret.createdAt)}
-                            </span>
-                            {can("secret:manage") && (
-                              <button
-                                onClick={() => remove(secret)}
-                                aria-label={`Delete ${secret.label}`}
-                                className="rounded-md p-1.5 text-[color:var(--muted-foreground)] hover:bg-[color:var(--muted-surface)]"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </Td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </TableWrap>
+                <ul className="space-y-2 text-[13px]">
+                  {services.data!.uncatalogued.map((row) => (
+                    <li key={row.id} className="flex items-center justify-between gap-3">
+                      <code className="mono text-[12px]">{row.envVar}</code>
+                      <span className="text-[color:var(--muted-foreground)]">
+                        {row.appId ?? "unassigned"} · {row.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </Panel>
-            );
-          })}
-        </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {editing && (
+        <SetValue
+          envVar={editing.envVar}
+          appId={editing.appId}
+          isSecret={editing.secret}
+          canReveal={can("secret:reveal")}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            services.reload();
+          }}
+        />
       )}
 
       {adding && (
         <AddSecret
-          apps={(apps.data?.apps || []).map((a) => ({ id: a.id, name: a.name }))}
+          apps={(apps.data?.apps ?? []).map((a) => ({ id: a.id, name: a.name }))}
           onClose={() => setAdding(false)}
           onSaved={() => {
             setAdding(false);
-            reload();
+            services.reload();
           }}
         />
       )}
@@ -220,6 +213,241 @@ export function KeysPage() {
   );
 }
 
+function ServiceCard({
+  service,
+  apps,
+  canManage,
+  canReveal,
+  onEdit,
+  onChanged,
+}: {
+  service: ExternalService;
+  apps: ManagedApp[];
+  canManage: boolean;
+  canReveal: boolean;
+  onEdit: (envVar: string, appId: string, isSecret: boolean) => void;
+  onChanged: () => void;
+}) {
+  const complete = service.set === service.total;
+
+  return (
+    <Panel
+      padded={false}
+      title={
+        <span className="flex flex-wrap items-center gap-2">
+          {service.name}
+          {service.critical && !complete && <Badge tone="warning">incomplete</Badge>}
+          {complete && <Badge tone="success">configured</Badge>}
+          <span className="text-[11.5px] font-normal text-[color:var(--subtle-foreground)]">
+            {service.category}
+          </span>
+        </span>
+      }
+      description={service.purpose}
+      action={
+        service.console ? (
+          <a
+            href={service.console}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[color:var(--primary)]"
+          >
+            Console <ExternalLink className="size-3" />
+          </a>
+        ) : undefined
+      }
+    >
+      <ul className="divide-y divide-[color:var(--border)]">
+        {service.vars.map((v) => (
+          <VarRow
+            key={v.key}
+            v={v}
+            apps={apps}
+            canManage={canManage}
+            canReveal={canReveal}
+            onEdit={onEdit}
+            onChanged={onChanged}
+          />
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
+function VarRow({
+  v,
+  apps,
+  canManage,
+  canReveal,
+  onEdit,
+  onChanged,
+}: {
+  v: ServiceVar;
+  apps: ManagedApp[];
+  canManage: boolean;
+  canReveal: boolean;
+  onEdit: (envVar: string, appId: string, isSecret: boolean) => void;
+  onChanged: () => void;
+}) {
+  const [revealed, setRevealed] = useState<Record<string, string>>({});
+
+  async function reveal(secretId: string) {
+    try {
+      const { value } = await api.revealSecret(secretId);
+      setRevealed((r) => ({ ...r, [secretId]: value }));
+    } catch (e) {
+      setRevealed((r) => ({ ...r, [secretId]: e instanceof Error ? e.message : "Couldn't reveal." }));
+    }
+  }
+
+  async function clear(secretId: string) {
+    if (!confirm("Remove this value? The app falls back to its own environment on next restart.")) return;
+    await api.deleteSecret(secretId);
+    onChanged();
+  }
+
+  return (
+    <li className="px-5 py-3.5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <code className="mono text-[12.5px] font-semibold">{v.key}</code>
+        {!v.secret && <span className="text-[11px] text-[color:var(--subtle-foreground)]">not secret</span>}
+      </div>
+      {v.note && (
+        <p className="mt-0.5 text-[12px] leading-relaxed text-[color:var(--muted-foreground)]">{v.note}</p>
+      )}
+
+      <div className="mt-2.5 flex flex-wrap gap-2">
+        {v.apps.map((entry) => {
+          const app = apps.find((a) => a.id === entry.appId);
+          const value = entry.secretId ? revealed[entry.secretId] : undefined;
+          return (
+            <div
+              key={entry.appId}
+              className={cx(
+                "flex min-w-[240px] flex-1 items-center gap-2.5 rounded-lg border px-3 py-2",
+                entry.set ? "border-border" : "border-dashed border-[color:var(--border-strong)]"
+              )}
+            >
+              <AppMark name={app?.name ?? entry.appId} accent={app?.accent} size={20} />
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-medium">{app?.name ?? entry.appId}</p>
+                {entry.set ? (
+                  <code className="mono block truncate text-[11.5px] text-[color:var(--muted-foreground)]">
+                    {value ?? entry.preview}
+                  </code>
+                ) : (
+                  <p className="text-[11.5px] text-[color:var(--subtle-foreground)]">Not set</p>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                {entry.set && canReveal && v.secret && !value && entry.secretId && (
+                  <button
+                    onClick={() => reveal(entry.secretId!)}
+                    aria-label={`Reveal ${v.key} for ${entry.appId}`}
+                    className="rounded-md p-1.5 text-[color:var(--muted-foreground)] hover:bg-[color:var(--muted-surface)]"
+                  >
+                    <Eye className="size-3.5" />
+                  </button>
+                )}
+                {canManage && (
+                  <Button size="sm" variant="ghost" onClick={() => onEdit(v.key, entry.appId, v.secret)}>
+                    {entry.set ? "Change" : "Set"}
+                  </Button>
+                )}
+                {entry.set && canManage && entry.secretId && (
+                  <button
+                    onClick={() => clear(entry.secretId!)}
+                    aria-label={`Remove ${v.key} for ${entry.appId}`}
+                    className="rounded-md p-1.5 text-[color:var(--muted-foreground)] hover:bg-[color:var(--muted-surface)]"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </li>
+  );
+}
+
+/** Set or rotate one variable for one app. */
+function SetValue({
+  envVar,
+  appId,
+  isSecret,
+  onClose,
+  onSaved,
+}: {
+  envVar: string;
+  appId: string;
+  isSecret: boolean;
+  canReveal: boolean;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function save() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.saveSecret({
+        appId,
+        // The label is what makes the row unique per app, so it has to be
+        // derived from the variable rather than typed — otherwise the same key
+        // saved twice becomes two rows and the app gets whichever won.
+        label: envVar,
+        envVar,
+        value,
+        kind: isSecret ? "api_key" : "config",
+      });
+      onSaved();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't save.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={envVar}
+      footer={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" onClick={save} busy={busy} disabled={!value}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <p className="text-[13px] text-[color:var(--muted-foreground)]">
+          For <strong className="text-[color:var(--foreground)]">{appId}</strong>. Saving takes effect
+          within a minute — no redeploy. A value the app captured at boot (an open database pool, say)
+          needs a restart to pick it up.
+        </p>
+        <Field label="Value">
+          <Input
+            type={isSecret ? "password" : "text"}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            autoComplete="new-password"
+            autoFocus
+          />
+        </Field>
+        {error && <ErrorNote message={error} />}
+      </div>
+    </Modal>
+  );
+}
+
+/** For anything the catalog doesn't describe yet. */
 function AddSecret({
   apps,
   onClose,
@@ -230,7 +458,7 @@ function AddSecret({
   onSaved: () => void;
 }) {
   const [form, setForm] = useState({
-    appId: apps[0]?.id || "",
+    appId: apps[0]?.id ?? "",
     kind: "api_key",
     label: "",
     envVar: "",
@@ -261,7 +489,7 @@ function AddSecret({
         <>
           <Button onClick={onClose}>Cancel</Button>
           <Button variant="primary" onClick={save} busy={busy} disabled={!form.label || !form.value}>
-            <KeyRound className="size-3.5" /> Store it
+            Store it
           </Button>
         </>
       }
@@ -289,23 +517,19 @@ function AddSecret({
           </Field>
         </div>
         <Field label="Label">
-          <Input
-            value={form.label}
-            onChange={(e) => setForm({ ...form, label: e.target.value })}
-            placeholder="Paystack live secret"
-          />
+          <Input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />
         </Field>
         <Field
           label="Environment variable"
-          hint="Name it and the app receives this value at startup — no redeploy. Leave it blank to record the credential without sending it anywhere."
+          hint="Name it and the app receives this value at startup. Leave blank to record it without sending it anywhere."
         >
           <Input
             value={form.envVar}
             onChange={(e) => setForm({ ...form, envVar: e.target.value })}
-            placeholder="PAYSTACK_SECRET_KEY"
+            placeholder="SOME_API_KEY"
           />
         </Field>
-        <Field label="Value" hint="Sealed before it's stored. Nobody sees it again without an audited reveal.">
+        <Field label="Value" hint="Sealed before it's stored.">
           <Input
             type="password"
             value={form.value}
@@ -314,14 +538,13 @@ function AddSecret({
           />
         </Field>
         <Field label="Note">
-          <Input
-            value={form.hint}
-            onChange={(e) => setForm({ ...form, hint: e.target.value })}
-            placeholder="Where it's used, who issued it"
-          />
+          <Input value={form.hint} onChange={(e) => setForm({ ...form, hint: e.target.value })} />
         </Field>
         {error && <ErrorNote message={error} />}
       </div>
     </Modal>
   );
 }
+
+/** Kept exported for the raw vault view, which the app detail page links to. */
+export type { Secret };

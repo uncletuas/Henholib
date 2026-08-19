@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { X, ArrowRight, Sparkles, Megaphone, Layers, Check } from "lucide-react";
+import { X, ArrowRight, Layers, Check } from "lucide-react";
 import { colors, gradientBrand } from "../lib/brand";
-import { PAL_URL, SART34_URL } from "../config/site";
 
 /**
- * First-run "how to use it" guide for the whole ecosystem. One account, three
- * surfaces. Shown once to new users and reachable anytime from the account menu.
+ * First-run "what this account is" note, shown once to new users and reachable
+ * anytime from the account menu.
+ *
+ * It used to walk through Pal and Swift as well. Three product pitches is a lot
+ * to put in front of someone who has just signed up and hasn't asked about
+ * either product yet — so signup now explains the account and stops there. The
+ * products sell themselves from their own pages, where someone arrives already
+ * interested.
+ *
+ * Still written as a list so a page can be added back without reshaping the
+ * component; the tab strip appears again the moment there is more than one.
  */
 
 interface Guide {
@@ -37,42 +45,6 @@ const GUIDES: Guide[] = [
       "Open “Manage account” anytime to see plans and billing.",
     ],
   },
-  {
-    key: "pal",
-    name: "Pal",
-    tagline: "Your AI workspace + coworker",
-    icon: <Sparkles size={18} />,
-    what: "Pal is a workspace where your documents, sheets, slides, files, schedule and tasks live together — with an AI coworker that can actually do the work alongside you. The workspace is free; the coworker is a paid upgrade.",
-    can: [
-      "Write docs, build sheets and slides, and organize files",
-      "Ask the coworker to research, draft, summarize and plan",
-      "Automate repeating work and get decision support",
-    ],
-    how: [
-      "Open your Pal workspace and start a document or a chat.",
-      "Type what you need in plain language — “summarize this”, “draft a reply”, “build a plan”.",
-      "Ready for more? Upgrade to Pro to unlock the full coworker.",
-    ],
-    cta: { label: "Open Pal", href: PAL_URL },
-  },
-  {
-    key: "swift",
-    name: "Swift",
-    tagline: "AI ads + CRM",
-    icon: <Megaphone size={18} />,
-    what: "Swift builds and runs AI ad campaigns across Meta, Google, TikTok, WhatsApp, LinkedIn and X, then captures every lead in one inbox and helps you reply and close. You pay with credits — only for what you use.",
-    can: [
-      "Generate a full campaign from a short description",
-      "Publish to any major platform in a few clicks",
-      "Capture leads and reply with an AI assistant",
-    ],
-    how: [
-      "Open Swift and connect a platform in Settings.",
-      "Describe your offer — Swift drafts the campaign and creative.",
-      "Review, publish, and top up credits whenever you run low.",
-    ],
-    cta: { label: "Open Swift", href: SART34_URL },
-  },
 ];
 
 export function PlatformGuideModal({ onClose }: { onClose: () => void }) {
@@ -88,15 +60,17 @@ export function PlatformGuideModal({ onClose }: { onClose: () => void }) {
             <p style={{ color: colors.heading, fontSize: "17px", fontWeight: 700 }}>Getting started</p>
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
           </div>
-          <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>One account, three ways to work. Here's what each one does.</p>
-          {/* Tabs */}
-          <div className="flex gap-2 mt-4">
-            {GUIDES.map((x, i) => (
-              <button key={x.key} onClick={() => setTab(i)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all" style={{ background: i === tab ? gradientBrand : colors.bg, color: i === tab ? "#fff" : colors.textSecondary, border: i === tab ? "none" : `1px solid ${colors.hairline}` }}>
-                {x.icon}{x.name}
-              </button>
-            ))}
-          </div>
+          <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>Here's what your Loopital account is.</p>
+          {/* Tabs — only worth showing when there's more than one page. */}
+          {GUIDES.length > 1 && (
+            <div className="flex gap-2 mt-4">
+              {GUIDES.map((x, i) => (
+                <button key={x.key} onClick={() => setTab(i)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all" style={{ background: i === tab ? gradientBrand : colors.bg, color: i === tab ? "#fff" : colors.textSecondary, border: i === tab ? "none" : `1px solid ${colors.hairline}` }}>
+                  {x.icon}{x.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Body */}

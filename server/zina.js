@@ -29,6 +29,7 @@ const crypto = require("crypto");
 
 const { sql, pool } = require("./db");
 const connectors = require("./connectors");
+const { SERVICES } = require("./service-catalog");
 const vault = require("./vault");
 const { sendNotification } = require("./notify");
 
@@ -482,6 +483,139 @@ async function checkHealth(headers, appId) {
   if (!apps.length) return json(404, { error: "No such app." });
   const health = await connectors.refreshHealth(apps);
   return json(200, { health });
+}
+
+/**
+ * One app's dashboard, assembled here.
+ *
+ * The user's complaint was that they couldn't get into any app's admin. The
+ * honest fix is not a better redirect: it is that the thing you wanted to see
+ * should be *in* Zina. So this pulls the app's own figures, health, users and
+ * metrics over its connector and joins them with what the hub already knows —
+ * that app's revenue, subscribers, email and support.
+ *
+ * A connector that is missing or asleep degrades per-section rather than
+ * failing the page: an app with no connector still shows its money and its
+ * tickets, because those live here and were never the app's to report.
+ */
+async function appDashboard(headers, appId) {
+  const { staff, error } = await requireStaff(headers, "app:read");
+  if (error) return error;
+  if (!inScope(staff, appId)) return json(403, { error: "That app is outside your scope." });
+
+  const app = await connectors.getApp(appId);
+  if (!app) return json(404, { error: "No such app." });
+
+  const [health, summary, metrics, appUsers, payments, subs, emails, tickets, configVars] =
+    await Promise.all([
+      connectors.callOps(app, "/health"),
+      connectors.callOps(app, "/summary"),
+      connectors.callOps(app, "/metrics"),
+      connectors.callOps(app, "/users?limit=10"),
+      sql(
+        `SELECT p.reference, p.product, p.purpose, p.amount_cents, p.currency, p.plan,
+                p.credits, p.seats, p.status, p.created_at,
+                COALESCE(u.name, p.customer_name) AS name,
+                COALESCE(u.email, p.customer_email) AS email
+           FROM payments p LEFT JOIN users u ON u.id = p.user_id
+          WHERE p.product = :app OR p.source_app = :app
+          ORDER BY p.created_at DESC LIMIT 10`,
+        { app: appId }
+      ),
+      sql(
+        `SELECT plan, status, count(*) AS n, sum(seats) AS seats
+           FROM subscriptions WHERE product = :app GROUP BY plan, status`,
+        { app: appId }
+      ),
+      sql(
+        `SELECT status, count(*) AS n FROM zina_notifications
+          WHERE app_id = :app AND created_at > now() - interval '30 days' GROUP BY status`,
+        { app: appId }
+      ),
+      sql(
+        `SELECT id, subject, requester_email, status, priority, updated_at
+           FROM zina_tickets WHERE app_id = :app
+          ORDER BY updated_at DESC LIMIT 10`,
+        { app: appId }
+      ),
+      sql(
+        `SELECT env_var, label, rotated_at FROM zina_secrets
+          WHERE app_id = :app AND env_var IS NOT NULL AND env_var <> ''
+          ORDER BY env_var`,
+        { app: appId }
+      ),
+    ]);
+
+  const revenue = payments
+    .filter((p) => p.status === "success")
+    .reduce((sum, p) => sum + (Number(p.amount_cents) || 0), 0);
+
+  // Record the health we just measured, so the overview stays current without
+  // a second round of calls.
+  const measured = connectors.healthFromResult(health);
+  await sql(
+    `INSERT INTO zina_app_health (app_id, status, latency_ms, version, db_status, detail, checked_at)
+     VALUES (:id, :status, :latency::int, :version, :db, :detail, now())
+     ON CONFLICT (app_id) DO UPDATE
+       SET status = :status, latency_ms = :latency::int, version = :version,
+           db_status = :db, detail = :detail, checked_at = now()`,
+    {
+      id: appId,
+      status: measured.status,
+      latency: measured.latency_ms,
+      version: measured.version,
+      db: measured.db_status,
+      detail: measured.detail,
+    }
+  ).catch(() => {});
+
+  const section = (result) => ({
+    available: Boolean(result.ok),
+    reason: result.ok ? null : result.reason,
+    detail: result.ok ? null : result.detail || null,
+    data: result.ok ? result.data : null,
+  });
+
+  return json(200, {
+    app: {
+      id: app.id,
+      name: app.name,
+      tagline: app.tagline,
+      accent: app.accent,
+      appUrl: app.app_url,
+      adminUrl: app.admin_url,
+      connected: Boolean(app.ops_base_url),
+      hasSecret: Boolean(app.ops_secret || process.env.ZINA_OPS_SECRET),
+    },
+    health: { ...measured, latencyMs: measured.latency_ms },
+    summary: section(summary),
+    metrics: section(metrics),
+    users: section(appUsers),
+    money: {
+      recentPayments: payments.map(paymentOut),
+      collectedMinor: revenue,
+      subscriptions: subs.map((s) => ({
+        plan: s.plan,
+        status: s.status,
+        count: Number(s.n),
+        seats: Number(s.seats) || 0,
+      })),
+    },
+    email30d: Object.fromEntries(emails.map((e) => [e.status, Number(e.n)])),
+    tickets: tickets.map((t) => ({
+      id: t.id,
+      subject: t.subject,
+      email: t.requester_email,
+      status: t.status,
+      priority: t.priority,
+      updatedAt: t.updated_at,
+    })),
+    config: configVars.map((c) => ({
+      envVar: c.env_var,
+      label: c.label,
+      rotatedAt: c.rotated_at,
+    })),
+  });
 }
 
 /**
@@ -1162,6 +1296,91 @@ function previewOf(sealed) {
   }
 }
 
+/**
+ * Every service the ecosystem depends on, joined against what's actually stored.
+ *
+ * The point is that a service appears here whether or not anyone has configured
+ * it. An empty vault used to mean an empty screen, which answered none of the
+ * questions an operator actually has: what are we paying for, which app stops
+ * working if this expires, and where do I go to change it.
+ *
+ * Values are never included — only whether one is set, for which app, and a
+ * masked preview. Revealing stays the separate, audited call it was.
+ */
+async function listServices(headers) {
+  const { staff, error } = await requireStaff(headers, "secret:read");
+  if (error) return error;
+
+  const scope = staff.appScope.length ? staff.appScope : null;
+
+  const stored = await sql(
+    `SELECT id, app_id, env_var, label, value_enc, rotated_at
+       FROM zina_secrets
+      WHERE env_var IS NOT NULL AND env_var <> ''
+        AND (:scope::text[] IS NULL OR app_id = ANY(:scope::text[]))`,
+    { scope }
+  );
+
+  // (envVar, appId) → the stored row. A variable is set per app, not globally:
+  // DATABASE_URL means something different for every one of them.
+  const byVarApp = new Map();
+  for (const row of stored) byVarApp.set(`${row.env_var}::${row.app_id}`, row);
+
+  const inScopeApp = (appId) => !staff.appScope.length || staff.appScope.includes(appId);
+
+  const services = SERVICES.map((service) => {
+    const vars = service.vars
+      .map((v) => {
+        const apps = v.apps.filter(inScopeApp);
+        if (!apps.length) return null;
+        return {
+          key: v.key,
+          secret: Boolean(v.secret),
+          note: v.note || null,
+          apps: apps.map((appId) => {
+            const row = byVarApp.get(`${v.key}::${appId}`);
+            return {
+              appId,
+              set: Boolean(row),
+              secretId: row ? row.id : null,
+              preview: row ? previewOf(row.value_enc) : null,
+              rotatedAt: row ? row.rotated_at : null,
+            };
+          }),
+        };
+      })
+      .filter(Boolean);
+
+    if (!vars.length) return null;
+
+    const total = vars.reduce((n, v) => n + v.apps.length, 0);
+    const set = vars.reduce((n, v) => n + v.apps.filter((a) => a.set).length, 0);
+
+    return {
+      id: service.id,
+      name: service.name,
+      category: service.category,
+      purpose: service.purpose,
+      console: service.console || null,
+      critical: Boolean(service.critical),
+      selfHosted: Boolean(service.selfHosted),
+      total,
+      set,
+      vars,
+    };
+  }).filter(Boolean);
+
+  return json(200, {
+    configured: vault.vaultConfigured(),
+    services,
+    // Anything stored that the catalog doesn't describe — a key added by hand.
+    // Surfaced rather than hidden, so the catalog can be corrected.
+    uncatalogued: stored
+      .filter((row) => !SERVICES.some((s) => s.vars.some((v) => v.key === row.env_var)))
+      .map((row) => ({ id: row.id, appId: row.app_id, envVar: row.env_var, label: row.label })),
+  });
+}
+
 async function saveSecret(headers, body) {
   const { staff, error } = await requireStaff(headers, "secret:manage");
   if (error) return error;
@@ -1766,6 +1985,9 @@ async function route(ctx) {
   if (method === "POST" && /^\/zina\/apps\/[^/]+\/switch$/.test(path)) {
     return switchInto(headers, decodeURIComponent(path.split("/")[3]));
   }
+  if (method === "GET" && /^\/zina\/apps\/[^/]+\/dashboard$/.test(path)) {
+    return appDashboard(headers, decodeURIComponent(path.split("/")[3]));
+  }
 
   // Users
   if (method === "GET" && path === "/zina/users") return listUsers(headers, qs);
@@ -1799,6 +2021,7 @@ async function route(ctx) {
   }
 
   // Credentials and infrastructure
+  if (method === "GET" && path === "/zina/services") return listServices(headers);
   if (method === "GET" && path === "/zina/secrets") return listSecrets(headers, qs);
   if (method === "POST" && path === "/zina/secrets") return saveSecret(headers, body);
   if (method === "POST" && /^\/zina\/secrets\/[^/]+\/reveal$/.test(path)) {

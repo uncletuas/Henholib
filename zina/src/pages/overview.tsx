@@ -224,23 +224,6 @@ export function OverviewPage() {
  * mean showing nothing until they all complied.
  */
 function AppCard({ app, canSwitch }: { app: AppSummaryCard; canSwitch: boolean }) {
-  const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
-
-  async function stepInto() {
-    setBusy(true);
-    setNote(null);
-    try {
-      const result = await api.switchInto(app.id);
-      if (result.mode === "link" && result.note) setNote(result.note);
-      window.open(result.url, "_blank", "noopener");
-    } catch (e) {
-      setNote(e instanceof Error ? e.message : "Couldn't open that app.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   const summaryEntries = app.summary
     ? Object.entries(app.summary).filter(([, v]) => typeof v === "number" || typeof v === "string").slice(0, 4)
     : [];
@@ -283,28 +266,32 @@ function AppCard({ app, canSwitch }: { app: AppSummaryCard; canSwitch: boolean }
         </p>
       )}
 
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-4 flex items-center gap-3">
+        {/* Manage opens the app's dashboard *inside* Zina. Bouncing straight out
+            to its own portal was the thing that didn't work — half of them
+            aren't reachable, and the ones that are ask for another login. */}
         {canSwitch && (
-          <Button size="sm" onClick={stepInto} busy={busy}>
-            Manage <ExternalLink className="size-3" />
-          </Button>
+          <Link
+            to={`/apps/${app.id}`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-[color:var(--muted-surface)] px-2.5 py-1.5 text-[12.5px] font-medium hover:border-[color:var(--border-strong)]"
+          >
+            Manage
+          </Link>
         )}
         {app.appUrl && (
           <a
             href={app.appUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-[12.5px] text-[color:var(--muted-foreground)] hover:underline"
+            className="inline-flex items-center gap-1 text-[12.5px] text-[color:var(--muted-foreground)] hover:underline"
           >
-            Visit
+            Visit <ExternalLink className="size-3" />
           </a>
         )}
         <span className="ml-auto text-[11.5px] text-[color:var(--subtle-foreground)]">
           {app.checkedAt ? `checked ${ago(app.checkedAt)}` : "never checked"}
         </span>
       </div>
-
-      {note && <p className="mt-2 text-[11.5px] text-[color:var(--muted-foreground)]">{note}</p>}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { ExternalLink, RefreshCw, Settings2 } from "lucide-react";
 
 import { api } from "../lib/api";
@@ -75,15 +76,15 @@ export function AppsPage() {
             {(data?.apps || []).map((app) => (
               <tr key={app.id} className={app.enabled ? undefined : "opacity-55"}>
                 <Td>
-                  <div className="flex items-center gap-2.5">
+                  <Link to={`/apps/${app.id}`} className="flex items-center gap-2.5">
                     <AppMark name={app.name} accent={app.accent} size={26} />
                     <div className="min-w-0">
-                      <p className="font-medium">{app.name}</p>
+                      <p className="font-medium hover:underline">{app.name}</p>
                       <p className="text-[12px] text-[color:var(--muted-foreground)]">
                         {app.id} · {app.tagline}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 </Td>
                 <Td>
                   {app.opsBaseUrl ? (
