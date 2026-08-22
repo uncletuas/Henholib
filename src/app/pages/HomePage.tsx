@@ -8,7 +8,7 @@ import { CTAButton } from "../components/CTAButton";
 import { GlassCard } from "../components/GlassCard";
 import { TypingChat } from "../components/TypingChat";
 import { TypeCycle } from "../components/TypeCycle";
-import { colors, gradientBrand } from "../lib/brand";
+import { wash, colors, gradientBrand } from "../lib/brand";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { useAuth } from "../context/AuthContext";
 
@@ -69,7 +69,7 @@ export function HomePage() {
       {/* Each tile runs a working miniature of the product rather than a
           screenshot: the demos loop, pause off-screen, and settle on their end
           state when the reader prefers reduced motion. */}
-      <Section background={colors.bg} pad="md">
+      <Section background={wash.sky} pad="md">
         <Reveal className="max-w-2xl mb-8">
           <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>THE LOOPITAL ECOSYSTEM</p>
           <h2 style={{ marginBottom: "12px" }}>See each one working.</h2>
@@ -82,7 +82,7 @@ export function HomePage() {
       </Section>
 
       {/* ── AI AT THE CORE (compact glass beat) ── */}
-      <Section background={colors.surface} pad="md">
+      <Section background={wash.violet} pad="md">
         <Reveal>
           <GlassCard interactive={false} className="p-8 lg:p-10" style={{ borderRadius: "28px" }}>
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center">

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { colors } from "../../lib/brand";
+import { colors, shadow, tint } from "../../lib/brand";
 import { Reveal } from "../Reveal";
 import {
   BeaconDemo,
@@ -48,7 +48,7 @@ function ShowcaseCard({ label, blurb, href, external, accent, children, classNam
 
       <div
         className="flex items-center justify-between gap-3 px-5 py-3.5"
-        style={{ borderTop: `1px solid ${colors.hairline}` }}
+        style={{ borderTop: `1px solid ${tint(accent, 0.18)}`, background: colors.surface }}
       >
         <div className="min-w-0">
           <p style={{ color: colors.heading, fontSize: "14px", fontWeight: 600 }}>{label}</p>
@@ -58,7 +58,7 @@ function ShowcaseCard({ label, blurb, href, external, accent, children, classNam
         </div>
         <span
           className="inline-flex items-center gap-1 shrink-0 transition-transform group-hover:translate-x-0.5"
-          style={{ color: colors.textSecondary, fontSize: "12.5px", fontWeight: 500 }}
+          style={{ color: accent, fontSize: "12.5px", fontWeight: 600 }}
         >
           Explore <ArrowRight size={13} />
         </span>
@@ -66,16 +66,18 @@ function ShowcaseCard({ label, blurb, href, external, accent, children, classNam
     </>
   );
 
+  // Each card carries a wash of its product's own colour, strongest at the top
+  // where the screen sits. That is what stops six white rectangles reading as a
+  // spreadsheet — the grid gets a rhythm of temperature, and every product is
+  // recognisable by its tile before you read a word of it.
   const style = {
-    background: colors.surface,
-    border: `1px solid ${colors.hairline}`,
+    background: `linear-gradient(180deg, ${tint(accent, 0.13)} 0%, ${tint(accent, 0.04)} 42%, ${colors.surface} 100%)`,
+    border: `1px solid ${tint(accent, 0.22)}`,
     borderRadius: "20px",
-    // The accent only shows on hover, as a hairline lift. Six saturated borders
-    // at rest would turn the grid into a colour chart.
-    ["--accent" as string]: accent,
+    boxShadow: shadow.sm,
   };
 
-  const cls = `group block overflow-hidden transition-all duration-300 hover:-translate-y-0.5 ${className ?? ""}`;
+  const cls = `group block overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${className ?? ""}`;
 
   return external ? (
     <a href={href} target="_blank" rel="noreferrer" className={cls} style={style}>
@@ -97,7 +99,7 @@ export function ProductShowcase() {
             label="Pal"
             blurb="AI workspace and coworker"
             href="/products/pal"
-            accent="#8B89FF"
+            accent="#6D5AF0"
             className="h-full"
           >
             <PalDemo />
@@ -109,7 +111,7 @@ export function ProductShowcase() {
             blurb="AI ads and CRM"
             href="https://swift.loopital.com"
             external
-            accent={colors.cyan}
+            accent="#0EA5E9"
             className="h-full"
           >
             <SwiftDemo />
@@ -121,7 +123,7 @@ export function ProductShowcase() {
             blurb="Facility and fleet operations"
             href="https://modus.loopital.com"
             external
-            accent="#22B8D6"
+            accent="#0891B2"
             className="h-full"
           >
             <ModusDemo />
@@ -135,7 +137,7 @@ export function ProductShowcase() {
             label="Beacon"
             blurb="Schools and training institutions"
             href="/products/beacon"
-            accent="#E0526B"
+            accent="#D6294E"
             className="h-full"
           >
             <BeaconDemo />
@@ -157,7 +159,7 @@ export function ProductShowcase() {
             label="HMS7"
             blurb="The hospital operating system"
             href="/products/hms7"
-            accent={colors.green}
+            accent="#0D9F79"
             className="h-full"
           >
             <Hms7Demo />

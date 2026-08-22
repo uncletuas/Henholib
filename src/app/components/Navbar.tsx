@@ -47,7 +47,7 @@ export function Navbar() {
     <nav
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled || mobileOpen || activeMenu ? "rgba(10,11,15,0.86)" : "rgba(10,11,15,0.55)",
+        background: scrolled || mobileOpen || activeMenu ? "rgba(242,245,251,0.88)" : "rgba(242,245,251,0.6)",
         backdropFilter: "saturate(180%) blur(20px)",
         WebkitBackdropFilter: "saturate(180%) blur(20px)",
         borderBottom: scrolled ? `1px solid ${colors.hairline}` : "1px solid transparent",
@@ -69,7 +69,7 @@ export function Navbar() {
               </button>
               {activeMenu === "products" && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-[660px]" onMouseEnter={() => openMenu("products")} onMouseLeave={closeMenu}>
-                  <div className="rounded-3xl overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08)" }}>
+                  <div className="rounded-3xl overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(15,23,41,0.14), 0 0 0 1px rgba(15,23,41,0.05)" }}>
                     <div className="p-3 grid grid-cols-2 gap-1">
                       {products.map((p) => (
                         <ProductLink key={p.id} product={p} className="flex items-start gap-3.5 p-4 rounded-2xl transition-colors hover:bg-[#F5F5F7] group">
@@ -103,7 +103,7 @@ export function Navbar() {
               </button>
               {activeMenu === "company" && (
                 <div className="absolute top-full left-0 pt-3 w-52" onMouseEnter={() => openMenu("company")} onMouseLeave={closeMenu}>
-                  <div className="rounded-2xl overflow-hidden p-2" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08)" }}>
+                  <div className="rounded-2xl overflow-hidden p-2" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(15,23,41,0.14), 0 0 0 1px rgba(15,23,41,0.05)" }}>
                     {company.map((c) => (
                       <Link key={c.label} to={c.href} className="block px-4 py-2.5 rounded-xl text-sm transition-colors hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
                     ))}

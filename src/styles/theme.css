@@ -4,45 +4,45 @@
   --font-size: 16px;
 
   /* ── Loopital brand system ───────────────────────────────────────────
-     Dark, calm and low-glare. Near-black canvas, near-white type, and a
+     Light and tinted. Every neutral carries a few points of blue so the page has
      single signature blue→green gradient (drawn from the infinity logo)
      used sparingly as the one brand accent. */
 
   /* Signature gradient — the brand DNA. Use only on hero accent words,
      primary CTAs, focus rings, product glows, and the ecosystem map. */
-  --brand-blue: #4F8CFF;
-  --brand-cyan: #38BDF8;
-  --brand-green: #34D399;
+  --brand-blue: #2563EB;
+  --brand-cyan: #0EA5E9;
+  --brand-green: #10B981;
   --gradient-brand: linear-gradient(120deg, #2563EB 0%, #0EA5E9 45%, #10B981 100%);
   --gradient-brand-soft: linear-gradient(120deg, rgba(37,99,235,0.12) 0%, rgba(14,165,233,0.10) 45%, rgba(16,185,129,0.12) 100%);
 
   /* Per-product accents — all within the blue–green family so the four
      products read as one system, not four. */
-  --accent-stack62: #8B89FF;
-  --accent-sart34: #38BDF8;
-  --accent-hms7: #34D399;
-  --accent-fms13: #22B8D6;
+  --accent-stack62: #6D5AF0;
+  --accent-sart34: #0EA5E9;
+  --accent-hms7: #0D9F79;
+  --accent-fms13: #0891B2;
 
   /* Neutral foundation */
-  --background: #0A0B0F;
-  --foreground: #E6E8EC;
-  --heading: #F4F5F7;
-  --card: #121419;
-  --card-foreground: #F4F5F7;
-  --popover: #121419;
-  --popover-foreground: #F4F5F7;
-  --primary: #4F8CFF;
-  --primary-foreground: #06080F;
-  --secondary: #1A1D24;
-  --secondary-foreground: #9DC0FF;
-  --muted: #1A1D24;
-  --muted-foreground: #A2A9B8;
-  --accent: #1A1D24;
-  --accent-foreground: #9DC0FF;
+  --background: #F2F5FB;
+  --foreground: #1B2437;
+  --heading: #0F1729;
+  --card: #FFFFFF;
+  --card-foreground: #0F1729;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F1729;
+  --primary: #2563EB;
+  --primary-foreground: #ffffff;
+  --secondary: #E4EDFF;
+  --secondary-foreground: #1D4ED8;
+  --muted: #E9EFF9;
+  --muted-foreground: #556074;
+  --accent: #E4EDFF;
+  --accent-foreground: #1D4ED8;
   --destructive: #EF4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: #1A1D24;
+  --border: rgba(15, 23, 41, 0.08);
+  --input: #E9EFF9;
   --input-background: #F5F5F7;
   --switch-background: #C7C7D8;
   --font-weight-medium: 500;

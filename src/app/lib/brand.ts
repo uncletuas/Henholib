@@ -3,40 +3,62 @@
 // JS and CSS stay in lockstep. Import these instead of hardcoding hex values.
 
 export const colors = {
-  // ── Neutral foundation (dark) ──────────────────────────────────────────
-  // The site reads dark now. These are picked as a ladder rather than by eye:
-  // each surface is a measured step up from the ground so panels separate
-  // without borders doing the work, and the type steps down in the same way.
-  //
-  // Not pure black — #000 against bright brand colour vibrates, and a slight
-  // blue cast keeps the blue→green gradient sitting in the same family as its
-  // background instead of floating on top of it.
-  bg: "#0A0B0F",          // page ground
-  surface: "#121419",     // cards and panels
-  surfaceMuted: "#1A1D24", // insets, chips, code blocks
-  surfaceRaised: "#22262F", // hover states, the step above a card
+  // ── Neutral foundation (light, but not bare) ────────────────────────────
+  // The canvas was flat #FBFBFD everywhere, which read as glare rather than as
+  // design. These neutrals are *tinted* — a few points of blue mixed into every
+  // grey — so the page has a temperature instead of being an absence of colour,
+  // and white cards sitting on it actually look like cards.
+  bg: "#F2F5FB",           // page ground, cool and soft
+  bgWarm: "#FBF6F2",       // the alternate wash, for a section that needs a turn
+  surface: "#FFFFFF",      // cards and panels
+  surfaceMuted: "#E9EFF9", // insets, chips, table stripes
+  surfaceRaised: "#F7FAFF",
 
-  heading: "#F4F5F7",
-  text: "#E6E8EC",
-  textSecondary: "#A2A9B8",
-  textTertiary: "#767E8E",
+  heading: "#0F1729",
+  text: "#1B2437",
+  textSecondary: "#556074",
+  textTertiary: "#646F81",
 
-  hairline: "rgba(255,255,255,0.08)",
-  hairlineStrong: "rgba(255,255,255,0.14)",
+  hairline: "rgba(15,23,41,0.08)",
+  hairlineStrong: "rgba(15,23,41,0.14)",
 
   // ── Brand ──────────────────────────────────────────────────────────────
-  // Lifted from the light-theme values. #2563EB is a fine blue on white and
-  // muddy on near-black; these clear 4.5:1 against `bg` so a link or a label
-  // is readable rather than merely visible.
-  blue: "#4F8CFF",
-  cyan: "#38BDF8",
-  green: "#34D399",
-  ink: "#06080F",
+  blue: "#2563EB",
+  cyan: "#0EA5E9",
+  green: "#10B981",
+  violet: "#6D5AF0",
+  amber: "#F59E0B",
+  rose: "#E11D48",
+  ink: "#0B1020",
 
-  // Kept for the rare panel that stays light on purpose.
+  // Kept so a component on a dark or coloured band can name its own contrast
+  // instead of guessing.
   lightSurface: "#FFFFFF",
-  onLight: "#0D0D1A",
+  onLight: "#0F1729",
+  onDark: "#FFFFFF",
 } as const;
+
+/**
+ * Soft colour washes for section backgrounds.
+ *
+ * The fix for "too white" is not darkness, it is variation: alternating these
+ * down the page gives each band its own temperature, so sections separate
+ * without borders and the eye has somewhere to travel.
+ */
+export const wash = {
+  sky: "linear-gradient(180deg, #EEF4FF 0%, #F5F9FF 100%)",
+  mint: "linear-gradient(180deg, #ECFBF4 0%, #F4FCF8 100%)",
+  violet: "linear-gradient(180deg, #F1EEFE 0%, #F7F5FF 100%)",
+  peach: "linear-gradient(180deg, #FFF2EA 0%, #FFF8F4 100%)",
+  plain: "#FFFFFF",
+} as const;
+
+/** A 10%-ish tint of any accent, for chips and card headers. */
+export const tint = (hex: string, alpha = 0.12) => {
+  const h = hex.replace("#", "");
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  return `rgba(${r},${g},${b},${alpha})`;
+};
 
 // Signature blue→green gradient, the single brand accent. Use sparingly.
 export const gradientBrand =
@@ -46,19 +68,21 @@ export const gradientBrandSoft =
 
 // Per-product accents, harmonized within the blue-green family.
 export const productAccent = {
-  stack62: "#6D6AF0",
+  stack62: "#6D5AF0",
   sart34: "#0EA5E9",
-  hms7: "#14B58A",
+  hms7: "#0D9F79",
   henholib: "#F97316",
   fms13: "#0891B2",
-  edm73: "#A61E36",
+  edm73: "#D6294E",
 } as const;
 
 // Soft, low-contrast elevation used across cards and panels.
 // Shadows carry almost nothing on a dark ground — depth comes from the surface
 // ladder above. These stay for layering large panels off the page background.
+// Cool-tinted shadows rather than neutral black: a grey shadow on a tinted
+// canvas looks like dirt, a blue-tinted one looks like depth.
 export const shadow = {
-  sm: "0 8px 24px rgba(0,0,0,0.35)",
-  md: "0 20px 60px rgba(0,0,0,0.45)",
-  lg: "0 40px 90px rgba(0,0,0,0.55)",
+  sm: "0 6px 18px rgba(15,23,41,0.06)",
+  md: "0 18px 44px rgba(15,23,41,0.09)",
+  lg: "0 36px 80px rgba(15,23,41,0.13)",
 } as const;

@@ -1,27 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { colors } from "../../lib/brand";
+import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { colors, tint } from "../../lib/brand";
 
 /**
- * The live demos that sit inside the product cards on the home page.
+ * The product screens shown inside the home-page cards.
  *
- * Each one is a real, running miniature of what the product does — not a
- * screenshot. A still image of a chat says "there is a chat"; a conversation
- * that types itself out shows the thing working, and that is the difference
- * between a brochure and a demo.
+ * These are miniatures of the real interface — a sidebar, a toolbar, a table
+ * with rows and status pills — not abstract charts. That distinction is the
+ * whole point: an animated bar tells a visitor nothing about what the software
+ * looks like to use, whereas a scaled-down version of the actual screen tells
+ * them immediately whether it is for them.
  *
- * Three rules hold across all of them:
+ * They are built rather than screenshotted because every product screen worth
+ * showing sits behind a login, and a screenshot of a sign-in form is not a demo.
+ * Built markup also stays sharp at any size, follows the site's own tokens, and
+ * can never leak a real customer's record onto a marketing page.
  *
- * 1. **They loop, quietly.** No controls, no sound, nothing to click. The card
- *    itself is the link; the demo is texture inside it.
- * 2. **They pause when off-screen and stop for reduced motion.** Six animated
- *    cards running at once on a phone is a battery complaint, and constant
- *    motion is a vestibular problem for some people. `useSteps` handles both in
- *    one place so no individual demo can forget.
- * 3. **The content is plausible, never real.** Names, amounts and readings are
- *    invented. Nothing here should ever be mistaken for a live customer record.
+ * Motion is deliberately small: a caret typing, a row highlighting, a counter
+ * ticking. Enough to read as live, not so much that six of them on one page
+ * becomes a fairground.
  */
 
-/** Respect the OS "reduce motion" setting, live rather than at first render. */
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(
     () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -36,13 +35,7 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
-/**
- * Drive a looping step counter, but only while the element is on screen.
- *
- * Returns the current step and a ref to attach. When motion is reduced the
- * counter parks on the last step, so every demo shows its finished state — the
- * information is still there, it just doesn't move.
- */
+/** Loop a step counter, but only while the card is actually on screen. */
 function useSteps(count: number, intervalMs: number) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [step, setStep] = useState(0);
@@ -55,7 +48,7 @@ function useSteps(count: number, intervalMs: number) {
       setVisible(true);
       return;
     }
-    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.25 });
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.2 });
     io.observe(node);
     return () => io.disconnect();
   }, []);
@@ -70,299 +63,408 @@ function useSteps(count: number, intervalMs: number) {
     return () => clearInterval(id);
   }, [visible, reduced, count, intervalMs]);
 
-  return { ref, step, reduced };
+  return { ref, step };
 }
 
 const mono = 'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
+const ui = 'ui-sans-serif, system-ui, "Segoe UI", sans-serif';
 
-// ── Pal ────────────────────────────────────────────────────────────────────
+// ── Shared app chrome ──────────────────────────────────────────────────────
 
-// Three turns, kept short on purpose: the card gives the demo a fixed 200px and
-// a fourth exchange overflowed it, clipping the conversation from the top.
-const PAL_TURNS = [
-  { who: "user", text: "Summarise the Q3 board pack" },
-  { who: "pal", text: "12 pages → 5 points. Revenue up 18%, hiring behind plan." },
-  { who: "user", text: "Draft the follow-up" },
-];
+/**
+ * The frame every screen sits in: a title bar with window dots, an optional
+ * sidebar, and the content area. Shared so the six demos read as one product
+ * family rather than six unrelated drawings.
+ */
+function Screen({
+  accent,
+  title,
+  sidebar,
+  children,
+}: {
+  accent: string;
+  title: string;
+  sidebar?: { label: string; active?: boolean }[];
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className="h-full w-full overflow-hidden flex flex-col"
+      style={{
+        background: colors.surface,
+        border: `1px solid ${colors.hairline}`,
+        borderRadius: "10px",
+        fontFamily: ui,
+      }}
+    >
+      <div
+        className="flex items-center gap-2 px-2.5 shrink-0"
+        style={{ height: 26, background: colors.surfaceMuted, borderBottom: `1px solid ${colors.hairline}` }}
+      >
+        <span className="flex gap-1">
+          {["#F0625B", "#F5BE4F", "#5FC456"].map((c) => (
+            <span key={c} className="rounded-full" style={{ width: 6, height: 6, background: c }} />
+          ))}
+        </span>
+        <span style={{ fontSize: "9px", color: colors.textTertiary, fontWeight: 500 }}>{title}</span>
+      </div>
+
+      <div className="flex flex-1 min-h-0">
+        {sidebar && (
+          <div
+            className="shrink-0 py-2 px-1.5 flex flex-col gap-0.5"
+            style={{ width: 74, background: colors.surfaceRaised, borderRight: `1px solid ${colors.hairline}` }}
+          >
+            {sidebar.map((item) => (
+              <span
+                key={item.label}
+                className="px-1.5 py-1 rounded"
+                style={{
+                  fontSize: "8.5px",
+                  fontWeight: item.active ? 600 : 500,
+                  color: item.active ? accent : colors.textTertiary,
+                  background: item.active ? tint(accent, 0.12) : "transparent",
+                }}
+              >
+                {item.label}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex-1 min-w-0 overflow-hidden">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/** A status pill — the most recognisable element of a real admin screen. */
+function Pill({ text, color }: { text: string; color: string }) {
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-1.5"
+      style={{
+        background: tint(color, 0.14),
+        color,
+        fontSize: "8px",
+        fontWeight: 700,
+        lineHeight: "13px",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {text}
+    </span>
+  );
+}
+
+// ── Pal — document editor with the coworker panel ──────────────────────────
+
+const PAL_ACCENT = "#6D5AF0";
 
 export function PalDemo() {
-  const { ref, step } = useSteps(PAL_TURNS.length + 2, 1700);
+  const { ref, step } = useSteps(40, 110);
+  const draft =
+    "Q3 grew 18% on flat headcount. The constraint is hiring, not demand — three roles open since June.";
+  const typed = draft.slice(0, Math.min(draft.length, step * 4));
 
   return (
-    <div ref={ref} className="flex flex-col gap-2.5 justify-end h-full">
-      {PAL_TURNS.map((t, i) => {
-        const shown = i <= step;
-        const mine = t.who === "user";
-        return (
-          <div
-            key={i}
-            className={mine ? "self-end" : "self-start"}
-            style={{
-              maxWidth: "82%",
-              opacity: shown ? 1 : 0,
-              transform: shown ? "translateY(0)" : "translateY(6px)",
-              transition: "opacity .45s ease, transform .45s ease",
-            }}
-          >
-            <div
-              className="px-3.5 py-2.5 rounded-2xl"
-              style={{
-                background: mine ? colors.blue : colors.surfaceMuted,
-                color: mine ? "#08101F" : colors.text,
-                fontSize: "12.5px",
-                lineHeight: 1.5,
-                fontWeight: mine ? 600 : 400,
-                borderBottomRightRadius: mine ? "6px" : undefined,
-                borderBottomLeftRadius: mine ? undefined : "6px",
-              }}
-            >
-              {t.text}
+    <div ref={ref} className="h-full">
+      <Screen
+        accent={PAL_ACCENT}
+        title="Pal — Board memo"
+        sidebar={[{ label: "Docs", active: true }, { label: "Sheets" }, { label: "Files" }, { label: "Tasks" }]}
+      >
+        <div className="flex h-full">
+          <div className="flex-1 p-2.5 min-w-0">
+            <div style={{ height: 5, width: "52%", background: colors.heading, borderRadius: 2, opacity: 0.85 }} />
+            <p style={{ fontSize: "9px", lineHeight: 1.55, color: colors.text, marginTop: 7 }}>
+              {typed}
+              {typed.length < draft.length && (
+                <span style={{ background: PAL_ACCENT, width: 1, display: "inline-block", height: 8 }} />
+              )}
+            </p>
+            <div className="flex flex-col gap-1" style={{ marginTop: 8 }}>
+              {[92, 78, 85].map((w, i) => (
+                <span key={i} style={{ height: 3, width: `${w}%`, background: colors.surfaceMuted, borderRadius: 2 }} />
+              ))}
             </div>
           </div>
-        );
-      })}
+
+          {/* The coworker panel — what makes this Pal rather than any editor. */}
+          <div
+            className="shrink-0 p-2 flex flex-col gap-1.5"
+            style={{ width: 96, borderLeft: `1px solid ${colors.hairline}`, background: tint(PAL_ACCENT, 0.05) }}
+          >
+            <span style={{ fontSize: "8px", fontWeight: 700, color: PAL_ACCENT, letterSpacing: "0.06em" }}>
+              COWORKER
+            </span>
+            <div className="rounded px-1.5 py-1" style={{ background: colors.surface, border: `1px solid ${colors.hairline}` }}>
+              <p style={{ fontSize: "8px", color: colors.textSecondary, lineHeight: 1.4 }}>Summarise the board pack</p>
+            </div>
+            <div className="rounded px-1.5 py-1" style={{ background: PAL_ACCENT }}>
+              <p style={{ fontSize: "8px", color: "#fff", lineHeight: 1.4 }}>Drafted. Leads with hiring.</p>
+            </div>
+          </div>
+        </div>
+      </Screen>
     </div>
   );
 }
 
-// ── Swift ──────────────────────────────────────────────────────────────────
+// ── Swift — campaign dashboard ─────────────────────────────────────────────
 
-// Four, not five: the fifth row fell outside the card's 200px window and got
-// clipped mid-word. The point ("one brief, every platform") lands either way.
-const PLATFORMS = ["Meta", "Google", "TikTok", "LinkedIn"];
+const SWIFT_ACCENT = "#0EA5E9";
+const CHANNELS = [
+  { name: "Meta", spend: "₦84k", state: "Live", color: "#10B981" },
+  { name: "Google", spend: "₦61k", state: "Review", color: "#F59E0B" },
+];
 
 export function SwiftDemo() {
-  const { ref, step, reduced } = useSteps(PLATFORMS.length + 4, 850);
-  const brief = "Weekend sale, 20% off, women 25-40, Lagos";
-  const typed = reduced ? brief : brief.slice(0, Math.min(brief.length, (step + 1) * 11));
+  const { ref, step } = useSteps(24, 130);
+  const leads = 1180 + step * 3;
 
   return (
-    <div ref={ref} className="flex flex-col gap-3 h-full">
-      <div
-        className="px-3 py-2.5 rounded-xl"
-        style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}
+    <div ref={ref} className="h-full">
+      <Screen
+        accent={SWIFT_ACCENT}
+        title="Swift — Campaigns"
+        sidebar={[{ label: "Campaigns", active: true }, { label: "Leads" }, { label: "Inbox" }, { label: "Wallet" }]}
       >
-        <p style={{ color: colors.textTertiary, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em" }}>
-          BRIEF
-        </p>
-        <p style={{ color: colors.text, fontSize: "12.5px", marginTop: "3px", minHeight: "17px" }}>
-          {typed}
-          {!reduced && typed.length < brief.length && (
-            <span style={{ color: colors.cyan, fontWeight: 700 }}>▏</span>
-          )}
-        </p>
-      </div>
+        <div className="p-2.5 flex flex-col gap-2 h-full">
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { k: "Leads", v: leads.toLocaleString() },
+              { k: "CPL", v: "₦154" },
+              { k: "Spend", v: "₦182k" },
+            ].map((m) => (
+              <div
+                key={m.k}
+                className="rounded px-1.5 py-1"
+                style={{ background: colors.surfaceRaised, border: `1px solid ${colors.hairline}` }}
+              >
+                <p style={{ fontSize: "7.5px", color: colors.textTertiary, fontWeight: 600 }}>{m.k}</p>
+                <p style={{ fontSize: "11px", color: colors.heading, fontWeight: 700, fontFamily: mono }}>{m.v}</p>
+              </div>
+            ))}
+          </div>
 
-      <div className="flex flex-col gap-1.5">
-        {PLATFORMS.map((p, i) => {
-          const done = step > i + 1;
-          const working = step === i + 1;
-          return (
-            <div key={p} className="flex items-center gap-2.5">
+          <div className="flex items-end gap-1" style={{ height: 26 }}>
+            {[38, 52, 44, 63, 58, 76, 70].map((h, i) => (
               <span
-                className="inline-flex items-center justify-center rounded-full shrink-0"
-                style={{
-                  width: 15,
-                  height: 15,
-                  background: done ? colors.green : working ? colors.cyan : colors.surfaceMuted,
-                  color: done || working ? "#06110C" : colors.textTertiary,
-                  fontSize: "9px",
-                  fontWeight: 800,
-                  transition: "background .35s ease",
-                }}
+                key={i}
+                className="flex-1 rounded-sm"
+                style={{ height: `${h}%`, background: i === 6 ? SWIFT_ACCENT : tint(SWIFT_ACCENT, 0.3) }}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-0.5">
+            {CHANNELS.map((c) => (
+              <div
+                key={c.name}
+                className="flex items-center gap-1.5 px-1 py-0.5"
+                style={{ borderBottom: `1px solid ${colors.hairline}` }}
               >
-                {done ? "✓" : working ? "•" : ""}
-              </span>
-              <span
-                style={{
-                  color: done ? colors.text : colors.textTertiary,
-                  fontSize: "12px",
-                  transition: "color .35s ease",
-                }}
-              >
-                {p}
-              </span>
-              <span
-                className="ml-auto"
-                style={{ color: colors.textTertiary, fontSize: "11px", fontFamily: mono }}
-              >
-                {done ? "live" : working ? "publishing" : "queued"}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                <span style={{ fontSize: "8.5px", color: colors.text, width: 34 }}>{c.name}</span>
+                <span style={{ fontSize: "8.5px", color: colors.textTertiary, fontFamily: mono }}>{c.spend}</span>
+                <span className="ml-auto">
+                  <Pill text={c.state} color={c.color} />
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Screen>
     </div>
   );
 }
 
-// ── Modus ──────────────────────────────────────────────────────────────────
+// ── Modus — work orders ────────────────────────────────────────────────────
 
-const ASSETS = [
-  { name: "Chiller 02", metric: "7.2 bar", state: "ok" },
-  { name: "Generator A", metric: "412 kW", state: "ok" },
-  { name: "Pump 3", metric: "no signal", state: "alert" },
-  { name: "Lift West", metric: "due in 3d", state: "warn" },
+const MODUS_ACCENT = "#0891B2";
+const ORDERS = [
+  { id: "WO-4821", asset: "Chiller 02", state: "Open", color: "#F59E0B" },
+  { id: "WO-4820", asset: "Generator A", state: "Done", color: "#10B981" },
+  { id: "WO-4818", asset: "Pump 3", state: "Urgent", color: "#E11D48" },
+  { id: "WO-4815", asset: "Lift West", state: "Open", color: "#F59E0B" },
 ];
 
 export function ModusDemo() {
-  const { ref, step } = useSteps(ASSETS.length * 2, 1100);
-  const active = step % ASSETS.length;
+  const { ref, step } = useSteps(ORDERS.length * 3, 900);
+  const active = step % ORDERS.length;
 
   return (
-    <div ref={ref} className="flex flex-col gap-1.5 h-full justify-center">
-      {ASSETS.map((a, i) => {
-        const tone =
-          a.state === "alert" ? "#F87171" : a.state === "warn" ? "#FBBF24" : colors.green;
-        const on = i === active;
-        return (
+    <div ref={ref} className="h-full">
+      <Screen
+        accent={MODUS_ACCENT}
+        title="Modus — Work orders"
+        sidebar={[{ label: "Orders", active: true }, { label: "Assets" }, { label: "Vendors" }, { label: "Sites" }]}
+      >
+        <div className="h-full flex flex-col">
           <div
-            key={a.name}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
-            style={{
-              background: on ? colors.surfaceRaised : "transparent",
-              border: `1px solid ${on ? colors.hairline : "transparent"}`,
-              transition: "background .4s ease, border-color .4s ease",
-            }}
+            className="flex items-center gap-1.5 px-2 shrink-0"
+            style={{ height: 18, background: colors.surfaceRaised, borderBottom: `1px solid ${colors.hairline}` }}
           >
-            <span
-              className="rounded-full shrink-0"
-              style={{
-                width: 7,
-                height: 7,
-                background: tone,
-                boxShadow: a.state === "alert" ? `0 0 0 3px ${tone}26` : undefined,
-              }}
-            />
-            <span style={{ color: colors.text, fontSize: "12.5px", fontWeight: 500 }}>{a.name}</span>
-            <span
-              className="ml-auto"
-              style={{ color: a.state === "ok" ? colors.textTertiary : tone, fontSize: "11.5px", fontFamily: mono }}
-            >
-              {a.metric}
-            </span>
+            <span style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary, letterSpacing: "0.05em" }}>ID</span>
+            <span style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary, letterSpacing: "0.05em" }}>ASSET</span>
+            <span className="ml-auto" style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary, letterSpacing: "0.05em" }}>STATUS</span>
           </div>
-        );
-      })}
+          {ORDERS.map((o, i) => (
+            <div
+              key={o.id}
+              className="flex items-center gap-1.5 px-2"
+              style={{
+                height: 26,
+                background: i === active ? tint(MODUS_ACCENT, 0.08) : "transparent",
+                borderBottom: `1px solid ${colors.hairline}`,
+                transition: "background .4s ease",
+              }}
+            >
+              <span style={{ fontSize: "8px", color: colors.textTertiary, fontFamily: mono }}>{o.id}</span>
+              <span style={{ fontSize: "9px", color: colors.text, fontWeight: 500 }}>{o.asset}</span>
+              <span className="ml-auto">
+                <Pill text={o.state} color={o.color} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </Screen>
     </div>
   );
 }
 
-// ── Beacon ─────────────────────────────────────────────────────────────────
+// ── Beacon — gradebook ─────────────────────────────────────────────────────
 
-const RESULTS = [
-  { name: "Adaeze O.", score: 84 },
-  { name: "Ibrahim K.", score: 71 },
-  { name: "Chinedu A.", score: 92 },
-  { name: "Fatima B.", score: 66 },
+const BEACON_ACCENT = "#D6294E";
+const STUDENTS = [
+  { name: "Adaeze O.", ca: 27, exam: 57 },
+  { name: "Ibrahim K.", ca: 22, exam: 49 },
+  { name: "Chinedu A.", ca: 29, exam: 63 },
+  { name: "Fatima B.", ca: 19, exam: 47 },
 ];
 
 export function BeaconDemo() {
-  const { ref, step } = useSteps(RESULTS.length + 2, 850);
+  const { ref, step } = useSteps(STUDENTS.length * 3, 850);
+  const active = step % STUDENTS.length;
 
   return (
-    <div ref={ref} className="flex flex-col gap-2.5 h-full justify-center">
-      <div className="flex items-baseline justify-between">
-        <span style={{ color: colors.textTertiary, fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em" }}>
-          SS2 · MATHEMATICS
-        </span>
-        <span style={{ color: colors.textTertiary, fontSize: "10.5px", fontFamily: mono }}>
-          {Math.min(step + 1, RESULTS.length)}/{RESULTS.length} released
-        </span>
-      </div>
-      {RESULTS.map((r, i) => {
-        const shown = i <= step;
-        return (
-          <div key={r.name} className="flex items-center gap-3">
-            <span
-              style={{
-                color: shown ? colors.text : colors.textTertiary,
-                fontSize: "12px",
-                width: "74px",
-                transition: "color .4s ease",
-              }}
-            >
-              {r.name}
-            </span>
-            <span className="flex-1 rounded-full overflow-hidden" style={{ height: 5, background: colors.surfaceMuted }}>
-              <span
-                className="block h-full rounded-full"
-                style={{
-                  width: shown ? `${r.score}%` : "0%",
-                  background: r.score >= 70 ? colors.green : colors.cyan,
-                  transition: "width .8s cubic-bezier(.4,0,.2,1)",
-                }}
-              />
-            </span>
-            <span
-              style={{
-                color: shown ? colors.heading : "transparent",
-                fontSize: "11.5px",
-                fontFamily: mono,
-                width: "22px",
-                textAlign: "right",
-                transition: "color .4s ease",
-              }}
-            >
-              {r.score}
-            </span>
+    <div ref={ref} className="h-full">
+      <Screen
+        accent={BEACON_ACCENT}
+        title="Beacon — SS2 Mathematics"
+        sidebar={[{ label: "Results", active: true }, { label: "Students" }, { label: "Fees" }, { label: "Timetable" }]}
+      >
+        <div className="h-full flex flex-col">
+          <div
+            className="flex items-center px-2 shrink-0"
+            style={{ height: 18, background: colors.surfaceRaised, borderBottom: `1px solid ${colors.hairline}` }}
+          >
+            <span style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary, width: 58 }}>STUDENT</span>
+            <span style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary, width: 22 }}>CA</span>
+            <span style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary, width: 28 }}>EXAM</span>
+            <span className="ml-auto" style={{ fontSize: "7.5px", fontWeight: 700, color: colors.textTertiary }}>GRADE</span>
           </div>
-        );
-      })}
+          {STUDENTS.map((s, i) => {
+            const total = s.ca + s.exam;
+            const grade = total >= 80 ? "A" : total >= 70 ? "B" : total >= 60 ? "C" : "D";
+            const gc = total >= 70 ? "#10B981" : total >= 60 ? "#F59E0B" : "#E11D48";
+            return (
+              <div
+                key={s.name}
+                className="flex items-center px-2"
+                style={{
+                  height: 26,
+                  background: i === active ? tint(BEACON_ACCENT, 0.07) : "transparent",
+                  borderBottom: `1px solid ${colors.hairline}`,
+                  transition: "background .4s ease",
+                }}
+              >
+                <span style={{ fontSize: "9px", color: colors.text, width: 58 }}>{s.name}</span>
+                <span style={{ fontSize: "8.5px", color: colors.textSecondary, fontFamily: mono, width: 22 }}>{s.ca}</span>
+                <span style={{ fontSize: "8.5px", color: colors.textSecondary, fontFamily: mono, width: 28 }}>{s.exam}</span>
+                <span className="ml-auto">
+                  <Pill text={grade} color={gc} />
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </Screen>
     </div>
   );
 }
 
-// ── Henholib ───────────────────────────────────────────────────────────────
+// ── Henholib — the phone app ───────────────────────────────────────────────
+
+const HEN_ACCENT = "#F97316";
 
 export function HenholibDemo() {
-  const { ref, step, reduced } = useSteps(60, 90);
-
-  // A calm resting trace. Deterministic, so it looks like a reading rather than
-  // noise, and the beat lands where a real QRS complex would.
-  const path = useMemo(() => {
-    const pts: string[] = [];
-    for (let x = 0; x <= 100; x += 1) {
-      const beat = x % 25;
-      let y = 20;
-      if (beat === 8) y = 14;
-      else if (beat === 10) y = 4;
-      else if (beat === 12) y = 30;
-      else if (beat === 14) y = 18;
-      else if (beat > 16 && beat < 21) y = 20 - Math.sin((beat - 16) / 4 * Math.PI) * 3.5;
-      pts.push(`${x === 0 ? "M" : "L"}${x},${y}`);
-    }
-    return pts.join(" ");
-  }, []);
-
-  const bpm = reduced ? 72 : 70 + (step % 5);
+  const { ref, step } = useSteps(20, 700);
+  const pulse = 70 + (step % 4);
 
   return (
-    <div ref={ref} className="flex flex-col gap-3 h-full justify-center">
-      <div className="flex items-end gap-2">
-        <span style={{ color: colors.heading, fontSize: "30px", fontWeight: 700, lineHeight: 1 }}>{bpm}</span>
-        <span style={{ color: colors.textTertiary, fontSize: "11.5px", marginBottom: "3px" }}>bpm · resting</span>
-      </div>
-      <svg viewBox="0 0 100 36" preserveAspectRatio="none" style={{ width: "100%", height: "42px" }} aria-hidden>
-        <path d={path} fill="none" stroke={colors.green} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
-      </svg>
-      <div className="flex gap-1.5 flex-wrap">
-        {["Records synced", "Dr. Eze · Thu 10:30"].map((chip) => (
-          <span
-            key={chip}
-            className="px-2.5 py-1 rounded-full"
-            style={{ background: colors.surfaceMuted, color: colors.textSecondary, fontSize: "11px" }}
-          >
-            {chip}
-          </span>
-        ))}
+    <div ref={ref} className="h-full flex items-center justify-center">
+      {/* A phone, because Henholib is a phone app — a desktop window would
+          misrepresent what it is. */}
+      <div
+        className="overflow-hidden flex flex-col"
+        style={{
+          width: 118,
+          height: "100%",
+          maxHeight: 178,
+          background: colors.surface,
+          border: `1px solid ${colors.hairlineStrong}`,
+          borderRadius: 14,
+          fontFamily: ui,
+        }}
+      >
+        <div className="shrink-0 flex items-center justify-center" style={{ height: 14, background: tint(HEN_ACCENT, 0.1) }}>
+          <span style={{ width: 26, height: 3, borderRadius: 2, background: colors.hairlineStrong }} />
+        </div>
+
+        <div className="p-2 flex flex-col gap-1.5 flex-1">
+          <p style={{ fontSize: "8px", color: colors.textTertiary }}>Good morning, Mia</p>
+
+          <div className="rounded-lg px-2 py-1.5" style={{ background: tint(HEN_ACCENT, 0.1) }}>
+            <p style={{ fontSize: "7.5px", color: HEN_ACCENT, fontWeight: 700 }}>NEXT APPOINTMENT</p>
+            <p style={{ fontSize: "8.5px", color: colors.heading, fontWeight: 600, marginTop: 1 }}>Dr. Eze · Thu 10:30</p>
+            <p style={{ fontSize: "7.5px", color: colors.textSecondary }}>Cardiology · UPTH</p>
+          </div>
+
+          <div className="rounded-lg px-2 py-1.5 flex items-center gap-1.5" style={{ border: `1px solid ${colors.hairline}` }}>
+            <span style={{ fontSize: "14px", color: colors.heading, fontWeight: 700, fontFamily: mono }}>{pulse}</span>
+            <span style={{ fontSize: "7.5px", color: colors.textTertiary, lineHeight: 1.2 }}>
+              bpm
+              <br />
+              resting
+            </span>
+          </div>
+
+          <div className="flex gap-1 mt-auto">
+            {["Records", "Book"].map((b, i) => (
+              <span
+                key={b}
+                className="flex-1 rounded text-center"
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 600,
+                  padding: "3px 0",
+                  background: i === 0 ? HEN_ACCENT : colors.surfaceMuted,
+                  color: i === 0 ? "#fff" : colors.textSecondary,
+                }}
+              >
+                {b}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-// ── HMS7 ───────────────────────────────────────────────────────────────────
+// ── HMS7 — ward board ──────────────────────────────────────────────────────
 
+const HMS_ACCENT = "#0D9F79";
 const WARDS = [
   { ward: "Emergency", used: 11, total: 12 },
   { ward: "Maternity", used: 7, total: 14 },
@@ -370,49 +472,59 @@ const WARDS = [
 ];
 
 export function Hms7Demo() {
-  const { ref, step } = useSteps(WARDS.length + 2, 1000);
+  const { ref, step } = useSteps(WARDS.length * 3, 950);
+  const active = step % WARDS.length;
 
   return (
-    <div ref={ref} className="flex flex-col gap-3 h-full justify-center">
-      {WARDS.map((w, i) => {
-        const shown = i <= step;
-        const pct = (w.used / w.total) * 100;
-        const tight = pct > 85;
-        return (
-          <div key={w.ward} className="flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between">
-              <span style={{ color: colors.text, fontSize: "12px" }}>{w.ward}</span>
-              <span
+    <div ref={ref} className="h-full">
+      <Screen
+        accent={HMS_ACCENT}
+        title="HMS7 — Ward board"
+        sidebar={[{ label: "Wards", active: true }, { label: "Patients" }, { label: "Pharmacy" }, { label: "Billing" }]}
+      >
+        <div className="p-2.5 flex flex-col gap-2 h-full justify-center">
+          {WARDS.map((w, i) => {
+            const pct = (w.used / w.total) * 100;
+            const tightNow = pct > 85;
+            return (
+              <div
+                key={w.ward}
+                className="rounded px-1.5 py-1"
                 style={{
-                  color: tight ? "#FBBF24" : colors.textTertiary,
-                  fontSize: "11.5px",
-                  fontFamily: mono,
+                  background: i === active ? tint(HMS_ACCENT, 0.07) : "transparent",
+                  transition: "background .4s ease",
                 }}
               >
-                {w.used}/{w.total} beds
-              </span>
-            </div>
-            <div className="flex gap-1">
-              {Array.from({ length: w.total }).map((_, b) => (
-                <span
-                  key={b}
-                  className="flex-1 rounded-sm"
-                  style={{
-                    height: 8,
-                    background:
-                      shown && b < w.used
-                        ? tight
-                          ? "#FBBF24"
-                          : colors.cyan
-                        : colors.surfaceMuted,
-                    transition: `background .5s ease ${b * 0.03}s`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
+                <div className="flex items-baseline justify-between" style={{ marginBottom: 3 }}>
+                  <span style={{ fontSize: "9px", color: colors.text, fontWeight: 500 }}>{w.ward}</span>
+                  <span
+                    style={{
+                      fontSize: "8px",
+                      fontFamily: mono,
+                      color: tightNow ? "#E11D48" : colors.textTertiary,
+                      fontWeight: tightNow ? 700 : 400,
+                    }}
+                  >
+                    {w.used}/{w.total}
+                  </span>
+                </div>
+                <div className="flex gap-0.5">
+                  {Array.from({ length: w.total }).map((_, b) => (
+                    <span
+                      key={b}
+                      className="flex-1 rounded-sm"
+                      style={{
+                        height: 7,
+                        background: b < w.used ? (tightNow ? "#E11D48" : HMS_ACCENT) : colors.surfaceMuted,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Screen>
     </div>
   );
 }
