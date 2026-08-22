@@ -3,21 +3,39 @@
 // JS and CSS stay in lockstep. Import these instead of hardcoding hex values.
 
 export const colors = {
-  // Neutral foundation
-  bg: "#FBFBFD",
-  surface: "#FFFFFF",
-  surfaceMuted: "#F5F5F7",
-  heading: "#1D1D1F",
-  text: "#0A0A0F",
-  textSecondary: "#6E6E73",
-  textTertiary: "#86868B",
-  hairline: "rgba(0,0,0,0.07)",
+  // ── Neutral foundation (dark) ──────────────────────────────────────────
+  // The site reads dark now. These are picked as a ladder rather than by eye:
+  // each surface is a measured step up from the ground so panels separate
+  // without borders doing the work, and the type steps down in the same way.
+  //
+  // Not pure black — #000 against bright brand colour vibrates, and a slight
+  // blue cast keeps the blue→green gradient sitting in the same family as its
+  // background instead of floating on top of it.
+  bg: "#0A0B0F",          // page ground
+  surface: "#121419",     // cards and panels
+  surfaceMuted: "#1A1D24", // insets, chips, code blocks
+  surfaceRaised: "#22262F", // hover states, the step above a card
 
-  // Brand
-  blue: "#2563EB",
-  cyan: "#0EA5E9",
-  green: "#10B981",
-  ink: "#06080F", // deep near-black for the rare dramatic dark beat
+  heading: "#F4F5F7",
+  text: "#E6E8EC",
+  textSecondary: "#A2A9B8",
+  textTertiary: "#767E8E",
+
+  hairline: "rgba(255,255,255,0.08)",
+  hairlineStrong: "rgba(255,255,255,0.14)",
+
+  // ── Brand ──────────────────────────────────────────────────────────────
+  // Lifted from the light-theme values. #2563EB is a fine blue on white and
+  // muddy on near-black; these clear 4.5:1 against `bg` so a link or a label
+  // is readable rather than merely visible.
+  blue: "#4F8CFF",
+  cyan: "#38BDF8",
+  green: "#34D399",
+  ink: "#06080F",
+
+  // Kept for the rare panel that stays light on purpose.
+  lightSurface: "#FFFFFF",
+  onLight: "#0D0D1A",
 } as const;
 
 // Signature blue→green gradient, the single brand accent. Use sparingly.
@@ -37,8 +55,10 @@ export const productAccent = {
 } as const;
 
 // Soft, low-contrast elevation used across cards and panels.
+// Shadows carry almost nothing on a dark ground — depth comes from the surface
+// ladder above. These stay for layering large panels off the page background.
 export const shadow = {
-  sm: "0 8px 24px rgba(0,0,0,0.05)",
-  md: "0 20px 60px rgba(0,0,0,0.06)",
-  lg: "0 40px 90px rgba(0,0,0,0.10)",
+  sm: "0 8px 24px rgba(0,0,0,0.35)",
+  md: "0 20px 60px rgba(0,0,0,0.45)",
+  lg: "0 40px 90px rgba(0,0,0,0.55)",
 } as const;

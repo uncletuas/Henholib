@@ -121,7 +121,7 @@ export function FounderPage() {
       <section style={{ background: colors.ink, padding: "clamp(80px,11vw,140px) 0" }}>
         <Reveal className="max-w-4xl mx-auto px-6 text-center">
           <Sparkles size={28} style={{ color: "#7DD3FC", margin: "0 auto 28px" }} />
-          <p style={{ color: "#F5F5F7", fontSize: "clamp(1.6rem,3.6vw,2.6rem)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.32 }}>
+          <p style={{ color: colors.surfaceMuted, fontSize: "clamp(1.6rem,3.6vw,2.6rem)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.32 }}>
             “I'm driven by a single goal, to build solutions and lead in ways that create lasting, positive impact, for <GradientText>Africa and for the world</GradientText>.”
           </p>
         </Reveal>

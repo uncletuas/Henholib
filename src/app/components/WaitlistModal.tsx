@@ -77,7 +77,7 @@ export function WaitlistModal({ product, onClose }: WaitlistModalProps) {
         ) : (
           <>
             <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center" style={{ background: "#fff", border: `1px solid ${p.accent}22` }}>
+              <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${p.accent}22` }}>
                 <ImageWithFallback src={p.logo} alt={p.name} className="w-9 h-9 object-contain" />
               </div>
               <div className="text-center">

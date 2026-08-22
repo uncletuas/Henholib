@@ -1,3 +1,4 @@
+import { colors } from "../lib/brand";
 export function PrivacyPage() {
   const sections = [
     { title: "Information we collect", body: "We collect information you provide directly to us when you create an account, make a purchase, or contact us. This includes name, email address, payment information, and any other information you choose to provide. We also collect information automatically when you use our services, including usage data, device information, and log data." },
@@ -12,23 +13,23 @@ export function PrivacyPage() {
   ];
 
   return (
-    <div style={{ background: "#FFFFFF" }}>
-      <section style={{ background: "#F7F7FB", padding: "80px 0 48px" }}>
+    <div style={{ background: colors.surface }}>
+      <section style={{ background: colors.surfaceMuted, padding: "80px 0 48px" }}>
         <div className="max-w-3xl mx-auto px-6">
-          <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>LEGAL</p>
-          <h1 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", marginBottom: "12px" }}>Privacy Policy</h1>
-          <p style={{ color: "#9CA3AF", fontSize: "14px" }}>Effective date: June 9, 2026</p>
+          <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>LEGAL</p>
+          <h1 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", marginBottom: "12px" }}>Privacy Policy</h1>
+          <p style={{ color: colors.textTertiary, fontSize: "14px" }}>Effective date: June 9, 2026</p>
         </div>
       </section>
       <section style={{ padding: "64px 0 96px" }}>
         <div className="max-w-3xl mx-auto px-6 flex flex-col gap-10">
-          <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
+          <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.8 }}>
             Loopital Limited ("Loopital", "we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our products, services, and website.
           </p>
           {sections.map((s) => (
             <div key={s.title}>
-              <h2 style={{ fontWeight: 700, fontSize: "18px", color: "#0D0D1A", marginBottom: "10px" }}>{s.title}</h2>
-              <p style={{ color: "#6B7280", fontSize: "15px", lineHeight: 1.8 }}>{s.body}</p>
+              <h2 style={{ fontWeight: 700, fontSize: "18px", color: colors.heading, marginBottom: "10px" }}>{s.title}</h2>
+              <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.8 }}>{s.body}</p>
             </div>
           ))}
         </div>

@@ -47,7 +47,7 @@ export function Navbar() {
     <nav
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled || mobileOpen || activeMenu ? "rgba(251,251,253,0.8)" : "rgba(251,251,253,0.55)",
+        background: scrolled || mobileOpen || activeMenu ? "rgba(10,11,15,0.86)" : "rgba(10,11,15,0.55)",
         backdropFilter: "saturate(180%) blur(20px)",
         WebkitBackdropFilter: "saturate(180%) blur(20px)",
         borderBottom: scrolled ? `1px solid ${colors.hairline}` : "1px solid transparent",
@@ -69,11 +69,11 @@ export function Navbar() {
               </button>
               {activeMenu === "products" && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-[660px]" onMouseEnter={() => openMenu("products")} onMouseLeave={closeMenu}>
-                  <div className="rounded-3xl overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.05)" }}>
+                  <div className="rounded-3xl overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08)" }}>
                     <div className="p-3 grid grid-cols-2 gap-1">
                       {products.map((p) => (
                         <ProductLink key={p.id} product={p} className="flex items-start gap-3.5 p-4 rounded-2xl transition-colors hover:bg-[#F5F5F7] group">
-                          <div className="w-11 h-11 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+                          <div className="w-11 h-11 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
                             <ImageWithFallback src={p.logo} alt={p.name} className="w-8 h-8 object-contain" />
                           </div>
                           <div className="min-w-0">
@@ -103,7 +103,7 @@ export function Navbar() {
               </button>
               {activeMenu === "company" && (
                 <div className="absolute top-full left-0 pt-3 w-52" onMouseEnter={() => openMenu("company")} onMouseLeave={closeMenu}>
-                  <div className="rounded-2xl overflow-hidden p-2" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.05)" }}>
+                  <div className="rounded-2xl overflow-hidden p-2" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08)" }}>
                     {company.map((c) => (
                       <Link key={c.label} to={c.href} className="block px-4 py-2.5 rounded-xl text-sm transition-colors hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
                     ))}
@@ -136,7 +136,7 @@ export function Navbar() {
           <p className="text-xs font-semibold px-3 py-2" style={{ color: colors.textTertiary, letterSpacing: "0.06em" }}>PRODUCTS</p>
           {products.map((p) => (
             <ProductLink key={p.id} product={p} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7]">
-              <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+              <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
                 <ImageWithFallback src={p.logo} alt={p.name} className="w-7 h-7 object-contain" />
               </div>
               <div>

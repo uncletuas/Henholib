@@ -56,7 +56,7 @@ export function ProductPageShell(c: ProductPageContent) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <Reveal from="left">
               <div className="flex items-center gap-3 mb-7">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center" style={{ background: "#fff", border: `1px solid ${p.accent}22`, boxShadow: shadow.sm }}>
+                <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${p.accent}22`, boxShadow: shadow.sm }}>
                   <ImageWithFallback src={p.logo} alt={p.name} className="w-10 h-10 object-contain" />
                 </div>
                 <div>

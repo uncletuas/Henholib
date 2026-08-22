@@ -22,7 +22,7 @@ export function PaymentCallbackPage() {
 
   const card = (icon: React.ReactNode, title: string, body: string, cta?: React.ReactNode) => (
     <div className="min-h-[70vh] flex items-center justify-center px-6" style={{ background: colors.bg }}>
-      <div className="w-full max-w-md rounded-3xl p-9 text-center" style={{ background: "#fff", border: `1px solid ${colors.hairline}`, boxShadow: shadow.md }}>
+      <div className="w-full max-w-md rounded-3xl p-9 text-center" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}`, boxShadow: shadow.md }}>
         <div className="mx-auto mb-5">{icon}</div>
         <h1 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "10px" }}>{title}</h1>
         <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.65, marginBottom: "24px" }}>{body}</p>

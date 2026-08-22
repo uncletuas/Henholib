@@ -44,7 +44,7 @@ export function PalOnboardingModal() {
       <div className="relative w-full max-w-md rounded-[28px] p-8 flex flex-col gap-5" style={{ background: colors.surface, boxShadow: "0 40px 100px rgba(0,0,0,0.22)", border: `1px solid ${colors.hairline}` }}>
         <button onClick={() => setShowPalOnboarding(false)} className="absolute top-5 right-5 p-2 rounded-lg hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
             <ImageWithFallback src={pal.logo} alt="Pal" className="w-8 h-8 object-contain" />
           </div>
           <div>

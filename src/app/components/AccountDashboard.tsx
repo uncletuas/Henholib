@@ -16,10 +16,10 @@ interface AccountDashboardProps {
 type Tab = "overview" | "billing" | "settings";
 
 const statusMeta: Record<Subscription["status"], { label: string; color: string }> = {
-  active: { label: "Active", color: "#10B981" },
-  trialing: { label: "Trial", color: "#0EA5E9" },
+  active: { label: "Active", color: colors.green },
+  trialing: { label: "Trial", color: colors.cyan },
   past_due: { label: "Past due", color: "#F59E0B" },
-  canceled: { label: "Canceled", color: "#9CA3AF" },
+  canceled: { label: "Canceled", color: colors.textTertiary },
 };
 
 const fmtDate = (iso: string) => {
@@ -95,7 +95,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                       const st = sub ? statusMeta[sub.status] : null;
                       return (
                         <div key={p.id} className="flex items-center gap-4 p-5 rounded-2xl" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
-                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "#fff", border: `1px solid ${colors.hairline}` }}>
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
                             <ImageWithFallback src={p.logo} alt={p.name} className="w-9 h-9 object-contain" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -136,7 +136,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
 
               <div className="p-5 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
                 <p style={{ fontWeight: 600, fontSize: "14px", color: "#1D4ED8", marginBottom: "4px" }}>One account, every app</p>
-                <p style={{ color: "#2563EB", fontSize: "13px", lineHeight: 1.65 }}>Sign in to Swift or Pal with this same email and password, your subscription activates automatically.</p>
+                <p style={{ color: colors.blue, fontSize: "13px", lineHeight: 1.65 }}>Sign in to Swift or Pal with this same email and password, your subscription activates automatically.</p>
               </div>
             </div>
           )}
@@ -171,7 +171,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                           </div>
                           <div className="flex items-center gap-4">
                             <span style={{ color: colors.heading, fontSize: "14px", fontWeight: 500 }}>{inv.amount}</span>
-                            <span className="px-2 py-0.5 rounded-md text-xs capitalize" style={{ background: "rgba(16,185,129,0.1)", color: "#10B981" }}>{inv.status}</span>
+                            <span className="px-2 py-0.5 rounded-md text-xs capitalize" style={{ background: "rgba(16,185,129,0.1)", color: colors.green }}>{inv.status}</span>
                           </div>
                         </div>
                       );
@@ -230,7 +230,7 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
     <div className="flex flex-col gap-6">
       <div className="p-4 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
         <p style={{ fontWeight: 600, fontSize: "13.5px", color: "#1D4ED8", marginBottom: "2px" }}>Your profile, everywhere</p>
-        <p style={{ color: "#2563EB", fontSize: "12.5px", lineHeight: 1.6 }}>This is the name and photo people see across Loopital, Pal and Swift, one account, one identity.</p>
+        <p style={{ color: colors.blue, fontSize: "12.5px", lineHeight: 1.6 }}>This is the name and photo people see across Loopital, Pal and Swift, one account, one identity.</p>
       </div>
 
       {/* Avatar */}
@@ -261,7 +261,7 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
         <button onClick={save} disabled={busy} className="self-start px-6 py-2.5 rounded-full font-semibold text-sm text-white hover:opacity-95 disabled:opacity-60 inline-flex items-center gap-2" style={{ background: gradientBrand }}>
           {busy ? <Loader2 size={15} className="animate-spin" /> : null} Save changes
         </button>
-        {msg && <span style={{ color: msg.ok ? "#10B981" : "#DC2626", fontSize: "12.5px" }}>{msg.text}</span>}
+        {msg && <span style={{ color: msg.ok ? colors.green : "#DC2626", fontSize: "12.5px" }}>{msg.text}</span>}
       </div>
 
       <div style={{ borderTop: `1px solid ${colors.hairline}`, paddingTop: "24px" }}>

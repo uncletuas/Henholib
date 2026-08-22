@@ -8,9 +8,8 @@ import { CTAButton } from "../components/CTAButton";
 import { GlassCard } from "../components/GlassCard";
 import { TypingChat } from "../components/TypingChat";
 import { TypeCycle } from "../components/TypeCycle";
-import { EcosystemCard } from "../components/EcosystemCard";
-import { ecosystemProducts } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
+import { ProductShowcase } from "../components/home/ProductShowcase";
 import { useAuth } from "../context/AuthContext";
 
 
@@ -66,24 +65,21 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ── ECOSYSTEM (needs-first) ── */}
-      <Section background={colors.surface} pad="md">
+      {/* ── PRODUCTS (live demos) ── */}
+      {/* Each tile runs a working miniature of the product rather than a
+          screenshot: the demos loop, pause off-screen, and settle on their end
+          state when the reader prefers reduced motion. */}
+      <Section background={colors.bg} pad="md">
         <Reveal className="max-w-2xl mb-8">
           <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>THE LOOPITAL ECOSYSTEM</p>
-          <h2 style={{ marginBottom: "12px" }}>Find the platform built for your need.</h2>
+          <h2 style={{ marginBottom: "12px" }}>See each one working.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            From your own health to running a hospital, a facility, or a school, each platform solves a specific problem, works on its own, and connects to the rest.
+            From your own health to running a hospital, a facility, or a school, each platform
+            solves a specific problem, works on its own, and connects to the rest.
           </p>
         </Reveal>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {ecosystemProducts.map((p, i) => (
-            <Reveal key={p.id} delay={i * 0.05}>
-              <EcosystemCard product={p} />
-            </Reveal>
-          ))}
-        </div>
+        <ProductShowcase />
       </Section>
-
 
       {/* ── AI AT THE CORE (compact glass beat) ── */}
       <Section background={colors.surface} pad="md">
@@ -120,7 +116,7 @@ export function HomePage() {
             Explore the product line or talk to us about building something specific for your team.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <CTAButton to="/products" variant="solid" size="md" style={{ background: "#fff", color: colors.heading }}>Explore products</CTAButton>
+            <CTAButton to="/products" variant="solid" size="md" style={{ background: colors.lightSurface, color: colors.onLight }}>Explore products</CTAButton>
             <CTAButton to="/contact" variant="ghost-light" size="md">Talk to us</CTAButton>
           </div>
         </Reveal>

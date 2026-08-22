@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { colors } from "../lib/brand";
 import { Outlet, useLocation, useSearchParams } from "react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
@@ -53,7 +54,7 @@ export function RootLayout() {
   }, [user, setShowGuide]);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#FBFBFD" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: colors.bg }}>
       <Seo {...seo} path={location.pathname} />
       <ScrollToTop />
       {!isAppShell && <Navbar />}

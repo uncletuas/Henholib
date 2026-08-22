@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { colors } from "../lib/brand";
 import { useReducedMotion } from "motion/react";
 
 /**
@@ -6,7 +7,7 @@ import { useReducedMotion } from "motion/react";
  * changing audience word in the hero headline. Renders the text with the brand
  * gradient plus a blinking caret. Static (first phrase) under reduced-motion.
  */
-export function TypeCycle({ phrases, caretColor = "#2563EB" }: { phrases: string[]; caretColor?: string }) {
+export function TypeCycle({ phrases, caretColor = colors.blue }: { phrases: string[]; caretColor?: string }) {
   const reduce = useReducedMotion();
   const [i, setI] = useState(0);
   const [text, setText] = useState("");

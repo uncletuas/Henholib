@@ -1,3 +1,4 @@
+import { colors } from "../lib/brand";
 export function TermsPage() {
   const sections = [
     { title: "Acceptance of terms", body: "By accessing or using any Loopital product or service, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our products or services." },
@@ -13,23 +14,23 @@ export function TermsPage() {
   ];
 
   return (
-    <div style={{ background: "#FFFFFF" }}>
-      <section style={{ background: "#F7F7FB", padding: "80px 0 48px" }}>
+    <div style={{ background: colors.surface }}>
+      <section style={{ background: colors.surfaceMuted, padding: "80px 0 48px" }}>
         <div className="max-w-3xl mx-auto px-6">
-          <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>LEGAL</p>
-          <h1 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", marginBottom: "12px" }}>Terms of Service</h1>
-          <p style={{ color: "#9CA3AF", fontSize: "14px" }}>Effective date: June 9, 2026</p>
+          <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>LEGAL</p>
+          <h1 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", marginBottom: "12px" }}>Terms of Service</h1>
+          <p style={{ color: colors.textTertiary, fontSize: "14px" }}>Effective date: June 9, 2026</p>
         </div>
       </section>
       <section style={{ padding: "64px 0 96px" }}>
         <div className="max-w-3xl mx-auto px-6 flex flex-col gap-10">
-          <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
+          <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.8 }}>
             These Terms of Service govern your use of all products, services, and websites operated by Loopital Limited. Please read them carefully before using our services.
           </p>
           {sections.map((s) => (
             <div key={s.title}>
-              <h2 style={{ fontWeight: 700, fontSize: "18px", color: "#0D0D1A", marginBottom: "10px" }}>{s.title}</h2>
-              <p style={{ color: "#6B7280", fontSize: "15px", lineHeight: 1.8 }}>{s.body}</p>
+              <h2 style={{ fontWeight: 700, fontSize: "18px", color: colors.heading, marginBottom: "10px" }}>{s.title}</h2>
+              <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.8 }}>{s.body}</p>
             </div>
           ))}
         </div>

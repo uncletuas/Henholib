@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { colors } from "../lib/brand";
 import { Link } from "react-router";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
@@ -16,14 +17,14 @@ export function AboutPage() {
   return (
     <div>
       {/* Header */}
-      <section style={{ background: "#F7F7FB", padding: "80px 0 64px" }}>
+      <section style={{ background: colors.surfaceMuted, padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-3xl">
-            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>ABOUT LOOPITAL</p>
-            <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
+            <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>ABOUT LOOPITAL</p>
+            <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               A technology company building for the long run.
             </h1>
-            <p style={{ color: "#6B7280", fontSize: "18px", lineHeight: 1.8 }}>
+            <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.8 }}>
               Loopital Limited is a global technology company that develops software products, artificial intelligence solutions, enterprise platforms, websites, mobile applications, and digital systems that help organizations operate more efficiently.
             </p>
           </motion.div>
@@ -31,19 +32,19 @@ export function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section style={{ background: "#FFFFFF", padding: "96px 0" }}>
+      <section style={{ background: colors.surface, padding: "96px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-7">
               <div>
-                <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OUR MISSION</p>
-                <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "20px" }}>
+                <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OUR MISSION</p>
+                <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "20px" }}>
                   To build technology that moves organizations forward.
                 </h2>
-                <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8, marginBottom: "16px" }}>
+                <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.8, marginBottom: "16px" }}>
                   We founded Loopital on a single conviction: most organizations are limited not by ambition, but by the technology available to them. Too many businesses and institutions still run on outdated, fragmented, or poorly designed software systems.
                 </p>
-                <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
+                <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.8 }}>
                   Loopital exists to close that gap, by building products that are genuinely excellent, and by helping other organizations bring that same quality to their own technology.
                 </p>
               </div>
@@ -58,19 +59,19 @@ export function AboutPage() {
       </section>
 
       {/* Values */}
-      <section style={{ background: "#F7F7FB", padding: "96px 0" }}>
+      <section style={{ background: colors.surfaceMuted, padding: "96px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14">
-            <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HOW WE WORK</p>
-            <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, maxWidth: "480px" }}>
+            <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HOW WE WORK</p>
+            <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, maxWidth: "480px" }}>
               The principles that guide everything we build.
             </h2>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {values.map((v, i) => (
               <motion.div key={v.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="p-8 rounded-2xl bg-white" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
-                <h3 style={{ fontWeight: 700, fontSize: "18px", color: "#0D0D1A", marginBottom: "10px" }}>{v.title}</h3>
-                <p style={{ color: "#6B7280", fontSize: "15px", lineHeight: 1.75 }}>{v.desc}</p>
+                <h3 style={{ fontWeight: 700, fontSize: "18px", color: colors.heading, marginBottom: "10px" }}>{v.title}</h3>
+                <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.75 }}>{v.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -78,7 +79,7 @@ export function AboutPage() {
       </section>
 
       {/* HQ */}
-      <section style={{ background: "#FFFFFF", padding: "96px 0" }}>
+      <section style={{ background: colors.surface, padding: "96px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
@@ -88,16 +89,16 @@ export function AboutPage() {
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-6">
               <div>
-                <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>A NIGERIAN COMPANY, BUILDING GLOBALLY</p>
-                <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "16px" }}>
+                <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>A NIGERIAN COMPANY, BUILDING GLOBALLY</p>
+                <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "16px" }}>
                   Global products, built to travel.
                 </h2>
-                <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
+                <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.8 }}>
                   Loopital is a Nigerian technology company building software products for users and organizations around the world. We work as a distributed team, and everything we ship is designed to be used anywhere.
                 </p>
               </div>
               <div className="flex gap-3 mt-2">
-                <Link to="/contact" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#2563EB", color: "#fff" }}>
+                <Link to="/contact" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
                   Contact us
                 </Link>
               </div>

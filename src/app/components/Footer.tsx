@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { colors } from "../lib/brand";
 import loopitalLogo from "../../imports/loopital-logo.svg";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { products } from "../config/products";
@@ -64,7 +65,7 @@ export function Footer() {
             © {new Date().getFullYear()} Loopital Limited. All rights reserved. Registered in Nigeria.
           </p>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#10B981" }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: colors.green }} />
             <span style={{ color: "#5A5A63", fontSize: "13px" }}>All systems operational</span>
           </div>
         </div>

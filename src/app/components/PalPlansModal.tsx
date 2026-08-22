@@ -164,7 +164,7 @@ export function PalPlansModal({ token, currentPlan, onClose, onContinueFree }: P
 
                   {p.key === "free" ? (
                     onContinueFree ? (
-                      <button onClick={onContinueFree} className="py-2.5 rounded-full text-sm font-semibold transition-all hover:bg-[#F5F5F7]" style={{ background: "#fff", color: colors.heading, border: `1px solid ${colors.hairline}` }}>
+                      <button onClick={onContinueFree} className="py-2.5 rounded-full text-sm font-semibold transition-all hover:bg-[#F5F5F7]" style={{ background: colors.lightSurface, color: colors.onLight, border: `1px solid ${colors.hairline}` }}>
                         Start with Free
                       </button>
                     ) : (
