@@ -8,7 +8,7 @@ export function PrivacyPage() {
     { title: "Your rights", body: "Depending on your location, you may have certain rights regarding your personal information, including the right to access, correct, or delete your personal data; the right to object to or restrict processing; and the right to data portability. To exercise these rights, please contact us at info@loopital.com." },
     { title: "Cookies", body: "We use cookies and similar tracking technologies to collect and use personal information about you. For information about our use of cookies, please see our Cookie Policy. You can control the use of cookies through your browser settings." },
     { title: "Changes to this policy", body: "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the effective date. We encourage you to review this policy periodically." },
-    { title: "Contact us", body: "If you have questions about this Privacy Policy or our privacy practices, please contact us at: info@loopital.com · Loopital Limited, Pyale Hub, 21 Bekwere Wosu Street, D-Line, Diobu, Port Harcourt, Rivers State, Nigeria." },
+    { title: "Contact us", body: "If you have questions about this Privacy Policy or our privacy practices, please contact us at: info@loopital.com · Loopital Limited, registered in Nigeria." },
   ];
 
   return (

@@ -9,7 +9,7 @@ export function TermsPage() {
     { title: "Termination", body: "We may suspend or terminate your access to our services at any time for violation of these terms or for any other reason at our discretion. Upon termination, your right to use our services will cease immediately." },
     { title: "Limitation of liability", body: "To the maximum extent permitted by law, Loopital shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, or goodwill." },
     { title: "Governing law", body: "These terms shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria. Any disputes shall be resolved in the courts of Rivers State, Nigeria." },
-    { title: "Contact", body: "Questions about these terms should be directed to: info@loopital.com · Loopital Limited, Pyale Hub, 21 Bekwere Wosu Street, D-Line, Diobu, Port Harcourt, Rivers State, Nigeria." },
+    { title: "Contact", body: "Questions about these terms should be directed to: info@loopital.com · Loopital Limited, registered in Nigeria." },
   ];
 
   return (

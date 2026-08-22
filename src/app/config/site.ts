@@ -57,5 +57,6 @@ export const FOUNDER_SOCIALS = [
 ] as const;
 
 export const CONTACT_EMAIL = "info@loopital.com";
-export const COMPANY_ADDRESS =
-  "Pyale Hub, 21 Bekwere Wosu Street, D-Line, Diobu, Port Harcourt, Rivers State, Nigeria";
+// No public office address for now — the company is registered in Nigeria but
+// does not publish a street address. Anything that needs to reach us uses the
+// contact form or the published email.

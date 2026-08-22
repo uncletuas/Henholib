@@ -39,7 +39,6 @@ export function Footer() {
             <p style={{ color: "#8A8A93", fontSize: "14px", lineHeight: 1.8 }}>
               Building the connected digital infrastructure powering the next generation of work, communication, healthcare, and enterprise.
             </p>
-            <p className="mt-5" style={{ color: "#5A5A63", fontSize: "13px" }}>Port Harcourt, Nigeria</p>
           </div>
           {columns.map((c) => (
             <div key={c.title}>

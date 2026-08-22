@@ -83,29 +83,21 @@ export function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
               <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
-                <ImageWithFallback src={officeImg} alt="Loopital headquarters" className="w-full h-full object-cover" />
+                <ImageWithFallback src={officeImg} alt="Loopital" className="w-full h-full object-cover" />
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-6">
               <div>
-                <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HEADQUARTERED IN NIGERIA</p>
+                <p style={{ color: "#2563EB", fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>A NIGERIAN COMPANY, BUILDING GLOBALLY</p>
                 <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: "#0D0D1A", letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "16px" }}>
-                  Global products built from Port Harcourt.
+                  Global products, built to travel.
                 </h2>
                 <p style={{ color: "#6B7280", fontSize: "16px", lineHeight: 1.8 }}>
-                  Loopital is headquartered at Pyale Hub in Port Harcourt, Rivers State, Nigeria. From here, we build software products for users and organizations around the world. We are proudly a Nigerian technology company with global ambition.
+                  Loopital is a Nigerian technology company building software products for users and organizations around the world. We work as a distributed team, and everything we ship is designed to be used anywhere.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 pt-4 pl-4" style={{ borderLeft: "3px solid #2563EB" }}>
-                <p style={{ fontWeight: 600, color: "#0D0D1A", fontSize: "15px" }}>Pyale Hub</p>
-                <p style={{ color: "#6B7280", fontSize: "14px" }}>21 Bekwere Wosu Street, D-Line, Diobu</p>
-                <p style={{ color: "#6B7280", fontSize: "14px" }}>Port Harcourt, Rivers State, Nigeria</p>
-              </div>
               <div className="flex gap-3 mt-2">
-                <Link to="/careers" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#2563EB", color: "#fff" }}>
-                  View open roles
-                </Link>
-                <Link to="/contact" className="inline-flex items-center px-6 py-3 rounded-xl font-medium text-sm transition-all hover:bg-gray-50" style={{ border: "1px solid rgba(0,0,0,0.1)", color: "#374151" }}>
+                <Link to="/contact" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: "#2563EB", color: "#fff" }}>
                   Contact us
                 </Link>
               </div>

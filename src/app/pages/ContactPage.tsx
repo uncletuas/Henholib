@@ -75,18 +75,6 @@ export function ContactPage() {
                 ))}
               </motion.div>
 
-              {/* Office */}
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-3">
-                <h2 style={{ fontWeight: 700, fontSize: "20px", color: "#0D0D1A" }}>Our office</h2>
-                <div className="flex flex-col gap-1.5" style={{ paddingLeft: "16px", borderLeft: "3px solid #2563EB" }}>
-                  <p style={{ fontWeight: 600, fontSize: "15px", color: "#0D0D1A" }}>Pyale Hub</p>
-                  <p style={{ fontSize: "14px", color: "#6B7280" }}>21 Bekwere Wosu Street</p>
-                  <p style={{ fontSize: "14px", color: "#6B7280" }}>D-Line, Diobu</p>
-                  <p style={{ fontSize: "14px", color: "#6B7280" }}>Port Harcourt, Rivers State</p>
-                  <p style={{ fontSize: "14px", color: "#6B7280" }}>Nigeria</p>
-                </div>
-              </motion.div>
-
               {/* Inquiry types */}
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-4">
                 <h2 style={{ fontWeight: 700, fontSize: "20px", color: "#0D0D1A" }}>What we help with</h2>
@@ -153,23 +141,6 @@ export function ContactPage() {
                 </div>
               </motion.div>
 
-              {/* Map embed */}
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <div className="rounded-2xl overflow-hidden" style={{ height: "320px", border: "1px solid rgba(0,0,0,0.07)" }}>
-                  <iframe
-                    title="Loopital Office Location"
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.4823!2d7.0164!3d4.7815!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwNDYnNTMuNCJOIDfCsDAwJzU5LjAiRQ!5e0!3m2!1sen!2sng!4v1680000000000!5m2!1sen!2sng"
-                  />
-                </div>
-                <p className="mt-2 text-center" style={{ color: "#9CA3AF", fontSize: "12px" }}>
-                  Pyale Hub · 21 Bekwere Wosu Street, D-Line, Port Harcourt, Nigeria
-                </p>
-              </motion.div>
             </div>
           </div>
         </div>

@@ -14,13 +14,10 @@ export const organizationLd: Record<string, unknown> = {
   email: CONTACT_EMAIL,
   description:
     "Loopital builds software products, AI solutions, and enterprise platforms that help businesses and institutions operate more intelligently.",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Pyale Hub, 21 Bekwere Wosu Street, D-Line, Diobu",
-    addressLocality: "Port Harcourt",
-    addressRegion: "Rivers State",
-    addressCountry: "NG",
-  },
+  // No PostalAddress: the company does not publish a street address at the
+  // moment. Schema.org treats address as optional on an Organization, and a
+  // stale or partial one is worse for search than none — it is what gets shown
+  // in a knowledge panel and sent to maps.
 };
 
 export const websiteLd: Record<string, unknown> = {

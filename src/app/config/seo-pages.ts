@@ -98,7 +98,7 @@ export const pageSeo: Record<string, PageSeo> = {
   "/about": {
     title: "About Loopital",
     description:
-      "Loopital is a technology company building software products, AI, and enterprise platforms from Port Harcourt, Nigeria, for organizations worldwide.",
+      "Loopital is a Nigerian technology company building software products, AI, and enterprise platforms for organizations worldwide.",
     jsonLd: organizationLd,
   },
   "/insights": {
