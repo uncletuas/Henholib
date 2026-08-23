@@ -1,16 +1,14 @@
 import { motion } from "motion/react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
-import { GradientText } from "../components/GradientText";
 import { CTAButton } from "../components/CTAButton";
-import { GlassCard } from "../components/GlassCard";
 import { TypingChat } from "../components/TypingChat";
 import { TypeCycle } from "../components/TypeCycle";
 import { wash, colors, gradientBrand } from "../lib/brand";
 import { ProductShowcase } from "../components/home/ProductShowcase";
-import { useAuth } from "../context/AuthContext";
+import { CommitmentSection } from "../components/home/CommitmentSection";
 
 
 // Rotating audiences for the hero headline, the kinds of people, organizations,
@@ -28,7 +26,6 @@ const AUDIENCES = [
 
 
 export function HomePage() {
-  const { setWaitlist } = useAuth();
   return (
     <div>
       {/* ── HERO (centered) ── */}
@@ -81,32 +78,8 @@ export function HomePage() {
         <ProductShowcase />
       </Section>
 
-      {/* ── AI AT THE CORE (compact glass beat) ── */}
-      <Section background={wash.violet} pad="md">
-        <Reveal>
-          <GlassCard interactive={false} className="p-8 lg:p-10" style={{ borderRadius: "28px" }}>
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center">
-              <div>
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5" style={{ background: `${colors.blue}0f`, border: `1px solid ${colors.blue}22` }}>
-                  <Sparkles size={13} style={{ color: colors.blue }} />
-                  <span style={{ color: colors.blue, fontSize: "12.5px", fontWeight: 600, letterSpacing: "0.03em" }}>AI AT THE CORE</span>
-                </span>
-                <h2 style={{ marginBottom: "14px" }}>AI built in from day one, <GradientText>not bolted on later</GradientText>.</h2>
-                <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.7, marginBottom: "22px", maxWidth: "560px" }}>
-                  Led by Pal, intelligence runs through everything we build, research, content,
-                  automation, and decision support, so your people focus on higher-value work.
-                </p>
-                <button onClick={() => setWaitlist("stack62")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5" style={{ background: gradientBrand, fontSize: "14px" }}>Join the Pal waitlist <ArrowRight size={15} /></button>
-              </div>
-              <div className="flex flex-wrap gap-2 lg:justify-end">
-                {["Research & synthesis", "Content generation", "Workflow automation", "Decision support"].map((h) => (
-                  <span key={h} className="px-3.5 py-2 rounded-full" style={{ background: colors.bg, border: `1px solid ${colors.hairline}`, color: colors.heading, fontSize: "13px", fontWeight: 500 }}>{h}</span>
-                ))}
-              </div>
-            </div>
-          </GlassCard>
-        </Reveal>
-      </Section>
+      {/* ── COMMITMENT (full-bleed, footage behind) ── */}
+      <CommitmentSection />
 
       {/* ── CLOSING CTA ── */}
       <section style={{ background: gradientBrand, padding: "clamp(72px,9vw,110px) 0" }}>

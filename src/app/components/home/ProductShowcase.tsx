@@ -6,25 +6,20 @@ import { Reveal } from "../Reveal";
 import { BeaconDemo, HenholibDemo, Hms7Demo, ModusDemo, SwiftDemo } from "./ProductDemos";
 
 /**
- * The product grid on the home page: one card per product, each running a live
- * miniature of the thing itself.
+ * The product grid: one card per product, each running a miniature of the real
+ * screen.
  *
- * The shape is borrowed from the way xAI presents its surfaces — a tiled grid
- * where every tile is a working sample, labelled bottom-left with a quiet
- * "Explore" on the right. What makes that layout work is restraint: the demo
- * fills the card and the chrome almost disappears, so the eye reads the product
- * rather than the packaging.
+ * Laid out the way xAI lays its surfaces out — a centred grid with real air
+ * around it, every tile a working sample, the name bottom-left and a quiet
+ * "Explore" on the right. The space is part of the design; crowding the tiles
+ * is what turns a grid of demos into a feature table.
  *
- * Pal is deliberately absent: the hero runs a Pal demo directly above this
+ * The footer is a solid band of the product's own colour with light type on it.
+ * At a glance, that row of coloured bands is what says these are five different
+ * products rather than five views of one.
+ *
+ * Pal is deliberately absent — the hero runs a Pal demo directly above this
  * grid, and the same product twice on one screen reads as padding.
- *
- * Swift and Henholib draw as phones rather than desktop windows, because that
- * is what they are. Putting a mobile product in browser chrome would promise a
- * web app that does not exist.
- *
- * Column widths follow the shape of the thing inside them: the phones get
- * narrow columns and the desktop screens wide ones, so no card is mostly empty
- * space around a device that never intended to fill it.
  */
 
 interface CardProps {
@@ -33,51 +28,53 @@ interface CardProps {
   href: string;
   external?: boolean;
   accent: string;
+  /** Phones need a portrait window; desktop screens a landscape one. */
+  shape: "mobile" | "desktop";
   children: ReactNode;
-  className?: string;
 }
 
-function ShowcaseCard({ label, blurb, href, external, accent, children, className }: CardProps) {
+function ShowcaseCard({ label, blurb, href, external, accent, shape, children }: CardProps) {
   const body = (
     <>
-      {/* The demo. Fixed height so every tile in a row lines up regardless of
-          how much its contents happen to draw. */}
-      <div className="px-5 pt-5 pb-3" style={{ height: "200px", overflow: "hidden" }}>
+      <div
+        className={shape === "mobile" ? "px-4 pt-6 pb-5" : "px-6 pt-6 pb-6"}
+        style={{
+          height: 440,
+          overflow: "hidden",
+          // A soft wash of the product's colour behind the device, so the screen
+          // sits on something rather than floating on flat white.
+          background: `linear-gradient(180deg, ${tint(accent, 0.14)} 0%, ${tint(accent, 0.04)} 100%)`,
+        }}
+      >
         {children}
       </div>
 
-      <div
-        className="flex items-center justify-between gap-3 px-5 py-3.5"
-        style={{ borderTop: `1px solid ${tint(accent, 0.18)}`, background: colors.surface }}
-      >
+      <div className="flex items-center justify-between gap-3 px-5 py-4" style={{ background: accent }}>
         <div className="min-w-0">
-          <p style={{ color: colors.heading, fontSize: "14px", fontWeight: 600 }}>{label}</p>
-          <p className="truncate" style={{ color: colors.textTertiary, fontSize: "12px" }}>
+          <p style={{ color: "#FFFFFF", fontSize: "15px", fontWeight: 700, lineHeight: 1.2 }}>{label}</p>
+          <p className="truncate" style={{ color: "rgba(255,255,255,0.82)", fontSize: "12.5px" }}>
             {blurb}
           </p>
         </div>
         <span
           className="inline-flex items-center gap-1 shrink-0 transition-transform group-hover:translate-x-0.5"
-          style={{ color: accent, fontSize: "12.5px", fontWeight: 600 }}
+          style={{ color: "#FFFFFF", fontSize: "13px", fontWeight: 600 }}
         >
-          Explore <ArrowRight size={13} />
+          Explore <ArrowRight size={14} />
         </span>
       </div>
     </>
   );
 
-  // Each card carries a wash of its product's own colour, strongest at the top
-  // where the screen sits. That is what stops six white rectangles reading as a
-  // spreadsheet — the grid gets a rhythm of temperature, and every product is
-  // recognisable by its tile before you read a word of it.
   const style = {
-    background: `linear-gradient(180deg, ${tint(accent, 0.13)} 0%, ${tint(accent, 0.04)} 42%, ${colors.surface} 100%)`,
-    border: `1px solid ${tint(accent, 0.22)}`,
-    borderRadius: "20px",
-    boxShadow: shadow.sm,
+    borderRadius: "22px",
+    overflow: "hidden",
+    boxShadow: shadow.md,
+    border: `1px solid ${tint(accent, 0.2)}`,
+    background: colors.surface,
   };
 
-  const cls = `group block overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${className ?? ""}`;
+  const cls = "group block h-full transition-transform duration-300 hover:-translate-y-1";
 
   return external ? (
     <a href={href} target="_blank" rel="noreferrer" className={cls} style={style}>
@@ -92,20 +89,23 @@ function ShowcaseCard({ label, blurb, href, external, accent, children, classNam
 
 export function ProductShowcase() {
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <div className="mx-auto" style={{ maxWidth: 1120 }}>
+      {/* Phones get narrow columns, desktop screens wide ones, so nothing sits
+          marooned in space its device never meant to fill. */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <Reveal className="md:col-span-4">
           <ShowcaseCard
             label="Swift"
             blurb="AI ads and CRM"
             href="https://swift.loopital.com"
             external
-            accent="#0EA5E9"
-            className="h-full"
+            accent="#12B76A"
+            shape="mobile"
           >
             <SwiftDemo />
           </ShowcaseCard>
         </Reveal>
+
         <Reveal delay={0.06} className="md:col-span-8">
           <ShowcaseCard
             label="Modus"
@@ -113,48 +113,48 @@ export function ProductShowcase() {
             href="https://modus.loopital.com"
             external
             accent="#0891B2"
-            className="h-full"
+            shape="desktop"
           >
             <ModusDemo />
           </ShowcaseCard>
         </Reveal>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
-        <Reveal className="md:col-span-5">
+        <Reveal delay={0.12} className="md:col-span-8">
           <ShowcaseCard
             label="Beacon"
             blurb="Schools and training institutions"
             href="/products/beacon"
             accent="#D6294E"
-            className="h-full"
+            shape="desktop"
           >
             <BeaconDemo />
           </ShowcaseCard>
         </Reveal>
-        <Reveal delay={0.06} className="md:col-span-3">
+
+        <Reveal delay={0.18} className="md:col-span-4">
           <ShowcaseCard
             label="Henholib"
             blurb="Your health, in your pocket"
             href="/products/henholib"
-            accent="#F97316"
-            className="h-full"
+            accent="#F26D21"
+            shape="mobile"
           >
             <HenholibDemo />
           </ShowcaseCard>
         </Reveal>
-        <Reveal delay={0.12} className="md:col-span-4">
+
+        <Reveal delay={0.24} className="md:col-span-12">
           <ShowcaseCard
             label="HMS7"
             blurb="The hospital operating system"
             href="/products/hms7"
             accent="#0D9F79"
-            className="h-full"
+            shape="desktop"
           >
             <Hms7Demo />
           </ShowcaseCard>
         </Reveal>
       </div>
-    </>
+    </div>
   );
 }
