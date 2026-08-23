@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
-import { colors } from "../lib/brand";
+import { FileText } from "lucide-react";
+import { colors, shadow } from "../lib/brand";
 import { CoworkerFace, type CoworkerMood } from "./pal/CoworkerFace";
 
-const PAIRS: { q: string; a: string; mood: CoworkerMood }[] = [
-  { q: "Summarize the Q3 board deck", a: "Done, 5 key takeaways, 3 risks, and a one-line recommendation. Want the email draft too?", mood: "happy" },
-  { q: "Draft a launch post for Swift", a: "Here's a punchy 3-line post with a clear CTA and 5 on-brand hashtags, ready to publish.", mood: "excited" },
-  { q: "Where are we losing users in onboarding?", a: "Four drop-off points. The biggest is step 3, it asks for too much. I've proposed fixes.", mood: "neutral" },
+// Each exchange ends in something Pal actually made. Pal is a workspace, not a
+// chatbot, and a demo that only ever produces more talk sells it as the latter.
+const PAIRS: { q: string; a: string; mood: CoworkerMood; artifact: { name: string; kind: string } }[] = [
+  { q: "Summarize the Q3 board deck", a: "Done, 5 key takeaways, 3 risks, and a one-line recommendation. Want the email draft too?", mood: "happy", artifact: { name: "Q3 summary", kind: "Doc" } },
+  { q: "Draft a launch post for Swift", a: "Here's a punchy 3-line post with a clear CTA and 5 on-brand hashtags, ready to publish.", mood: "excited", artifact: { name: "Launch post", kind: "Doc" } },
+  { q: "Where are we losing users in onboarding?", a: "Four drop-off points. The biggest is step 3, it asks for too much. I've proposed fixes.", mood: "neutral", artifact: { name: "Funnel analysis", kind: "Sheet" } },
 ];
 
 /**
@@ -133,6 +136,35 @@ export function TypingChat() {
                 </p>
               )}
             </div>
+          </div>
+        )}
+
+        {/* What Pal produced. Appears only once the answer is complete, so the
+            eye reads the reply first and the result second — the order the work
+            actually happens in. */}
+        {phase === "hold" && (
+          <div
+            className="self-start ml-9 inline-flex items-center gap-2 px-3 py-2 rounded-xl"
+            style={{
+              background: colors.surface,
+              border: `1px solid ${colors.hairline}`,
+              boxShadow: shadow.sm,
+            }}
+          >
+            <span
+              className="inline-flex items-center justify-center rounded-md shrink-0"
+              style={{ width: 22, height: 22, background: "rgba(109,90,240,0.12)" }}
+            >
+              <FileText size={12} style={{ color: "#6D5AF0" }} />
+            </span>
+            <span>
+              <span style={{ display: "block", fontSize: "12px", fontWeight: 600, color: colors.heading, lineHeight: 1.2 }}>
+                {pair.artifact.name}
+              </span>
+              <span style={{ fontSize: "10.5px", color: colors.textTertiary }}>
+                {pair.artifact.kind} · saved to your workspace
+              </span>
+            </span>
           </div>
         )}
       </div>

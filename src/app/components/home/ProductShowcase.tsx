@@ -3,14 +3,7 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { colors, shadow, tint } from "../../lib/brand";
 import { Reveal } from "../Reveal";
-import {
-  BeaconDemo,
-  HenholibDemo,
-  Hms7Demo,
-  ModusDemo,
-  PalDemo,
-  SwiftDemo,
-} from "./ProductDemos";
+import { BeaconDemo, HenholibDemo, Hms7Demo, ModusDemo, SwiftDemo } from "./ProductDemos";
 
 /**
  * The product grid on the home page: one card per product, each running a live
@@ -22,9 +15,16 @@ import {
  * fills the card and the chrome almost disappears, so the eye reads the product
  * rather than the packaging.
  *
- * Row rhythm is deliberate. Three equal tiles, then two wider ones, so the grid
- * doesn't read as a spreadsheet — the second row gives the two demos with more
- * to show (bed occupancy, a vitals trace) the room to show it.
+ * Pal is deliberately absent: the hero runs a Pal demo directly above this
+ * grid, and the same product twice on one screen reads as padding.
+ *
+ * Swift and Henholib draw as phones rather than desktop windows, because that
+ * is what they are. Putting a mobile product in browser chrome would promise a
+ * web app that does not exist.
+ *
+ * Column widths follow the shape of the thing inside them: the phones get
+ * narrow columns and the desktop screens wide ones, so no card is mostly empty
+ * space around a device that never intended to fill it.
  */
 
 interface CardProps {
@@ -93,19 +93,8 @@ function ShowcaseCard({ label, blurb, href, external, accent, children, classNam
 export function ProductShowcase() {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Reveal>
-          <ShowcaseCard
-            label="Pal"
-            blurb="AI workspace and coworker"
-            href="/products/pal"
-            accent="#6D5AF0"
-            className="h-full"
-          >
-            <PalDemo />
-          </ShowcaseCard>
-        </Reveal>
-        <Reveal delay={0.06}>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <Reveal className="md:col-span-4">
           <ShowcaseCard
             label="Swift"
             blurb="AI ads and CRM"
@@ -117,7 +106,7 @@ export function ProductShowcase() {
             <SwiftDemo />
           </ShowcaseCard>
         </Reveal>
-        <Reveal delay={0.12}>
+        <Reveal delay={0.06} className="md:col-span-8">
           <ShowcaseCard
             label="Modus"
             blurb="Facility and fleet operations"
@@ -143,7 +132,7 @@ export function ProductShowcase() {
             <BeaconDemo />
           </ShowcaseCard>
         </Reveal>
-        <Reveal delay={0.06} className="md:col-span-4">
+        <Reveal delay={0.06} className="md:col-span-3">
           <ShowcaseCard
             label="Henholib"
             blurb="Your health, in your pocket"
@@ -154,7 +143,7 @@ export function ProductShowcase() {
             <HenholibDemo />
           </ShowcaseCard>
         </Reveal>
-        <Reveal delay={0.12} className="md:col-span-3">
+        <Reveal delay={0.12} className="md:col-span-4">
           <ShowcaseCard
             label="HMS7"
             blurb="The hospital operating system"

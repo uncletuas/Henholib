@@ -156,6 +156,44 @@ function Pill({ text, color }: { text: string; color: string }) {
   );
 }
 
+/**
+ * A phone chassis, for the products that are phone apps.
+ *
+ * Swift and Henholib are mobile applications, and drawing them inside a desktop
+ * window with a sidebar would misrepresent them — a visitor would expect a web
+ * app and find an app store. The frame is the honest part of the demo.
+ */
+function Phone({ accent, children }: { accent: string; children: ReactNode }) {
+  return (
+    <div className="h-full flex items-center justify-center">
+      <div
+        className="overflow-hidden flex flex-col"
+        style={{
+          width: 120,
+          height: "100%",
+          maxHeight: 182,
+          background: colors.surface,
+          border: `1px solid ${colors.hairlineStrong}`,
+          borderRadius: 15,
+          fontFamily: ui,
+          boxShadow: "0 6px 18px rgba(15,23,41,0.10)",
+        }}
+      >
+        {/* Status bar + notch, the two marks that read instantly as "phone". */}
+        <div
+          className="shrink-0 flex items-center justify-between px-2"
+          style={{ height: 15, background: tint(accent, 0.1) }}
+        >
+          <span style={{ fontSize: "6.5px", color: colors.textTertiary, fontWeight: 600 }}>9:41</span>
+          <span style={{ width: 22, height: 3, borderRadius: 2, background: colors.hairlineStrong }} />
+          <span style={{ fontSize: "6.5px", color: colors.textTertiary }}>▮</span>
+        </div>
+        <div className="flex-1 min-h-0 flex flex-col">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 // ── Pal — document editor with the coworker panel ──────────────────────────
 
 const PAL_ACCENT = "#6D5AF0";
@@ -210,10 +248,10 @@ export function PalDemo() {
   );
 }
 
-// ── Swift — campaign dashboard ─────────────────────────────────────────────
+// ── Swift — the phone app ─────────────────────────────────────────────────
 
 const SWIFT_ACCENT = "#0EA5E9";
-const CHANNELS = [
+const SWIFT_CHANNELS = [
   { name: "Meta", spend: "₦84k", state: "Live", color: "#10B981" },
   { name: "Google", spend: "₦61k", state: "Review", color: "#F59E0B" },
 ];
@@ -224,56 +262,51 @@ export function SwiftDemo() {
 
   return (
     <div ref={ref} className="h-full">
-      <Screen
-        accent={SWIFT_ACCENT}
-        title="Swift — Campaigns"
-        sidebar={[{ label: "Campaigns", active: true }, { label: "Leads" }, { label: "Inbox" }, { label: "Wallet" }]}
-      >
-        <div className="p-2.5 flex flex-col gap-2 h-full">
-          <div className="grid grid-cols-3 gap-1.5">
-            {[
-              { k: "Leads", v: leads.toLocaleString() },
-              { k: "CPL", v: "₦154" },
-              { k: "Spend", v: "₦182k" },
-            ].map((m) => (
-              <div
-                key={m.k}
-                className="rounded px-1.5 py-1"
-                style={{ background: colors.surfaceRaised, border: `1px solid ${colors.hairline}` }}
-              >
-                <p style={{ fontSize: "7.5px", color: colors.textTertiary, fontWeight: 600 }}>{m.k}</p>
-                <p style={{ fontSize: "11px", color: colors.heading, fontWeight: 700, fontFamily: mono }}>{m.v}</p>
-              </div>
-            ))}
+      <Phone accent={SWIFT_ACCENT}>
+        <div className="px-2 pt-1.5 pb-2 flex flex-col gap-1.5 flex-1">
+          <div className="rounded-lg px-2 py-1.5" style={{ background: tint(SWIFT_ACCENT, 0.1) }}>
+            <p style={{ fontSize: "6.5px", color: SWIFT_ACCENT, fontWeight: 700, letterSpacing: "0.05em" }}>
+              LEADS
+            </p>
+            <p style={{ fontSize: "15px", fontWeight: 700, color: colors.heading, fontFamily: mono, lineHeight: 1.1 }}>
+              {leads.toLocaleString()}
+            </p>
+            <p style={{ fontSize: "6.5px", color: colors.textSecondary }}>₦154 per lead</p>
           </div>
 
-          <div className="flex items-end gap-1" style={{ height: 26 }}>
-            {[38, 52, 44, 63, 58, 76, 70].map((h, i) => (
+          {SWIFT_CHANNELS.map((c) => (
+            <div key={c.name} className="flex items-center gap-1">
+              <span style={{ fontSize: "7.5px", color: colors.text, width: 30 }}>{c.name}</span>
+              <span style={{ fontSize: "7px", color: colors.textTertiary, fontFamily: mono }}>{c.spend}</span>
+              <span className="ml-auto">
+                <Pill text={c.state} color={c.color} />
+              </span>
+            </div>
+          ))}
+
+          {/* A tab bar is the single clearest signal that this is an app. */}
+          <div
+            className="flex gap-1 mt-auto pt-1"
+            style={{ borderTop: `1px solid ${colors.hairline}` }}
+          >
+            {["Ads", "Leads", "Inbox"].map((t, i) => (
               <span
-                key={i}
-                className="flex-1 rounded-sm"
-                style={{ height: `${h}%`, background: i === 6 ? SWIFT_ACCENT : tint(SWIFT_ACCENT, 0.3) }}
-              />
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-0.5">
-            {CHANNELS.map((c) => (
-              <div
-                key={c.name}
-                className="flex items-center gap-1.5 px-1 py-0.5"
-                style={{ borderBottom: `1px solid ${colors.hairline}` }}
+                key={t}
+                className="flex-1 text-center rounded"
+                style={{
+                  fontSize: "6.5px",
+                  fontWeight: 600,
+                  padding: "2.5px 0",
+                  background: i === 0 ? SWIFT_ACCENT : "transparent",
+                  color: i === 0 ? "#fff" : colors.textTertiary,
+                }}
               >
-                <span style={{ fontSize: "8.5px", color: colors.text, width: 34 }}>{c.name}</span>
-                <span style={{ fontSize: "8.5px", color: colors.textTertiary, fontFamily: mono }}>{c.spend}</span>
-                <span className="ml-auto">
-                  <Pill text={c.state} color={c.color} />
-                </span>
-              </div>
+                {t}
+              </span>
             ))}
           </div>
         </div>
-      </Screen>
+      </Phone>
     </div>
   );
 }
@@ -402,62 +435,54 @@ export function HenholibDemo() {
   const pulse = 70 + (step % 4);
 
   return (
-    <div ref={ref} className="h-full flex items-center justify-center">
-      {/* A phone, because Henholib is a phone app — a desktop window would
-          misrepresent what it is. */}
-      <div
-        className="overflow-hidden flex flex-col"
-        style={{
-          width: 118,
-          height: "100%",
-          maxHeight: 178,
-          background: colors.surface,
-          border: `1px solid ${colors.hairlineStrong}`,
-          borderRadius: 14,
-          fontFamily: ui,
-        }}
-      >
-        <div className="shrink-0 flex items-center justify-center" style={{ height: 14, background: tint(HEN_ACCENT, 0.1) }}>
-          <span style={{ width: 26, height: 3, borderRadius: 2, background: colors.hairlineStrong }} />
-        </div>
-
-        <div className="p-2 flex flex-col gap-1.5 flex-1">
+    <div ref={ref} className="h-full">
+      <Phone accent={HEN_ACCENT}>
+        <div className="px-2 pt-1.5 pb-2 flex flex-col gap-1.5 flex-1">
           <p style={{ fontSize: "8px", color: colors.textTertiary }}>Good morning, Mia</p>
 
           <div className="rounded-lg px-2 py-1.5" style={{ background: tint(HEN_ACCENT, 0.1) }}>
-            <p style={{ fontSize: "7.5px", color: HEN_ACCENT, fontWeight: 700 }}>NEXT APPOINTMENT</p>
-            <p style={{ fontSize: "8.5px", color: colors.heading, fontWeight: 600, marginTop: 1 }}>Dr. Eze · Thu 10:30</p>
-            <p style={{ fontSize: "7.5px", color: colors.textSecondary }}>Cardiology · UPTH</p>
+            <p style={{ fontSize: "6.5px", color: HEN_ACCENT, fontWeight: 700, letterSpacing: "0.05em" }}>
+              NEXT APPOINTMENT
+            </p>
+            <p style={{ fontSize: "8px", color: colors.heading, fontWeight: 600, marginTop: 1 }}>
+              Dr. Eze · Thu 10:30
+            </p>
+            <p style={{ fontSize: "6.5px", color: colors.textSecondary }}>Cardiology · UPTH</p>
           </div>
 
-          <div className="rounded-lg px-2 py-1.5 flex items-center gap-1.5" style={{ border: `1px solid ${colors.hairline}` }}>
-            <span style={{ fontSize: "14px", color: colors.heading, fontWeight: 700, fontFamily: mono }}>{pulse}</span>
-            <span style={{ fontSize: "7.5px", color: colors.textTertiary, lineHeight: 1.2 }}>
+          <div
+            className="rounded-lg px-2 py-1.5 flex items-center gap-1.5"
+            style={{ border: `1px solid ${colors.hairline}` }}
+          >
+            <span style={{ fontSize: "13px", color: colors.heading, fontWeight: 700, fontFamily: mono }}>
+              {pulse}
+            </span>
+            <span style={{ fontSize: "6.5px", color: colors.textTertiary, lineHeight: 1.2 }}>
               bpm
               <br />
               resting
             </span>
           </div>
 
-          <div className="flex gap-1 mt-auto">
-            {["Records", "Book"].map((b, i) => (
+          <div className="flex gap-1 mt-auto pt-1" style={{ borderTop: `1px solid ${colors.hairline}` }}>
+            {["Records", "Book", "Chat"].map((t, i) => (
               <span
-                key={b}
-                className="flex-1 rounded text-center"
+                key={t}
+                className="flex-1 text-center rounded"
                 style={{
-                  fontSize: "7.5px",
+                  fontSize: "6.5px",
                   fontWeight: 600,
-                  padding: "3px 0",
-                  background: i === 0 ? HEN_ACCENT : colors.surfaceMuted,
-                  color: i === 0 ? "#fff" : colors.textSecondary,
+                  padding: "2.5px 0",
+                  background: i === 0 ? HEN_ACCENT : "transparent",
+                  color: i === 0 ? "#fff" : colors.textTertiary,
                 }}
               >
-                {b}
+                {t}
               </span>
             ))}
           </div>
         </div>
-      </div>
+      </Phone>
     </div>
   );
 }
