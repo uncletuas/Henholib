@@ -79,7 +79,7 @@ const PHONE_H = 660;
 function Phone({
   children,
   frame = "#1A1D24",
-  height = 400,
+  height = 320,
 }: {
   children: ReactNode;
   frame?: string;
@@ -382,12 +382,12 @@ export function SwiftDemo() {
 
 const HEN_ORANGE = "#F26D21";
 
-export function HenholibDemo() {
+export function HenholibDemo({ height = 320 }: { height?: number } = {}) {
   const { ref, step } = useSteps(2, 3200);
 
   return (
     <div ref={ref} className="h-full">
-      <Phone frame="#1B1410">
+      <Phone frame="#1B1410" height={height}>
         <div style={{ background: "#EEF0F5", height: "100%", display: "flex", flexDirection: "column" }}>
           <StatusBar />
 

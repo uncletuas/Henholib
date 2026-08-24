@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-import { ArrowRight, HeartPulse, ShieldCheck, Workflow } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { colors } from "../../lib/brand";
 import { Reveal } from "../Reveal";
 
@@ -18,23 +18,6 @@ import { Reveal } from "../Reveal";
  * arrives after the page is usable, or not at all on a metered connection.
  */
 
-const PILLARS = [
-  {
-    icon: HeartPulse,
-    title: "Health technology",
-    body: "Records that follow the patient, hospitals that can see their whole operation, and care that reaches people who were never on a system at all.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Security systems",
-    body: "Identity, access and audit built in from the first line, because software that holds people's records has to be able to prove who touched them.",
-  },
-  {
-    icon: Workflow,
-    title: "Work, simplified",
-    body: "Operations software that removes steps instead of adding screens — so a small team can run a facility, a school or a campaign without a back office.",
-  },
-];
 
 const VIDEO_SRC = "https://www.loopital.com/media/49815-458438877_large.mp4";
 
@@ -122,37 +105,11 @@ export function CommitmentSection() {
           </p>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginTop: "clamp(44px,5vw,64px)" }}>
-          {PILLARS.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.08}>
-              <div
-                className="h-full px-6 py-6 rounded-2xl"
-                style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  backdropFilter: "blur(10px)",
-                }}
-              >
-                <span
-                  className="inline-flex items-center justify-center rounded-xl"
-                  style={{ width: 42, height: 42, background: "rgba(127,216,192,0.16)" }}
-                >
-                  <p.icon size={20} style={{ color: "#7FD8C0" }} />
-                </span>
-                <h3 style={{ color: "#FFFFFF", fontSize: "17px", fontWeight: 700, margin: "16px 0 8px" }}>
-                  {p.title}
-                </h3>
-                <p style={{ color: "rgba(255,255,255,0.76)", fontSize: "14px", lineHeight: 1.65 }}>{p.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal delay={0.3}>
+        <Reveal delay={0.15}>
           <Link
             to="/about"
             className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold transition-transform hover:-translate-y-0.5"
-            style={{ background: "#FFFFFF", color: colors.onLight, fontSize: "14.5px", marginTop: "clamp(36px,4vw,52px)" }}
+            style={{ background: "#FFFFFF", color: colors.onLight, fontSize: "14.5px", marginTop: "clamp(30px,3.5vw,44px)" }}
           >
             How we build <ArrowRight size={16} />
           </Link>

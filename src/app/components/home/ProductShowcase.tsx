@@ -37,9 +37,9 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
   const body = (
     <>
       <div
-        className={shape === "mobile" ? "px-4 pt-6 pb-5" : "px-6 pt-6 pb-6"}
+        className={shape === "mobile" ? "px-3 pt-4 pb-4" : "px-4 pt-4 pb-4"}
         style={{
-          height: 440,
+          height: 320,
           overflow: "hidden",
           // A soft wash of the product's colour behind the device, so the screen
           // sits on something rather than floating on flat white.
@@ -49,16 +49,16 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
         {children}
       </div>
 
-      <div className="flex items-center justify-between gap-3 px-5 py-4" style={{ background: accent }}>
+      <div className="flex items-center justify-between gap-3 px-4 py-3" style={{ background: accent }}>
         <div className="min-w-0">
-          <p style={{ color: "#FFFFFF", fontSize: "15px", fontWeight: 700, lineHeight: 1.2 }}>{label}</p>
-          <p className="truncate" style={{ color: "rgba(255,255,255,0.82)", fontSize: "12.5px" }}>
+          <p style={{ color: "#FFFFFF", fontSize: "14px", fontWeight: 700, lineHeight: 1.2 }}>{label}</p>
+          <p className="truncate" style={{ color: "rgba(255,255,255,0.82)", fontSize: "11.5px" }}>
             {blurb}
           </p>
         </div>
         <span
           className="inline-flex items-center gap-1 shrink-0 transition-transform group-hover:translate-x-0.5"
-          style={{ color: "#FFFFFF", fontSize: "13px", fontWeight: 600 }}
+          style={{ color: "#FFFFFF", fontSize: "12px", fontWeight: 600 }}
         >
           Explore <ArrowRight size={14} />
         </span>
@@ -89,69 +89,37 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
 
 export function ProductShowcase() {
   return (
-    <div className="mx-auto" style={{ maxWidth: 1120 }}>
+    <div className="mx-auto" style={{ maxWidth: 1040 }}>
       {/* Phones get narrow columns, desktop screens wide ones, so nothing sits
           marooned in space its device never meant to fill. */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <Reveal className="md:col-span-4">
-          <ShowcaseCard
-            label="Swift"
-            blurb="AI ads and CRM"
-            href="https://swift.loopital.com"
-            external
-            accent="#12B76A"
-            shape="mobile"
-          >
-            <SwiftDemo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.06} className="md:col-span-8">
-          <ShowcaseCard
-            label="Modus"
-            blurb="Facility and fleet operations"
-            href="https://modus.loopital.com"
-            external
-            accent="#0891B2"
-            shape="desktop"
-          >
-            <ModusDemo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.12} className="md:col-span-8">
-          <ShowcaseCard
-            label="Beacon"
-            blurb="Schools and training institutions"
-            href="/products/beacon"
-            accent="#D6294E"
-            shape="desktop"
-          >
-            <BeaconDemo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.18} className="md:col-span-4">
-          <ShowcaseCard
-            label="Henholib"
-            blurb="Your health, in your pocket"
-            href="/products/henholib"
-            accent="#F26D21"
-            shape="mobile"
-          >
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-5">
+        <Reveal className="md:col-span-2">
+          <ShowcaseCard label="Henholib" blurb="Your health, in your pocket" href="/products/henholib" accent="#F26D21" shape="mobile">
             <HenholibDemo />
           </ShowcaseCard>
         </Reveal>
 
-        <Reveal delay={0.24} className="md:col-span-12">
-          <ShowcaseCard
-            label="HMS7"
-            blurb="The hospital operating system"
-            href="/products/hms7"
-            accent="#0D9F79"
-            shape="desktop"
-          >
+        <Reveal delay={0.06} className="md:col-span-2">
+          <ShowcaseCard label="Modus" blurb="Facility and fleet operations" href="https://modus.loopital.com" external accent="#0891B2" shape="desktop">
+            <ModusDemo />
+          </ShowcaseCard>
+        </Reveal>
+
+        <Reveal delay={0.12} className="md:col-span-2">
+          <ShowcaseCard label="Swift" blurb="AI ads and CRM" href="https://swift.loopital.com" external accent="#12B76A" shape="mobile">
+            <SwiftDemo />
+          </ShowcaseCard>
+        </Reveal>
+
+        <Reveal delay={0.18} className="md:col-span-3">
+          <ShowcaseCard label="HMS7" blurb="The hospital operating system" href="/products/hms7" accent="#0D9F79" shape="desktop">
             <Hms7Demo />
+          </ShowcaseCard>
+        </Reveal>
+
+        <Reveal delay={0.24} className="md:col-span-3">
+          <ShowcaseCard label="Beacon" blurb="Schools and training institutions" href="/products/beacon" accent="#D6294E" shape="desktop">
+            <BeaconDemo />
           </ShowcaseCard>
         </Reveal>
       </div>

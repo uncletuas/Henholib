@@ -9,6 +9,7 @@ import { TypeCycle } from "../components/TypeCycle";
 import { wash, colors, gradientBrand } from "../lib/brand";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { CommitmentSection } from "../components/home/CommitmentSection";
+import { HenholibCta } from "../components/home/HenholibCta";
 
 
 // Rotating audiences for the hero headline, the kinds of people, organizations,
@@ -68,11 +69,11 @@ export function HomePage() {
           state when the reader prefers reduced motion. */}
       <Section background={wash.sky} pad="md">
         <Reveal className="max-w-2xl mb-8">
-          <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>THE LOOPITAL ECOSYSTEM</p>
-          <h2 style={{ marginBottom: "12px" }}>See each one working.</h2>
+          <h2 style={{ marginBottom: "12px" }}>Our solutions.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            From your own health to running a hospital, a facility, or a school, each platform
-            solves a specific problem, works on its own, and connects to the rest.
+            Five platforms, each solving a problem worth solving on its own — your health in your
+            pocket, a hospital that can see itself, a facility under control, a school run end to
+            end, and campaigns that find customers. One account opens all of them.
           </p>
         </Reveal>
         <ProductShowcase />
@@ -81,19 +82,8 @@ export function HomePage() {
       {/* ── COMMITMENT (full-bleed, footage behind) ── */}
       <CommitmentSection />
 
-      {/* ── CLOSING CTA ── */}
-      <section style={{ background: gradientBrand, padding: "clamp(72px,9vw,110px) 0" }}>
-        <Reveal className="max-w-3xl mx-auto px-6 text-center">
-          <h2 style={{ color: "#fff", marginBottom: "16px" }}>See what Loopital can do for your organization.</h2>
-          <p style={{ color: "rgba(255,255,255,0.88)", fontSize: "17px", lineHeight: 1.6, marginBottom: "30px" }}>
-            Explore the product line or talk to us about building something specific for your team.
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <CTAButton to="/products" variant="solid" size="md" style={{ background: colors.lightSurface, color: colors.onLight }}>Explore products</CTAButton>
-            <CTAButton to="/contact" variant="ghost-light" size="md">Talk to us</CTAButton>
-          </div>
-        </Reveal>
-      </section>
+      {/* ── CLOSING: Henholib ── */}
+      <HenholibCta />
     </div>
   );
 }
