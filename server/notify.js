@@ -22,8 +22,14 @@ const { sql } = require("./db");
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
-/** Per-app sender identity. Falls back to the ecosystem default. */
-const DEFAULT_FROM = process.env.RESEND_FROM_EMAIL || "Loopital <no-reply@loopital.com>";
+/**
+ * Per-app sender identity. Falls back to the ecosystem default.
+ *
+ * Read on each send rather than captured at import: Zina overlays the hub's
+ * vault onto the environment after this module has loaded, so a sender address
+ * changed in the portal would otherwise not take effect until a redeploy.
+ */
+const defaultFrom = () => process.env.RESEND_FROM_EMAIL || "Loopital <no-reply@loopital.com>";
 
 const APP_BRANDING = {
   loopital: { name: "Loopital", accent: "#0f766e", url: "https://www.loopital.com" },
@@ -157,7 +163,7 @@ async function sendNotification({
   if (!subject) return { ok: false, error: "No subject." };
 
   const apiKey = process.env.RESEND_API_KEY;
-  const sender = from || DEFAULT_FROM;
+  const sender = from || defaultFrom();
 
   // Log first, so a send that dies mid-flight still leaves a trace. One row per
   // recipient: "was this person emailed?" is the question the log has to answer.
@@ -218,4 +224,4 @@ async function sendNotification({
   }
 }
 
-module.exports = { sendNotification, renderHtml, brandingFor, APP_BRANDING, DEFAULT_FROM };
+module.exports = { sendNotification, renderHtml, brandingFor, APP_BRANDING, defaultFrom };

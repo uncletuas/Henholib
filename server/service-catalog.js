@@ -136,10 +136,23 @@ const SERVICES = [
     purpose: "Sign-in across the group, plus Google Ads and Workspace for the products that use them.",
     console: "https://console.cloud.google.com/apis/credentials",
     critical: true,
+    // The variable names differ per app and cannot be tidied up from here: each
+    // one is whatever that app's code actually reads, and a catalog that
+    // prettifies them would send someone to fill in a box that nothing consults.
+    // Pal namespaces its sign-in client as GOOGLE_AUTH_* to keep it apart from
+    // the Workspace client it uses to reach a customer's Drive and Gmail.
     vars: [
-      { key: "GOOGLE_CLIENT_ID", apps: [L, PAL, SWIFT, BEACON], secret: false, note: "Public. Every app should share the same one." },
-      { key: "GOOGLE_CLIENT_SECRET", apps: [PAL, SWIFT, BEACON], secret: true },
-      { key: "GOOGLE_REDIRECT_URI", apps: [PAL, SWIFT, BEACON], secret: false, note: "Must match the console exactly, per app." },
+      { key: "GOOGLE_CLIENT_ID", apps: [L, SWIFT, BEACON], secret: false, note: "Public. One OAuth client for the whole group." },
+      { key: "GOOGLE_CLIENT_SECRET", apps: [SWIFT, BEACON], secret: true },
+      { key: "GOOGLE_REDIRECT_URI", apps: [SWIFT, BEACON], secret: false, note: "Must match the console exactly, per app." },
+      { key: "GOOGLE_AUTH_CLIENT_ID", apps: [PAL], secret: false, note: "Same client as GOOGLE_CLIENT_ID; Pal reads this name." },
+      { key: "GOOGLE_AUTH_CLIENT_SECRET", apps: [PAL], secret: true },
+      {
+        key: "GOOGLE_AUTH_REDIRECT_URI",
+        apps: [PAL],
+        secret: false,
+        note: "https://pal-api-bypy.onrender.com/v1/auth/google/callback — add it to the console too.",
+      },
       { key: "GOOGLE_DEVELOPER_TOKEN", apps: [SWIFT], secret: true, note: "Google Ads API." },
       { key: "GOOGLE_ADS_AUTH_REDIRECT_URI", apps: [SWIFT], secret: false },
       { key: "GOOGLE_WORKSPACE_CLIENT_ID", apps: [PAL], secret: false },
@@ -329,6 +342,12 @@ const SERVICES = [
       { key: "PUBLIC_BASE_URL", apps: [SWIFT], secret: false },
       { key: "SWIFT_WEB_URL", apps: [SWIFT], secret: false },
       { key: "CORS_ORIGIN", apps: [PAL], secret: false },
+      {
+        key: "APP_PUBLIC_URL",
+        apps: [PAL],
+        secret: false,
+        note: "Where Pal sends the browser after Google sign-in. https://pal.loopital.com",
+      },
       { key: "MINISTRY_URL", apps: [MODUS], secret: false },
       { key: "PAL_ADMIN_URL", apps: [PAL], secret: false },
     ],

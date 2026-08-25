@@ -9,6 +9,7 @@ const express = require("express");
 const { handler } = require("./app");
 const { migrate } = require("./migrate");
 const { seedApps } = require("./connectors");
+const { loadSelfConfig, watchSelfConfig } = require("./zina");
 
 const app = express();
 
@@ -39,13 +40,16 @@ app.all(/.*/, async (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 
-// Apply the schema (idempotent), then make sure Zina's app registry knows about
-// every product in the ecosystem, then listen. Both steps are best-effort: a
-// database that's briefly unreachable should delay the control plane, not stop
-// the API that customers actually sign in through.
+// Apply the schema (idempotent), make sure Zina's app registry knows about every
+// product in the ecosystem, then overlay whatever the portal holds for Loopital
+// itself onto the environment before anything reads it. Every step is
+// best-effort: a database that's briefly unreachable should delay the control
+// plane, not stop the API that customers actually sign in through.
 migrate()
   .then(() => seedApps())
+  .then(() => loadSelfConfig())
   .catch((e) => console.error("boot setup failed (continuing):", e.message))
   .finally(() => {
+    watchSelfConfig();
     app.listen(PORT, () => console.log(`loopital API listening on :${PORT}`));
   });

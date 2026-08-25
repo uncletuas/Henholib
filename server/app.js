@@ -56,9 +56,20 @@ const ses = new SESv2Client({ region: process.env.AWS_REGION || "us-east-1" });
 
 const {
   CLUSTER_ARN, SECRET_ARN, DB_NAME, JWT_SECRET_ARN, MATERIALS_BUCKET, SES_FROM,
-  RESEND_API_KEY, RESEND_FROM_EMAIL, PAYSTACK_SECRET_KEY, PAYSTACK_CALLBACK_URL,
 } = process.env;
 const TOKEN_TTL = "7d";
+
+/**
+ * Billing settings are read when they're used, not captured at import.
+ *
+ * Zina overlays the hub's own vault rows onto `process.env` after this module
+ * has already loaded, and again whenever a superadmin changes one. Destructuring
+ * these at the top meant the values were frozen at whatever the host happened to
+ * have at boot — so "change the Paystack key in the portal" silently did
+ * nothing, which is the one promise the control plane exists to keep.
+ */
+const paystackSecret = () => process.env.PAYSTACK_SECRET_KEY || "";
+const paystackCallbackUrl = () => process.env.PAYSTACK_CALLBACK_URL || "";
 
 // JWT signing secret is a plain env var on Render (was a Secrets Manager ARN on
 // AWS). `sql()` now lives in ./db (imported above) — same named-param contract.
@@ -429,7 +440,7 @@ async function exchangeSsoToken(body) {
 // ── Pal workspace: profile/onboarding, entitlements & billing (Loopital-billed) ──
 // NOTE: the Paystack account currently only supports NGN (USD → "unsupported_currency").
 // Amount is in the currency's subunit (kobo for NGN). PLACEHOLDER price — confirm.
-const PAYSTACK_CURRENCY = process.env.PAYSTACK_CURRENCY || "NGN";
+const paystackCurrency = () => process.env.PAYSTACK_CURRENCY || "NGN";
 const PAYSTACK_API = "https://api.paystack.co";
 
 // Pal pricing tiers. `amountNgn` is the actual Paystack charge (kobo); `usd` is a
@@ -501,8 +512,8 @@ async function palOnboarding(headers, body) {
 async function paystackInit({ email, amountCents, reference, metadata, callbackUrl }) {
   const res = await fetch(`${PAYSTACK_API}/transaction/initialize`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ email, amount: amountCents, currency: PAYSTACK_CURRENCY, reference, metadata, callback_url: callbackUrl }),
+    headers: { Authorization: `Bearer ${paystackSecret()}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, amount: amountCents, currency: paystackCurrency(), reference, metadata, callback_url: callbackUrl }),
   });
   const data = await res.json();
   if (!res.ok || !data.status) throw new Error(data.message || `Paystack init ${res.status}`);
@@ -510,7 +521,7 @@ async function paystackInit({ email, amountCents, reference, metadata, callbackU
 }
 async function paystackVerify(reference) {
   const res = await fetch(`${PAYSTACK_API}/transaction/verify/${encodeURIComponent(reference)}`, {
-    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
+    headers: { Authorization: `Bearer ${paystackSecret()}` },
   });
   const data = await res.json();
   if (!res.ok || !data.status) throw new Error(data.message || `Paystack verify ${res.status}`);
@@ -520,7 +531,7 @@ async function paystackVerify(reference) {
 async function palSubscribe(headers, body) {
   const p = await authenticate(headers);
   if (!p) return json(401, { error: "Not authenticated." });
-  if (!PAYSTACK_SECRET_KEY) return json(503, { error: "Payments aren't configured yet." });
+  if (!paystackSecret()) return json(503, { error: "Payments aren't configured yet." });
   const planKey = PAL_PLANS[body && body.plan] ? body.plan : "pro";
   const plan = PAL_PLANS[planKey];
   const seats = plan.seatBased
@@ -530,10 +541,10 @@ async function palSubscribe(headers, body) {
   const reference = "PAL-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
   await sql(
     "INSERT INTO pal_payments (user_id, reference, amount_cents, currency, status, plan, seats) VALUES (:uid::uuid, :ref, :amt::int, :cur, 'pending', :plan, :seats::int)",
-    { uid: p.sub, ref: reference, amt: amount, cur: PAYSTACK_CURRENCY, plan: planKey, seats }
+    { uid: p.sub, ref: reference, amt: amount, cur: paystackCurrency(), plan: planKey, seats }
   );
   try {
-    const init = await paystackInit({ email: p.email, amountCents: amount, reference, metadata: { userId: p.sub, purpose: "pal_coworker", plan: planKey, seats }, callbackUrl: PAYSTACK_CALLBACK_URL });
+    const init = await paystackInit({ email: p.email, amountCents: amount, reference, metadata: { userId: p.sub, purpose: "pal_coworker", plan: planKey, seats }, callbackUrl: paystackCallbackUrl() });
     return json(200, { authorizationUrl: init.authorization_url, reference, plan: planKey, seats, amount });
   } catch (e) {
     await sql("UPDATE pal_payments SET status = 'failed' WHERE reference = :ref", { ref: reference });
@@ -571,8 +582,8 @@ async function activatePalPayment(reference) {
 // One Paystack account, one checkout, many products. Any product asks loopital
 // to start a payment; loopital prices it server-side, tags it with metadata,
 // and the single webhook fulfills the right thing (subscription or credits).
-const SWIFT_CREDIT_URL = process.env.SWIFT_CREDIT_URL || ""; // Swift's internal top-up hook
-const BILLING_HOOK_SECRET = process.env.BILLING_HOOK_SECRET || "";
+const swiftCreditUrl = () => process.env.SWIFT_CREDIT_URL || ""; // Swift's internal top-up hook
+const billingHookSecret = () => process.env.BILLING_HOOK_SECRET || "";
 
 // Server-side price catalog (NGN kobo). The client only names product + purpose
 // + plan/bundle; the amount is resolved here so it can't be tampered with.
@@ -600,7 +611,7 @@ const BILLING_CATALOG = {
 async function billingCheckout(headers, body) {
   const p = await authenticate(headers);
   if (!p) return json(401, { error: "Not authenticated." });
-  if (!PAYSTACK_SECRET_KEY) return json(503, { error: "Payments aren't configured yet." });
+  if (!paystackSecret()) return json(503, { error: "Payments aren't configured yet." });
   const product = String((body && body.product) || "").toLowerCase();
   const purpose = body && body.purpose === "credits" ? "credits" : "subscription";
   const cat = BILLING_CATALOG[product] && BILLING_CATALOG[product][purpose];
@@ -617,10 +628,10 @@ async function billingCheckout(headers, body) {
   const reference = "PAY-" + product.toUpperCase() + "-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
   await sql(
     "INSERT INTO payments (user_id, product, purpose, reference, amount_cents, currency, plan, credits, seats, status, metadata) VALUES (:uid::uuid, :product, :purpose, :ref, :amt::int, :cur, :plan, :credits::int, :seats::int, 'pending', :meta::jsonb)",
-    { uid: p.sub, product, purpose, ref: reference, amt: amount, cur: PAYSTACK_CURRENCY, plan: purpose === "subscription" ? key : null, credits, seats, meta: JSON.stringify({ item: key }) }
+    { uid: p.sub, product, purpose, ref: reference, amt: amount, cur: paystackCurrency(), plan: purpose === "subscription" ? key : null, credits, seats, meta: JSON.stringify({ item: key }) }
   );
   try {
-    const init = await paystackInit({ email: p.email, amountCents: amount, reference, metadata: { userId: p.sub, product, purpose, plan: purpose === "subscription" ? key : null, credits, seats }, callbackUrl: PAYSTACK_CALLBACK_URL });
+    const init = await paystackInit({ email: p.email, amountCents: amount, reference, metadata: { userId: p.sub, product, purpose, plan: purpose === "subscription" ? key : null, credits, seats }, callbackUrl: paystackCallbackUrl() });
     return json(200, { authorizationUrl: init.authorization_url, reference, amount });
   } catch (e) {
     await sql("UPDATE payments SET status = 'failed' WHERE reference = :ref", { ref: reference });
@@ -651,12 +662,12 @@ async function fulfillPayment(reference) {
       { uid: pay.user_id, product: pay.product, plan, seats }
     );
     if (pay.product === "stack62") await sendUserEmail(pay.email, palActivatedEmail(pay.name, plan, seats));
-  } else if (pay.purpose === "credits" && pay.product === "sart34" && SWIFT_CREDIT_URL) {
+  } else if (pay.purpose === "credits" && pay.product === "sart34" && swiftCreditUrl()) {
     // Credits live in Swift's own wallet — call its internal top-up hook.
     try {
-      await fetch(SWIFT_CREDIT_URL, {
+      await fetch(swiftCreditUrl(), {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-billing-secret": BILLING_HOOK_SECRET },
+        headers: { "Content-Type": "application/json", "x-billing-secret": billingHookSecret() },
         body: JSON.stringify({ email: pay.email, userId: pay.user_id, credits: pay.credits, reference }),
       });
     } catch (e) {
@@ -683,7 +694,7 @@ async function payVerify(headers, reference) {
 async function paystackWebhook(event, body) {
   const sig = (event.headers && (event.headers["x-paystack-signature"] || event.headers["X-Paystack-Signature"])) || "";
   const raw = event.isBase64Encoded ? Buffer.from(event.body || "", "base64").toString("utf8") : (event.body || "");
-  const expected = crypto.createHmac("sha512", PAYSTACK_SECRET_KEY || "").update(raw).digest("hex");
+  const expected = crypto.createHmac("sha512", paystackSecret()).update(raw).digest("hex");
   if (!sig || sig !== expected) return json(401, { error: "Invalid signature." });
   if (body && body.event === "charge.success" && body.data && body.data.reference) {
     await fulfillPayment(body.data.reference);

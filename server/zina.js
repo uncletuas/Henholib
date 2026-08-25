@@ -1522,6 +1522,89 @@ async function appConfig(event) {
   });
 }
 
+/**
+ * The same overlay, for the hub itself.
+ *
+ * Every other app pulls `/ops-config` over the network at boot. Loopital cannot
+ * — it *is* the endpoint — so it had no way to apply its own vault rows, and a
+ * superadmin who set PAYSTACK_SECRET_KEY against Loopital in the portal watched
+ * checkout keep answering "payments aren't configured yet". The one app the
+ * control plane could not configure was the control plane, which is precisely
+ * the case that makes the whole idea look broken.
+ *
+ * Deliberately the same precedence as the remote path: the vault wins when it
+ * has a value, and a hosting-platform variable is what remains when it doesn't,
+ * so the API still starts if the vault is sealed under a rotated key.
+ */
+const SELF_APP_ID = "loopital";
+let selfConfigVersion = -1;
+
+async function loadSelfConfig() {
+  if (!vault.vaultConfigured()) {
+    console.warn("[zina] no encryption key — the hub is running on its own environment only.");
+    return { applied: [], unreadable: [] };
+  }
+
+  const rows = await sql(
+    `SELECT env_var, value_enc FROM zina_secrets
+      WHERE app_id = :app AND env_var IS NOT NULL AND env_var <> ''`,
+    { app: SELF_APP_ID }
+  ).catch((e) => {
+    console.error("[zina] could not read own configuration:", e.message);
+    return [];
+  });
+
+  const applied = [];
+  const unreadable = [];
+  for (const row of rows) {
+    try {
+      process.env[row.env_var] = vault.open(row.value_enc);
+      applied.push(row.env_var);
+    } catch (_) {
+      unreadable.push(row.env_var);
+    }
+  }
+
+  const versions = await sql(
+    "SELECT version FROM zina_config_version WHERE app_id = :app",
+    { app: SELF_APP_ID }
+  ).catch(() => []);
+  selfConfigVersion = Number(versions[0]?.version) || 0;
+
+  if (unreadable.length) {
+    console.error(
+      `[zina] could not decrypt ${unreadable.join(", ")} — the encryption key may have changed.`
+    );
+  }
+  console.log(
+    `[zina] hub applied ${applied.length} setting(s) at config version ${selfConfigVersion}` +
+      (applied.length ? `: ${applied.join(", ")}` : "")
+  );
+  return { applied, unreadable };
+}
+
+/**
+ * Re-apply when the version moves. Polling a single integer is what keeps this
+ * cheap enough to run every minute, which is what makes rotating a key take a
+ * minute rather than a redeploy. `unref()` so it never holds the process open.
+ */
+function watchSelfConfig(intervalMs = 60_000) {
+  if (intervalMs <= 0) return null;
+  const timer = setInterval(async () => {
+    const rows = await sql(
+      "SELECT version FROM zina_config_version WHERE app_id = :app",
+      { app: SELF_APP_ID }
+    ).catch(() => null);
+    if (!rows) return;
+    const version = Number(rows[0]?.version) || 0;
+    if (version === selfConfigVersion) return;
+    console.log(`[zina] hub configuration changed (v${selfConfigVersion} → v${version}); reloading.`);
+    await loadSelfConfig();
+  }, intervalMs);
+  timer.unref();
+  return timer;
+}
+
 /** Just the version, for the poll. Deliberately tiny. */
 async function appConfigVersion(event) {
   const { app, error } = await authenticateApp(event, "/ops-config/version", "GET");
@@ -2052,6 +2135,8 @@ async function route(ctx) {
 module.exports = {
   route,
   ingestTicket,
+  loadSelfConfig,
+  watchSelfConfig,
   ROLES,
   ROLE_LABELS,
   ROLE_DESCRIPTIONS,
