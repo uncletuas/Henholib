@@ -66,9 +66,9 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/pal": {
-    title: "Pal, AI Coworker Platform | Join the Waitlist",
+    title: "Pal, AI Coworker Platform | Loopital",
     description:
-      "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Not public yet, join the waitlist for early access.",
+      "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Free to start, no card required.",
     jsonLd: [
       softwareApplicationLd({
         name: "Pal",
@@ -81,9 +81,9 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/beacon": {
-    title: "Beacon, Education Management System | Join the Waitlist",
+    title: "Beacon, Education Management System | Loopital",
     description:
-      "Beacon is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Not public yet, join the waitlist for early access.",
+      "Beacon is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Request a demo to see it with your own data.",
     jsonLd: [
       softwareApplicationLd({
         name: "Beacon",

@@ -168,7 +168,7 @@ export const products: Product[] = [
     theme: "The Future of Education Operations",
     tagline: "The operating system for schools and training institutions.",
     description:
-      "Beacon is a complete educational-organization management system, admissions, students, staff, classes, timetables, grades, fees, and communication in one platform, so schools, colleges, and training institutions run smoothly end to end. Not open to the public yet; join the waitlist for early access.",
+      "Beacon is a complete educational-organization management system, admissions, students, staff, classes, timetables, grades, fees, and communication in one platform, so schools, colleges, and training institutions run smoothly end to end. Book a demo and we'll walk you through it with your own admissions and fee structure.",
     platforms: ["web", "desktop"],
     accent: productAccent.edm73,
     detailHref: "/products/beacon",
