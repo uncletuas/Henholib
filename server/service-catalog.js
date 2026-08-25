@@ -44,12 +44,36 @@ const SERVICES = [
     purpose: "The single merchant account every product bills through.",
     console: "https://dashboard.paystack.com/#/settings/developers",
     critical: true,
+    // Only Loopital should hold a Paystack key. Every product's checkout goes
+    // through the hub so there is one merchant account, one ledger and one set
+    // of webhooks; a product holding its own key is a second account by
+    // accident, and reconciling two is the problem this arrangement exists to
+    // avoid. Swift is listed against PAYSTACK_SECRET_KEY only because its own
+    // checkout still exists in code and reads that name — leaving it blank
+    // there is what keeps that path dormant.
     vars: [
-      { key: "PAYSTACK_SECRET_KEY", apps: [L, SWIFT], secret: true, note: "Server-side key. Also verifies webhook signatures." },
-      { key: "PAYSTACK_PUBLIC_KEY", apps: [SWIFT], secret: false },
-      { key: "PAYSTACK_WEBHOOK_SECRET", apps: [SWIFT], secret: true },
+      {
+        key: "PAYSTACK_SECRET_KEY",
+        apps: [L, SWIFT],
+        secret: true,
+        note: "Server-side key; also verifies webhook signatures. Set it on Loopital only — Swift reads the same name for its own checkout, and leaving it blank there is what keeps that path dormant.",
+      },
       { key: "PAYSTACK_CALLBACK_URL", apps: [L], secret: false, note: "Where Paystack returns the customer after payment." },
       { key: "PAYSTACK_CURRENCY", apps: [L], secret: false, note: "NGN unless deliberately changed." },
+      {
+        key: "BILLING_HOOK_SECRET",
+        apps: [L, SWIFT],
+        secret: true,
+        note: "Shared. How the hub proves a credit purchase to Swift — must match on both.",
+      },
+      {
+        key: "SWIFT_CREDIT_URL",
+        apps: [L],
+        secret: false,
+        note: "https://swift-api-cxfi.onrender.com/api/v1/wallet/internal/credit",
+      },
+      { key: "PAYSTACK_PUBLIC_KEY", apps: [SWIFT], secret: false, note: "Only needed if Swift's own checkout is ever revived." },
+      { key: "PAYSTACK_WEBHOOK_SECRET", apps: [SWIFT], secret: true, note: "Only needed if Swift's own checkout is ever revived." },
       { key: "LOOPITAL_PAYSTACK_SECRET_KEY", apps: [BEACON], secret: true, note: "Beacon bills institutions on the same account." },
       { key: "LOOPITAL_PAYSTACK_PUBLIC_KEY", apps: [BEACON], secret: false },
     ],

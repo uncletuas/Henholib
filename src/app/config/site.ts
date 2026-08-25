@@ -22,9 +22,6 @@ export const HENHOLIB_URL = "https://henholib.loopital.com";
 // is worse than no link. Add it to the Beacon product entry once it serves.
 export const BEACON_URL = "https://beacon.loopital.com";
 
-// Paystack public key (safe to expose), used to redirect to hosted checkout.
-export const PAYSTACK_PUBLIC_KEY = "pk_test_13449920aaa915f243a95926ec029dfe609dbbee";
-
 // Google Sign-In client ID (public, safe to expose). The Google button uses it
 // to obtain an ID token that the backend verifies. Configure loopital.com +
 // swift.loopital.com as authorized JavaScript origins in the Google console.
