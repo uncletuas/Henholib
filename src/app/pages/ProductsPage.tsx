@@ -38,7 +38,7 @@ export function ProductsPage() {
           <Reveal className="max-w-2xl mb-6">
             <h2 style={{ marginBottom: "10px" }}>Also in the works.</h2>
             <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-              These AI products are in active development. Click through to join the waitlist and be first in line.
+              These are in active development. Click through to see where each one has got to.
             </p>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ maxWidth: "620px" }}>

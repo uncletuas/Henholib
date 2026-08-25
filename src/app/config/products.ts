@@ -48,7 +48,7 @@ export interface Product {
   accountLinked: boolean;
   /** Primary call to action: launch the app, or book a demo. */
   ctaType: CtaType;
-  /** Launch stage: "available" (usable now) or "coming_soon" (in development / waitlist). */
+  /** Launch stage: "available" (usable now) or "coming_soon" (demo-led, in development). */
   stage: "available" | "coming_soon";
   /** Flagship products we actively promote (Henholib + Beacon). */
   flagship?: boolean;
@@ -189,5 +189,5 @@ export const accountProducts = products.filter((p) => p.accountLinked);
 // ── Positioning groups ──
 /** The core ecosystem, in the order we lead with them (needs-first). */
 export const ecosystemProducts: Product[] = ["henholib", "fms13", "hms7", "edm73"].map((id) => productById(id as ProductId));
-/** Products still in development, shown separately with a waitlist (Pal, Swift). */
+/** Products still in development, shown separately from the ones we lead with. */
 export const inDevelopmentProducts = products.filter((p) => p.stage === "coming_soon" && !p.flagship);

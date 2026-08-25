@@ -6,11 +6,11 @@ export function Edm73Page() {
     <ProductPageShell
       product={productById("edm73")}
       heroImage="https://images.unsplash.com/photo-1523240795612-9a054b0db644?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      heroBody="Beacon is a complete management system for educational organizations, running admissions, students, staff, classes, timetables, grades, fees, and communication from one platform. It's not open to the public yet; join the waitlist to be first in line for early access."
+      heroBody="Beacon is a complete management system for educational organizations, running admissions, students, staff, classes, timetables, grades, fees, and communication from one platform. Book a demo and we'll walk you through it with your own admissions and fee structure."
       stats={[
         { value: "All-in-one", label: "One platform, end to end" },
         { value: "Web + Desktop", label: "For your whole institution" },
-        { value: "Early access", label: "Join the waitlist" },
+        { value: "Guided setup", label: "We migrate your records" },
       ]}
       featuresEyebrow="WHAT Beacon DOES"
       featuresTitle="Run your entire institution from one place."
@@ -31,8 +31,8 @@ export function Edm73Page() {
         "Fees, invoicing, and payment tracking",
         "Web and desktop, for your whole institution",
       ]}
-      ctaTitle="Be first in line for Beacon."
-      ctaBody="Beacon isn't public yet. Join the waitlist and we'll let you know the moment early access opens."
+      ctaTitle="See Beacon with your own institution in it."
+      ctaBody="Tell us how your institution runs and we'll show you Beacon set up the same way. No obligation."
     />
   );
 }

@@ -6,11 +6,11 @@ export function Stack62Page() {
     <ProductPageShell
       product={productById("stack62")}
       heroImage="https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      heroBody="Pal is an AI coworker that handles research, knowledge management, content, and workflow automation, so your team thinks faster and works at a fundamentally higher level. It's not open to the public yet; join the waitlist to be first in line for early access."
+      heroBody="Pal is an AI coworker that handles research, knowledge management, content, and workflow automation, so your team thinks faster and works at a fundamentally higher level. Free to start, and no card required."
       stats={[
         { value: "AI-native", label: "Built from day one" },
         { value: "Web + Desktop", label: "Works where you do" },
-        { value: "Early access", label: "Join the waitlist" },
+        { value: "Free to start", label: "No card required" },
       ]}
       featuresEyebrow="WHAT Pal DOES"
       featuresTitle="An AI coworker for the whole team."
@@ -31,8 +31,8 @@ export function Stack62Page() {
         "AI at the core, not bolted on later",
         "Web and desktop, wherever you work",
       ]}
-      ctaTitle="Be first in line for Pal."
-      ctaBody="Pal isn't public yet. Join the waitlist and we'll let you know the moment early access opens."
+      ctaTitle="Put Pal to work today."
+      ctaBody="Create an account and start in the workspace. Free to begin, and you can add your team whenever you're ready."
     />
   );
 }
