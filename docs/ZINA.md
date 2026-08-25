@@ -148,6 +148,13 @@ The client is ~150 lines and identical in every app:
 | Swift | `src/shared/zina/config.ts` | `src/main.ts`, before `NestFactory.create` |
 | Beacon | `src/lib/zina/config.ts` | `src/instrumentation.ts` |
 | Modus | `src/zina-config.mjs` | top of the Lambda handler |
+| Loopital | `loadSelfConfig()` in `server/zina.js` | `server/index.js`, before `listen` |
+
+Loopital is the odd one: it can't fetch `/ops-config` because it *is* that
+endpoint, so it reads its own rows out of the database directly. Same
+precedence, same one-minute poll. Before this existed, the hub served everyone
+else's configuration and applied none of its own — the one app the control plane
+couldn't configure was the control plane.
 
 **It must run before the framework reads the environment.** `@nestjs/config`
 snapshots `process.env` when its module initialises, so a load placed inside a
@@ -378,7 +385,34 @@ not undone by the next restart.
 - **Swift (sart34)** — the same, in `src/modules/ops/`. Repo:
   `github.com/uncletuas/Sart34`.
 
-Every app now pulls its keys and URLs from Zina at startup.
+Every app now pulls its keys and URLs from Zina at startup, the hub included.
+
+**Still to be entered by a superadmin**
+
+None of these are code work. Each is a value only you hold, and everything that
+consumes it is already built, deployed and waiting. Set them under **API keys**
+in the portal, against the app named; each takes effect within a minute, or on
+the next restart for anything read at boot.
+
+| App | Variable | What it unblocks |
+|---|---|---|
+| Loopital | `PAYSTACK_SECRET_KEY` | Every checkout in the group. Until it is set, `/billing/checkout` answers "payments aren't configured yet" — the key on the host is blank. |
+| Loopital | `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | All transactional email. Nothing is being delivered today: welcome mail, demo-request confirmations, admin notifications and ticket replies all fail at the send and are recorded as failed. |
+| Loopital | `BILLING_HOOK_SECRET` | Already set on the host. Must match Swift's. |
+| Swift | `BILLING_HOOK_SECRET` | The other half. Without it, `POST /wallet/internal/credit` refuses every call and a paid-for credit bundle is never delivered. |
+| Pal | `GOOGLE_AUTH_CLIENT_ID`, `GOOGLE_AUTH_CLIENT_SECRET` | "Continue with Google" on Pal. Same OAuth client Swift already uses — copy both from Swift's `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`. Pal's button hides itself entirely while these are unset. |
+| Pal | `GOOGLE_AUTH_REDIRECT_URI` | `https://pal-api-bypy.onrender.com/v1/auth/google/callback` |
+| Pal | `APP_PUBLIC_URL` | `https://pal.loopital.com` — where Pal returns the browser after Google sign-in. |
+
+Two entries in the **Google console** cannot be made from here, and Google
+sign-in fails mid-redirect without them:
+
+- **Authorized redirect URI** — `https://pal-api-bypy.onrender.com/v1/auth/google/callback`
+- **Authorized JavaScript origins** — `https://www.loopital.com` and
+  `https://loopital.com`
+
+Loopital's own Google sign-in is otherwise configured and answering; Swift's has
+been working throughout.
 
 **Worth knowing**
 
