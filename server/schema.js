@@ -1,5 +1,6 @@
-// AUTO-GENERATED from infra/scripts/migrate.mjs — the loopital schema DDL.
-// Byte-identical SQL; run by server/migrate.js against Postgres via pg.
+// The loopital schema DDL — the historical ecosystem tables, carried forward
+// unchanged. Run by server/migrate.js against Postgres via pg. Zina's own
+// tables live in zina-schema.js so this file stays as it was.
 module.exports = [
   `CREATE TABLE IF NOT EXISTS users (
      id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),

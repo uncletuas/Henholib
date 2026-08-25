@@ -1,11 +1,9 @@
 // Idempotent schema migration for the loopital API on Render.
-// Runs the byte-identical DDL from schema.js (extracted from the original
-// infra/scripts/migrate.mjs) against Postgres. Safe to run on every boot —
+// Runs the DDL from schema.js against Postgres. Safe to run on every boot —
 // every statement is CREATE ... IF NOT EXISTS / ALTER ... IF NOT EXISTS.
 const { pool, SCHEMA } = require("./db");
-// The original ecosystem DDL, plus Zina's control-plane tables. Zina's are kept
-// in their own file so the historical schema stays byte-identical to the one
-// extracted from infra/scripts/migrate.mjs.
+// The original ecosystem DDL, plus Zina's control-plane tables, kept in
+// separate files so the historical schema stays untouched as Zina's grows.
 const statements = [...require("./schema"), ...require("./zina-schema")];
 
 async function migrate() {

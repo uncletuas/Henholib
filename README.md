@@ -33,11 +33,13 @@ and are not tied to a loopital account.
 
 ## Deployment
 
-See [DEPLOY.md](DEPLOY.md) for the full AWS architecture and deployment runbook.
-Infrastructure lives in [`infra/`](infra/); the auth Lambda in
-[`infra/lambda/`](infra/lambda/).
+See [docs/REBUILD.md](docs/REBUILD.md) — how the whole estate is laid out, and
+how to rebuild any part of it from a fresh clone.
+
+The short version: the site is a static build served from S3 behind CloudFront,
+and the API is `server/`, a Node service on Render that applies its own schema
+on boot.
 
 ```bash
-npm run build
-cd infra && npm install && npm run deploy && npm run migrate
+npm run build   # API base comes from .env.production; do not override it
 ```

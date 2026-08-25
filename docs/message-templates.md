@@ -100,4 +100,4 @@ Legend: 🟢 = already wired in code · ⚪ = ready to wire.
 
 ---
 
-*Placeholders:* `{first}` first name · `{plan}` Pro/Business · `{amount}` formatted price · `{N}`/`{M}` counts · `{platform}` Meta/Google/etc · `{campaign}` name. Transactional emails are best-effort and never block the underlying action (see `sendUserEmail` in `infra/lambda/index.js`).
+*Placeholders:* `{first}` first name · `{plan}` Pro/Business · `{amount}` formatted price · `{N}`/`{M}` counts · `{platform}` Meta/Google/etc · `{campaign}` name. Transactional emails are best-effort and never block the underlying action (see `sendUserEmail` in `server/app.js`).

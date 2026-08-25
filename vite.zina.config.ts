@@ -17,6 +17,13 @@ import react from '@vitejs/plugin-react'
  */
 export default defineConfig({
   root: path.resolve(__dirname, 'zina'),
+  // Env files come from the repo root, not from `root`.
+  //
+  // Vite defaults envDir to `root`, so with the line above it would look for
+  // .env.production inside zina/ — find nothing, fall back to the "/api"
+  // default, and ship a portal that talks to its own static host. Both apps in
+  // this repo share one API, so they share one .env.production.
+  envDir: __dirname,
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
