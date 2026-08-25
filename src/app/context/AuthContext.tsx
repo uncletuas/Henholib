@@ -28,6 +28,9 @@ interface AuthContextType {
   /** The product whose waitlist modal is open, or null when closed. */
   waitlist: ProductId | null;
   setWaitlist: (p: ProductId | null) => void;
+  /** The product whose demo-request modal is open, or null when closed. */
+  demoFor: ProductId | null;
+  setDemoFor: (p: ProductId | null) => void;
   /** Pal workspace onboarding modal (personal vs team) open state. */
   showPalOnboarding: boolean;
   setShowPalOnboarding: (v: boolean) => void;
@@ -51,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [initializing, setInitializing] = useState(true);
   const [showAuth, setShowAuth] = useState<AuthView>("none");
   const [waitlist, setWaitlist] = useState<ProductId | null>(null);
+  const [demoFor, setDemoFor] = useState<ProductId | null>(null);
   const [showPalOnboarding, setShowPalOnboarding] = useState(false);
   const [showPalPlans, setShowPalPlans] = useState(false);
   const [pendingPal, setPendingPal] = useState(false);
@@ -103,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, initializing, signIn, signUp, signInWithGoogle, signOut, updateUser: setUser, showAuth, setShowAuth, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide }}
+      value={{ user, token, initializing, signIn, signUp, signInWithGoogle, signOut, updateUser: setUser, showAuth, setShowAuth, waitlist, setWaitlist, demoFor, setDemoFor, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide }}
     >
       {children}
     </AuthContext.Provider>

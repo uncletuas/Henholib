@@ -75,6 +75,14 @@ export const waitlistApi = {
     }),
 };
 
+// Demo requests for the enterprise products. Separate from the contact form so
+// the qualifying answers (organisation, size, role) travel with the request and
+// it lands in Zina tagged with the product it is about.
+export const demoApi = {
+  request: (input: Record<string, string>) =>
+    request<{ ok: boolean }>("/demo-request", { method: "POST", body: JSON.stringify(input) }),
+};
+
 // Contact form → emails admin@loopital.com + tuamenebestgod@gmail.com (SES).
 export const contactApi = {
   send: (input: { name: string; email: string; subject: string; message: string }) =>

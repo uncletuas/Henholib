@@ -176,7 +176,7 @@ export const products: Product[] = [
     flagship: true,
     external: false,
     accountLinked: false,
-    ctaType: "waitlist",
+    ctaType: "demo",
     highlights: ["Admissions & enrollment", "Students & staff", "Grades & timetables", "Fees & communication"],
   },
 ];

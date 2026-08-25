@@ -6,6 +6,7 @@ import { Footer } from "../components/Footer";
 import { AuthModal } from "../components/AuthModal";
 import { AccountDashboard } from "../components/AccountDashboard";
 import { WaitlistModal } from "../components/WaitlistModal";
+import { DemoRequestModal } from "../components/DemoRequestModal";
 import { PalOnboardingModal } from "../components/PalOnboardingModal";
 import { PalPlansModal } from "../components/PalPlansModal";
 import { PlatformGuideModal } from "../components/PlatformGuideModal";
@@ -17,7 +18,7 @@ import { palApi } from "../lib/api";
 import { launchWorkspace } from "../lib/pal";
 
 export function RootLayout() {
-  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide } = useAuth();
+  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, demoFor, setDemoFor, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide } = useAuth();
   const location = useLocation();
   const [params] = useSearchParams();
   const seo = getPageSeo(location.pathname);
@@ -80,6 +81,7 @@ export function RootLayout() {
       {waitlist && (
         <WaitlistModal product={waitlist} onClose={() => setWaitlist(null)} />
       )}
+      {demoFor && <DemoRequestModal product={demoFor} onClose={() => setDemoFor(null)} />}
       {showPalOnboarding && <PalOnboardingModal />}
       {showPalPlans && token && (
         <PalPlansModal

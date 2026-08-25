@@ -1871,6 +1871,90 @@ async function handleContact(body) {
   return json(201, { ok: true });
 }
 
+/**
+ * A demo request for one of the enterprise products.
+ *
+ * Separate from /contact on purpose. "Book a demo" used to open the generic
+ * contact page, which asked a hospital administrator the same three questions
+ * it asks someone reporting a typo — so the reply always had to start by asking
+ * what they actually run. This captures the qualifying detail up front (the
+ * organisation, its size, the asker's role) and files it against the product,
+ * so Zina's support queue shows which product each request is for.
+ *
+ * The fields differ per product and are not enumerated here: whatever the form
+ * sends is recorded. Validating a fixed shape server-side would mean a form
+ * change could silently start dropping answers.
+ */
+async function handleDemoRequest(body) {
+  const product = String((body && body.product) || "").trim().toLowerCase();
+  const name = String((body && body.name) || "").trim();
+  const email = String((body && body.email) || "").trim().toLowerCase();
+  const organisation = String((body && body.organisation) || "").trim();
+
+  if (!name || !EMAIL_RE.test(email)) {
+    return json(400, { error: "Please add your name and a valid email address." });
+  }
+  if (!organisation) {
+    return json(400, { error: "Please tell us the name of your organisation." });
+  }
+
+  const PRODUCT_LABEL = {
+    edm73: "Beacon", hms7: "HMS7", fms13: "Modus",
+    henholib: "Henholib", sart34: "Swift", stack62: "Pal",
+  };
+  const label = PRODUCT_LABEL[product] || "Loopital";
+
+  // Everything the form chose to send, minus the fields already named above.
+  const known = new Set(["product", "name", "email", "organisation"]);
+  const extras = Object.entries(body || {})
+    .filter(([k, v]) => !known.has(k) && v !== "" && v != null)
+    .map(([k, v]) => `${k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase())}: ${v}`);
+
+  const subject = `Demo request — ${label}`;
+  const message = [
+    `Organisation: ${organisation}`,
+    ...extras,
+  ].join("\n");
+
+  try {
+    await zina.ingestTicket(
+      { name, email, subject, message, priority: "high" },
+      { appId: product || "loopital" }
+    );
+  } catch (e) {
+    console.error("demo request ticket failed:", (e && e.message) || e);
+  }
+
+  try {
+    await sendSimpleEmail(
+      NOTIFY_EMAILS,
+      `[${label}] Demo request — ${organisation}`,
+      `${name} <${email}> asked for a ${label} demo.\n\n${message}`,
+      email
+    );
+  } catch (e) {
+    console.error("demo request email failed:", (e && e.message) || e);
+  }
+
+  // Confirm to the asker, so the request does not feel like it vanished.
+  try {
+    await sendUserEmail(email, {
+      subject: `Your ${label} demo request`,
+      text:
+`Hi ${firstName(name)},
+
+Thanks for asking about ${label}. Your request is with our team and someone will
+be in touch shortly to arrange a time that suits ${organisation}.
+
+If anything has changed in the meantime, just reply to this message.${MAIL_SIGNOFF}`,
+    });
+  } catch (e) {
+    console.error("demo request confirmation failed:", (e && e.message) || e);
+  }
+
+  return json(201, { ok: true });
+}
+
 exports.handler = async (event) => {
   const method =
     event.requestContext?.http?.method || event.httpMethod || "GET";
@@ -1914,6 +1998,7 @@ exports.handler = async (event) => {
     if (method === "POST" && route === "/auth/google") return await googleAuth(body);
     if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
     if (method === "POST" && route === "/contact") return await handleContact(body);
+    if (method === "POST" && route === "/demo-request") return await handleDemoRequest(body);
     if (method === "GET" && route === "/auth/me") return await me(headers);
     if ((method === "POST" || method === "PUT") && route === "/account/profile") return await updateProfile(headers, body);
     if (method === "GET" && route === "/account/subscriptions") return await getSubscriptions(headers);

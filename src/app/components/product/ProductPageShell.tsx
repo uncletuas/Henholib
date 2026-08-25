@@ -45,7 +45,7 @@ export function ProductPageShell(c: ProductPageContent) {
   const p = c.product;
   const launch = p.ctaType === "launch";
   const waitlist = p.ctaType === "waitlist";
-  const { setWaitlist } = useAuth();
+  const { setWaitlist, setDemoFor } = useAuth();
 
   return (
     <div>
@@ -91,8 +91,8 @@ export function ProductPageShell(c: ProductPageContent) {
                   </>
                 ) : (
                   <>
-                    <CTAButton to="/contact" variant="gradient" style={{ background: p.accent }}>Book a demo <ArrowRight size={16} /></CTAButton>
-                    <CTAButton to="/contact" variant="outline">Talk to sales</CTAButton>
+                    <button onClick={() => setDemoFor(p.id)} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: p.accent, fontSize: "15px" }}>Request a demo <ArrowRight size={16} /></button>
+                    <CTAButton to="/contact" variant="outline">Contact us</CTAButton>
                   </>
                 )}
               </div>
@@ -186,7 +186,7 @@ export function ProductPageShell(c: ProductPageContent) {
             ) : launch ? (
               <CTAButton href={p.appHref} external variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>{p.accountLinked ? `Launch ${p.name}` : `Open ${p.name}`}</CTAButton>
             ) : (
-              <CTAButton to="/contact" variant="solid" size="lg" style={{ background: "#fff", color: p.accent }}>Book a demo</CTAButton>
+              <button onClick={() => setDemoFor(p.id)} className="inline-flex items-center justify-center px-8 py-4 rounded-full font-semibold transition-all hover:opacity-95 active:scale-[0.98]" style={{ background: "#fff", color: p.accent, fontSize: "16px" }}>Request a demo</button>
             )}
             <CTAButton to="/products" variant="ghost-light" size="lg">All products</CTAButton>
           </div>
