@@ -2,7 +2,7 @@
 // Keeping it centralized means titles/descriptions/structured-data live in one
 // place and unknown paths (404s) default to noindex.
 
-import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd } from "./structured-data";
+import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd, faqLd } from "./structured-data";
 import { FOUNDER_IMAGE, FOUNDER_SOCIALS } from "./site";
 
 export interface PageSeo {
@@ -24,21 +24,21 @@ const productCrumb = (name: string, path: string) =>
 
 export const pageSeo: Record<string, PageSeo> = {
   "/": {
-    title: "Loopital, Health Technology & Clinical Software",
+    title: "Health Technology for Hospitals and Patients in Africa",
     description:
-      "Loopital is a health technology company. We build HMS7, the hospital operating system for patient records, billing and pharmacy, and Henholib, the personal health app that lets patients book consultations, message their care team and raise emergency alerts, connected as one network.",
+      "Loopital builds HMS7, the hospital management system, and Henholib, the patient health app. Book consultations, hold your records and raise emergency alerts.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
-    title: "Products, Healthcare, Education & Enterprise Software",
+    title: "Products: Hospital, Health, Facility and School Software",
     description:
-      "Explore Loopital's products: Henholib personal health app, HMS7 hospital management system, Modus facility management, Beacon for schools and training institutions, and Pal, the AI workspace with an autonomous coworker.",
+      "Henholib for patients, HMS7 for hospitals, Modus for facilities, Beacon for schools and Pal, the AI workspace. One Loopital account opens all of them.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/products/hms7": {
     title: "HMS7, Hospital Management System Software",
     description:
-      "HMS7 is an enterprise hospital management system for patient records (EMR), appointments, billing, insurance, staff, pharmacy, and compliance, the hospital side of the Henholib care network. Free for the first 3 months; request access via a quick demo.",
+      "Hospital management software for patient records, appointments, billing, pharmacy and staff. Connected to the Henholib patient app. Free for 3 months.",
     jsonLd: [
       softwareApplicationLd({
         name: "HMS7",
@@ -48,12 +48,26 @@ export const pageSeo: Record<string, PageSeo> = {
         path: "/products/hms7",
       }),
       productCrumb("HMS7", "/products/hms7"),
+      faqLd([
+        {
+          q: "What does HMS7 cost?",
+          a: "HMS7 is free for the first three months after a short demo, so a hospital can run it properly before deciding.",
+        },
+        {
+          q: "Does HMS7 handle billing and insurance?",
+          a: "Yes. Billing, insurance claims, pharmacy stock, staff scheduling and compliance are all part of the platform alongside patient records.",
+        },
+        {
+          q: "How does HMS7 connect to patients?",
+          a: "Through Henholib. Patients on Henholib book, message their care team and receive alerts from the same system the hospital runs.",
+        },
+      ]),
     ],
   },
   "/products/henholib": {
     title: "Henholib, Book Doctors, Hospital Search & Emergency Alerts",
     description:
-      "Henholib is a personal health app to search hospitals, book doctor consultations, message your care team, and raise emergency alerts, the patient side of the HMS7 hospital network. Sign up free at henholib.loopital.com.",
+      "Find a hospital, book a doctor, hold your records and raise an emergency alert from your phone. Free health app for patients in Nigeria and beyond.",
     jsonLd: [
       softwareApplicationLd({
         name: "Henholib",
@@ -63,12 +77,30 @@ export const pageSeo: Record<string, PageSeo> = {
         path: "/products/henholib",
       }),
       productCrumb("Henholib", "/products/henholib"),
+      faqLd([
+        {
+          q: "Is Henholib free?",
+          a: "Yes. Anyone can sign up and use Henholib free to find hospitals, book consultations, hold their records and raise emergency alerts.",
+        },
+        {
+          q: "How do I book a doctor on Henholib?",
+          a: "Open Care, search by what you need treated or by the nearest hospital, pick a time and confirm. The booking lands in the hospital's own system if they run HMS7.",
+        },
+        {
+          q: "What happens when I press the SOS button?",
+          a: "Henholib shares your live location with responders and alerts the nearest Henholib hospital. You can choose medical, police or fire.",
+        },
+        {
+          q: "Who can see my health records?",
+          a: "You can. Records are yours, and a hospital sees them when you choose to share them, for example by showing your Henholib ID at the desk.",
+        },
+      ]),
     ],
   },
   "/products/pal": {
-    title: "Pal, AI Coworker Platform | Loopital",
+    title: "Pal, an AI Coworker for Your Business",
     description:
-      "Pal is an AI coworker for research, knowledge management, content, and workflow automation, on web and desktop. Free to start, no card required.",
+      "Pal drafts the report, answers the inbox and publishes to your socials. An AI coworker inside one workspace. Join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
         name: "Pal",
@@ -81,7 +113,7 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/beacon": {
-    title: "Beacon, Education Management System | Loopital",
+    title: "Beacon, School Management Software for Africa",
     description:
       "Beacon is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Request a demo to see it with your own data.",
     jsonLd: [
@@ -96,20 +128,20 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/about": {
-    title: "About Loopital",
+    title: "About Loopital, a Health Technology Company",
     description:
-      "Loopital is a Nigerian technology company building software products, AI, and enterprise platforms for organizations worldwide.",
+      "Loopital is a Nigerian health technology company using software and AI to solve Africa's most important problems, starting with how care is delivered.",
     jsonLd: organizationLd,
   },
   "/insights": {
-    title: "News & Insights",
+    title: "Health Tech News and Insights from Loopital",
     description:
-      "Product news, engineering, and perspectives from Loopital on software, AI, healthcare technology, and enterprise platforms.",
+      "Product news and engineering notes on hospital software, patient apps and AI, from the team building health technology across Africa.",
   },
   "/contact": {
-    title: "Contact Loopital",
+    title: "Contact Loopital, Book a Hospital Software Demo",
     description:
-      "Get in touch with Loopital to explore our products or discuss a custom software, AI, or enterprise platform project. Book a demo or talk to our team.",
+      "Talk to the Loopital team about HMS7 for your hospital, Henholib for your patients, or a rollout of Modus or Beacon. Book a demo or send a message.",
   },
   "/tuamene.bestgod": {
     title: "Tuamene Bestgod, Founder & CEO of Loopital",
@@ -137,7 +169,7 @@ export const pageSeo: Record<string, PageSeo> = {
   },
   "/privacy": {
     title: "Privacy Policy",
-    description: "How Loopital collects, uses, and protects your information.",
+    description: "How Loopital collects, uses and protects your information, including health data held in Henholib and HMS7.",
   },
   "/terms": {
     title: "Terms of Service",

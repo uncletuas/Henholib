@@ -1,7 +1,7 @@
 // JSON-LD structured data for rich results. Kept in one place so the schema
 // stays consistent across pages.
 
-import { SITE_URL, OG_IMAGE, CONTACT_EMAIL } from "./site";
+import { SITE_URL, OG_IMAGE, CONTACT_EMAIL, FOUNDER_SOCIALS } from "./site";
 
 export const organizationLd: Record<string, unknown> = {
   "@context": "https://schema.org",
@@ -14,6 +14,21 @@ export const organizationLd: Record<string, unknown> = {
   email: CONTACT_EMAIL,
   description:
     "Loopital is a health technology company. We build HMS7, the hospital operating system, and Henholib, the personal health app, connected as one care network, alongside Pal, Modus and Beacon.",
+  // Where we operate. A knowledge-panel signal, and safe to state without a
+  // published street address.
+  areaServed: [
+    { "@type": "Country", name: "Nigeria" },
+    { "@type": "Place", name: "Africa" },
+  ],
+  foundingLocation: { "@type": "Place", name: "Port Harcourt, Rivers State, Nigeria" },
+  knowsAbout: [
+    "Hospital management systems",
+    "Electronic medical records",
+    "Digital health",
+    "Patient engagement",
+    "Health technology in Africa",
+  ],
+  sameAs: FOUNDER_SOCIALS.map((x) => x.href),
   // No PostalAddress: the company does not publish a street address at the
   // moment. Schema.org treats address as optional on an Organization, and a
   // stale or partial one is worse for search than none — it is what gets shown
@@ -25,8 +40,25 @@ export const websiteLd: Record<string, unknown> = {
   "@type": "WebSite",
   name: "Loopital",
   url: SITE_URL,
+  inLanguage: "en",
   publisher: { "@type": "Organization", name: "Loopital", url: SITE_URL },
 };
+
+/**
+ * FAQ blocks. These are the questions people actually type, and answering them
+ * in schema is what makes a page eligible for the expandable result.
+ */
+export function faqLd(items: Array<{ q: string; a: string }>): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((i) => ({
+      "@type": "Question",
+      name: i.q,
+      acceptedAnswer: { "@type": "Answer", text: i.a },
+    })),
+  };
+}
 
 /** SoftwareApplication schema for an in-house product page. */
 export function softwareApplicationLd(input: {

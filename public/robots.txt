@@ -1,4 +1,18 @@
 User-agent: *
 Allow: /
 
+# Legacy Swift paths. They 302 to /products and hold no content of their own.
+Disallow: /products/swift
+Disallow: /products/sart34
+
+# Codename paths kept alive for old links and the company profile PDF. They
+# redirect to the real product pages, so there is nothing here to index.
+Disallow: /products/stack62
+Disallow: /products/fms13
+Disallow: /products/edm73
+
+# Payment return leg. Never a landing page, and it carries a reference in the
+# query string.
+Disallow: /payment/callback
+
 Sitemap: https://www.loopital.com/sitemap.xml
