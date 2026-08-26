@@ -49,7 +49,7 @@ export function UsersPage() {
     <>
       <PageHeader
         title="Users"
-        description="Every Loopital account. One identity signs into Pal, Swift, Modus, Beacon and Henholib."
+        description="Every Loopital account. One identity signs into Pal, Modus, Beacon and Henholib."
       />
 
       <form onSubmit={search} className="mb-4 flex gap-2">

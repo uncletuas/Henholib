@@ -25,7 +25,6 @@
 /** Apps, by the id used in `zina_apps`. */
 const L = "loopital";
 const PAL = "stack62";
-const SWIFT = "sart34";
 const MODUS = "fms13";
 const BEACON = "edm73";
 const HEN = "hms7";
@@ -48,32 +47,32 @@ const SERVICES = [
     // through the hub so there is one merchant account, one ledger and one set
     // of webhooks; a product holding its own key is a second account by
     // accident, and reconciling two is the problem this arrangement exists to
-    // avoid. Swift is listed against PAYSTACK_SECRET_KEY only because its own
-    // checkout still exists in code and reads that name — leaving it blank
-    // there is what keeps that path dormant.
+    // avoid. Pal is listed against PAYSTACK_SECRET_KEY only because the
+    // checkout code inherited from Swift still reads that name — leaving it
+    // blank there is what keeps that path dormant.
     vars: [
       {
         key: "PAYSTACK_SECRET_KEY",
-        apps: [L, SWIFT],
+        apps: [L, PAL],
         secret: true,
-        note: "Server-side key; also verifies webhook signatures. Set it on Loopital only — Swift reads the same name for its own checkout, and leaving it blank there is what keeps that path dormant.",
+        note: "Server-side key; also verifies webhook signatures. Set it on Loopital only — Pal reads the same name for the dormant direct-checkout path, and leaving it blank there is what keeps that path dormant.",
       },
       { key: "PAYSTACK_CALLBACK_URL", apps: [L], secret: false, note: "Where Paystack returns the customer after payment." },
       { key: "PAYSTACK_CURRENCY", apps: [L], secret: false, note: "NGN unless deliberately changed." },
       {
         key: "BILLING_HOOK_SECRET",
-        apps: [L, SWIFT],
+        apps: [L, PAL],
         secret: true,
-        note: "Shared. How the hub proves a credit purchase to Swift — must match on both.",
+        note: "Shared. How the hub proves a credit purchase to Pal — must match on both.",
       },
       {
-        key: "SWIFT_CREDIT_URL",
+        key: "PAL_CREDIT_URL",
         apps: [L],
         secret: false,
-        note: "https://swift-api-cxfi.onrender.com/api/v1/wallet/internal/credit",
+        note: "https://pal-api-bypy.onrender.com/v1/billing/internal/credit",
       },
-      { key: "PAYSTACK_PUBLIC_KEY", apps: [SWIFT], secret: false, note: "Only needed if Swift's own checkout is ever revived." },
-      { key: "PAYSTACK_WEBHOOK_SECRET", apps: [SWIFT], secret: true, note: "Only needed if Swift's own checkout is ever revived." },
+      { key: "PAYSTACK_PUBLIC_KEY", apps: [PAL], secret: false, note: "Only needed if Pal ever takes payment directly instead of through the hub." },
+      { key: "PAYSTACK_WEBHOOK_SECRET", apps: [PAL], secret: true, note: "Only needed if Pal ever takes payment directly instead of through the hub." },
       { key: "LOOPITAL_PAYSTACK_SECRET_KEY", apps: [BEACON], secret: true, note: "Beacon bills institutions on the same account." },
       { key: "LOOPITAL_PAYSTACK_PUBLIC_KEY", apps: [BEACON], secret: false },
     ],
@@ -122,9 +121,9 @@ const SERVICES = [
     console: "https://platform.openai.com/api-keys",
     critical: true,
     vars: [
-      { key: "OPENAI_API_KEY", apps: [PAL, SWIFT], secret: true },
-      { key: "OPENAI_BASE_URL", apps: [PAL, SWIFT], secret: false, note: "Change this to switch provider without touching code." },
-      { key: "OPENAI_MODEL", apps: [PAL, SWIFT], secret: false },
+      { key: "OPENAI_API_KEY", apps: [PAL], secret: true },
+      { key: "OPENAI_BASE_URL", apps: [PAL], secret: false, note: "Change this to switch provider without touching code." },
+      { key: "OPENAI_MODEL", apps: [PAL], secret: false },
       { key: "OPENAI_MODEL_CHEAP", apps: [PAL], secret: false },
       { key: "OPENAI_EMBEDDING_BASE_URL", apps: [PAL], secret: false },
       { key: "EMBEDDING_MODEL", apps: [PAL], secret: false },
@@ -166,9 +165,9 @@ const SERVICES = [
     // Pal namespaces its sign-in client as GOOGLE_AUTH_* to keep it apart from
     // the Workspace client it uses to reach a customer's Drive and Gmail.
     vars: [
-      { key: "GOOGLE_CLIENT_ID", apps: [L, SWIFT, BEACON], secret: false, note: "Public. One OAuth client for the whole group." },
-      { key: "GOOGLE_CLIENT_SECRET", apps: [SWIFT, BEACON], secret: true },
-      { key: "GOOGLE_REDIRECT_URI", apps: [SWIFT, BEACON], secret: false, note: "Must match the console exactly, per app." },
+      { key: "GOOGLE_CLIENT_ID", apps: [L, PAL, BEACON], secret: false, note: "Public. One OAuth client for the whole group." },
+      { key: "GOOGLE_CLIENT_SECRET", apps: [PAL, BEACON], secret: true },
+      { key: "GOOGLE_REDIRECT_URI", apps: [PAL, BEACON], secret: false, note: "Must match the console exactly, per app." },
       { key: "GOOGLE_AUTH_CLIENT_ID", apps: [PAL], secret: false, note: "Same client as GOOGLE_CLIENT_ID; Pal reads this name." },
       { key: "GOOGLE_AUTH_CLIENT_SECRET", apps: [PAL], secret: true },
       {
@@ -177,8 +176,8 @@ const SERVICES = [
         secret: false,
         note: "https://pal-api-bypy.onrender.com/v1/auth/google/callback — add it to the console too.",
       },
-      { key: "GOOGLE_DEVELOPER_TOKEN", apps: [SWIFT], secret: true, note: "Google Ads API." },
-      { key: "GOOGLE_ADS_AUTH_REDIRECT_URI", apps: [SWIFT], secret: false },
+      { key: "GOOGLE_DEVELOPER_TOKEN", apps: [PAL], secret: true, note: "Google Ads API." },
+      { key: "GOOGLE_ADS_AUTH_REDIRECT_URI", apps: [PAL], secret: false },
       { key: "GOOGLE_WORKSPACE_CLIENT_ID", apps: [PAL], secret: false },
       { key: "GOOGLE_WORKSPACE_CLIENT_SECRET", apps: [PAL], secret: true },
       { key: "GOOGLE_WORKSPACE_API_KEY", apps: [PAL], secret: true },
@@ -191,14 +190,14 @@ const SERVICES = [
     purpose: "Facebook and Instagram ads, and WhatsApp Business messaging.",
     console: "https://developers.facebook.com/apps",
     vars: [
-      { key: "META_APP_ID", apps: [PAL, SWIFT], secret: false },
-      { key: "META_APP_SECRET", apps: [PAL, SWIFT], secret: true },
-      { key: "META_REDIRECT_URI", apps: [PAL, SWIFT], secret: false },
+      { key: "META_APP_ID", apps: [PAL], secret: false },
+      { key: "META_APP_SECRET", apps: [PAL], secret: true },
+      { key: "META_REDIRECT_URI", apps: [PAL], secret: false },
       { key: "META_WHATSAPP_ACCESS_TOKEN", apps: [PAL], secret: true },
       { key: "META_WHATSAPP_PHONE_NUMBER_ID", apps: [PAL], secret: false },
-      { key: "WHATSAPP_APP_SECRET", apps: [SWIFT], secret: true },
-      { key: "WHATSAPP_PHONE_NUMBER_ID", apps: [SWIFT], secret: false },
-      { key: "WHATSAPP_BUSINESS_ACCOUNT_ID", apps: [SWIFT], secret: false },
+      { key: "WHATSAPP_APP_SECRET", apps: [PAL], secret: true },
+      { key: "WHATSAPP_PHONE_NUMBER_ID", apps: [PAL], secret: false },
+      { key: "WHATSAPP_BUSINESS_ACCOUNT_ID", apps: [PAL], secret: false },
     ],
   },
   {
@@ -208,11 +207,11 @@ const SERVICES = [
     purpose: "TikTok ads and conversion tracking.",
     console: "https://ads.tiktok.com",
     vars: [
-      { key: "TIKTOK_APP_ID", apps: [SWIFT], secret: false },
-      { key: "TIKTOK_APP_SECRET", apps: [SWIFT], secret: true },
-      { key: "TIKTOK_REDIRECT_URI", apps: [SWIFT], secret: false },
-      { key: "TIKTOK_PIXEL_ID", apps: [SWIFT], secret: false },
-      { key: "TIKTOK_PIXEL_ACCESS_TOKEN", apps: [SWIFT], secret: true },
+      { key: "TIKTOK_APP_ID", apps: [PAL], secret: false },
+      { key: "TIKTOK_APP_SECRET", apps: [PAL], secret: true },
+      { key: "TIKTOK_REDIRECT_URI", apps: [PAL], secret: false },
+      { key: "TIKTOK_PIXEL_ID", apps: [PAL], secret: false },
+      { key: "TIKTOK_PIXEL_ACCESS_TOKEN", apps: [PAL], secret: true },
     ],
   },
   {
@@ -222,9 +221,9 @@ const SERVICES = [
     purpose: "LinkedIn campaign publishing.",
     console: "https://www.linkedin.com/developers/apps",
     vars: [
-      { key: "LINKEDIN_CLIENT_ID", apps: [SWIFT], secret: false },
-      { key: "LINKEDIN_CLIENT_SECRET", apps: [SWIFT], secret: true },
-      { key: "LINKEDIN_REDIRECT_URI", apps: [SWIFT], secret: false },
+      { key: "LINKEDIN_CLIENT_ID", apps: [PAL], secret: false },
+      { key: "LINKEDIN_CLIENT_SECRET", apps: [PAL], secret: true },
+      { key: "LINKEDIN_REDIRECT_URI", apps: [PAL], secret: false },
     ],
   },
   {
@@ -234,9 +233,9 @@ const SERVICES = [
     purpose: "X campaign publishing.",
     console: "https://developer.x.com",
     vars: [
-      { key: "X_CLIENT_ID", apps: [SWIFT], secret: false },
-      { key: "X_CLIENT_SECRET", apps: [SWIFT], secret: true },
-      { key: "X_REDIRECT_URI", apps: [SWIFT], secret: false },
+      { key: "X_CLIENT_ID", apps: [PAL], secret: false },
+      { key: "X_CLIENT_SECRET", apps: [PAL], secret: true },
+      { key: "X_REDIRECT_URI", apps: [PAL], secret: false },
     ],
   },
   {
@@ -272,7 +271,7 @@ const SERVICES = [
     purpose: "Each app's own database. Changing one here repoints that app on its next restart.",
     critical: true,
     vars: [
-      { key: "DATABASE_URL", apps: [L, PAL, SWIFT, BEACON], secret: true, note: "Per app — these are NOT the same database." },
+      { key: "DATABASE_URL", apps: [L, PAL, BEACON], secret: true, note: "Per app — these are NOT the same database." },
       { key: "DB_SCHEMA", apps: [L], secret: false, note: "loopital's schema inside the shared instance." },
     ],
   },
@@ -283,8 +282,8 @@ const SERVICES = [
     purpose: "Background job queues.",
     vars: [
       { key: "REDIS_URL", apps: [PAL], secret: true },
-      { key: "REDIS_HOST", apps: [SWIFT], secret: false },
-      { key: "REDIS_PORT", apps: [SWIFT], secret: false },
+      { key: "REDIS_HOST", apps: [PAL], secret: false },
+      { key: "REDIS_PORT", apps: [PAL], secret: false },
     ],
   },
   {
@@ -293,12 +292,12 @@ const SERVICES = [
     category: "Infrastructure",
     purpose: "Uploads and generated files. S3-compatible, so this is what switching cloud provider actually means.",
     vars: [
-      { key: "AWS_ACCESS_KEY_ID", apps: [SWIFT, MODUS], secret: true },
-      { key: "AWS_SECRET_ACCESS_KEY", apps: [SWIFT, MODUS], secret: true },
-      { key: "AWS_REGION", apps: [SWIFT, MODUS], secret: false },
-      { key: "AWS_S3_BUCKET", apps: [SWIFT], secret: false },
+      { key: "AWS_ACCESS_KEY_ID", apps: [PAL, MODUS], secret: true },
+      { key: "AWS_SECRET_ACCESS_KEY", apps: [PAL, MODUS], secret: true },
+      { key: "AWS_REGION", apps: [PAL, MODUS], secret: false },
+      { key: "AWS_S3_BUCKET", apps: [PAL], secret: false },
       { key: "UPLOADS_BUCKET", apps: [MODUS], secret: false },
-      { key: "S3_ENDPOINT", apps: [SWIFT, MODUS], secret: false, note: "Set this to point at Alibaba OSS, R2 or MinIO instead of AWS." },
+      { key: "S3_ENDPOINT", apps: [PAL, MODUS], secret: false, note: "Set this to point at Alibaba OSS, R2 or MinIO instead of AWS." },
     ],
   },
   {
@@ -330,11 +329,11 @@ const SERVICES = [
     critical: true,
     selfHosted: true,
     vars: [
-      { key: "ZINA_OPS_SECRET", apps: [L, PAL, SWIFT, MODUS, BEACON, HEN], secret: true, note: "Signs every call between Zina and an app." },
-      { key: "ZINA_JWT_SECRET", apps: [L, PAL, SWIFT, MODUS, BEACON], secret: true, note: "Signs staff sessions and step-in assertions." },
+      { key: "ZINA_OPS_SECRET", apps: [L, PAL, MODUS, BEACON, HEN], secret: true, note: "Signs every call between Zina and an app." },
+      { key: "ZINA_JWT_SECRET", apps: [L, PAL, MODUS, BEACON], secret: true, note: "Signs staff sessions and step-in assertions." },
       { key: "ZINA_ENCRYPTION_KEY", apps: [L], secret: true, note: "Seals everything in this vault. Changing it makes stored values unreadable." },
       { key: "ZINA_SUPERADMINS", apps: [L], secret: false, note: "Emails that become superadmin on first sign-in." },
-      { key: "LOOPITAL_API_URL", apps: [PAL, SWIFT, MODUS, BEACON, HEN], secret: false },
+      { key: "LOOPITAL_API_URL", apps: [PAL, MODUS, BEACON, HEN], secret: false },
     ],
   },
   {
@@ -347,10 +346,10 @@ const SERVICES = [
     vars: [
       { key: "JWT_SECRET", apps: [L, PAL], secret: true },
       { key: "ADMIN_JWT_SECRET", apps: [PAL], secret: true },
-      { key: "JWT_ACCESS_SECRET", apps: [SWIFT], secret: true },
-      { key: "JWT_REFRESH_SECRET", apps: [SWIFT], secret: true },
+      { key: "JWT_ACCESS_SECRET", apps: [PAL], secret: true },
+      { key: "JWT_REFRESH_SECRET", apps: [PAL], secret: true },
       { key: "AUTH_SECRET", apps: [BEACON], secret: true },
-      { key: "ENCRYPTION_KEY", apps: [SWIFT], secret: true },
+      { key: "ENCRYPTION_KEY", apps: [PAL], secret: true },
       { key: "APP_ENCRYPTION_KEY", apps: [BEACON], secret: true },
     ],
   },
@@ -362,9 +361,8 @@ const SERVICES = [
     selfHosted: true,
     vars: [
       { key: "APP_URL", apps: [BEACON], secret: false },
-      { key: "APP_BASE_URL", apps: [SWIFT, MODUS], secret: false },
-      { key: "PUBLIC_BASE_URL", apps: [SWIFT], secret: false },
-      { key: "SWIFT_WEB_URL", apps: [SWIFT], secret: false },
+      { key: "APP_BASE_URL", apps: [PAL, MODUS], secret: false },
+      { key: "PUBLIC_BASE_URL", apps: [PAL], secret: false },
       { key: "CORS_ORIGIN", apps: [PAL], secret: false },
       {
         key: "APP_PUBLIC_URL",

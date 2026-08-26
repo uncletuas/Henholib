@@ -69,7 +69,6 @@ export const gradientBrandSoft =
 // Per-product accents, harmonized within the blue-green family.
 export const productAccent = {
   stack62: "#6D5AF0",
-  sart34: "#0EA5E9",
   hms7: "#0D9F79",
   henholib: "#F97316",
   fms13: "#0891B2",

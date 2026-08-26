@@ -13,7 +13,7 @@ export const organizationLd: Record<string, unknown> = {
   image: OG_IMAGE,
   email: CONTACT_EMAIL,
   description:
-    "Loopital builds software products, AI solutions, and enterprise platforms that help businesses and institutions operate more intelligently.",
+    "Loopital is a health technology company. We build HMS7, the hospital operating system, and Henholib, the personal health app, connected as one care network, alongside Pal, Modus and Beacon.",
   // No PostalAddress: the company does not publish a street address at the
   // moment. Schema.org treats address as optional on an Organization, and a
   // stale or partial one is worse for search than none — it is what gets shown

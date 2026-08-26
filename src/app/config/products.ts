@@ -7,19 +7,17 @@ import {
   MODUS_URL,
   HENHOLIB_URL,
   PAL_URL,
-  SWIFT_URL,
 } from "./site";
 import { productAccent } from "../lib/brand";
 import type { Platform } from "../components/PlatformPills";
 
 import stack62Logo from "../../imports/stack62_logo.png";
-import sart34Logo from "../../imports/sart34_logo.png";
 import hms7Logo from "../../imports/hms7-logo.svg";
 import henholibLogo from "../../imports/henholib-logo.svg";
 import fms13Logo from "../../imports/modus-logo.svg";
 import edm73Logo from "../../imports/edm73-logo.svg";
 
-export type ProductId = "stack62" | "sart34" | "hms7" | "henholib" | "fms13" | "edm73";
+export type ProductId = "stack62" | "hms7" | "henholib" | "fms13" | "edm73";
 export type CtaType = "launch" | "demo" | "waitlist";
 
 export interface Product {
@@ -54,7 +52,7 @@ export interface Product {
   flagship?: boolean;
   /** Optional launch offer, e.g. "Free for the first 3 months". */
   offer?: string;
-  /** Mobile store links (Swift only). */
+  /** Mobile store links, for the products that ship an app (Henholib). */
   mobile?: { appStore: string; playStore: string };
   /** A few proof points used on story blocks. */
   highlights: string[];
@@ -79,26 +77,6 @@ export const products: Product[] = [
     ctaType: "launch",
     appHref: PAL_URL,
     highlights: ["Free workspace with your account", "AI coworker (paid)", "Research & content", "Workflow automation"],
-  },
-  {
-    id: "sart34",
-    name: "Swift",
-    logo: sart34Logo,
-    category: "AI Ads & CRM",
-    theme: "The Future of Communication",
-    tagline: "AI ads & CRM for growing businesses.",
-    description:
-      "Swift unifies advertising and customer relationships in one place, run AI-powered ad campaigns, manage every conversation, and grow your audience from a single intelligent workspace, on any device.",
-    platforms: ["web", "desktop", "mobile"],
-    accent: productAccent.sart34,
-    // Swift has no on-site landing page — every link opens the live app directly.
-    detailHref: SWIFT_URL,
-    stage: "available",
-    external: true,
-    accountLinked: true,
-    ctaType: "launch",
-    appHref: SWIFT_URL,
-    highlights: ["AI ad campaigns", "Unified CRM", "Audience engagement", "Cross-platform publishing"],
   },
   {
     id: "hms7",
@@ -183,11 +161,17 @@ export const products: Product[] = [
 
 export const productById = (id: ProductId) => products.find((p) => p.id === id)!;
 
-/** Products tied to the unified loopital account/portal (Swift + Pal). */
+/** Products tied to the unified loopital account/portal. Pal alone, since Swift
+ *  was folded into it — one account, one workspace. */
 export const accountProducts = products.filter((p) => p.accountLinked);
 
 // ── Positioning groups ──
-/** The core ecosystem, in the order we lead with them (needs-first). */
-export const ecosystemProducts: Product[] = ["henholib", "fms13", "hms7", "edm73"].map((id) => productById(id as ProductId));
+/** The core ecosystem, in the order we lead with them (needs-first).
+ *
+ *  The homepage now shows only the two health platforms, so this page is where
+ *  the rest of the portfolio actually lives. Pal is included here for that
+ *  reason: it is no longer visible anywhere else on the site except the navbar
+ *  CTA and the coworker in the hero. */
+export const ecosystemProducts: Product[] = ["henholib", "hms7", "fms13", "edm73", "stack62"].map((id) => productById(id as ProductId));
 /** Products still in development, shown separately from the ones we lead with. */
 export const inDevelopmentProducts = products.filter((p) => p.stage === "coming_soon" && !p.flagship);

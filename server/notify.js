@@ -34,7 +34,9 @@ const defaultFrom = () => process.env.RESEND_FROM_EMAIL || "Loopital <no-reply@l
 const APP_BRANDING = {
   loopital: { name: "Loopital", accent: "#0f766e", url: "https://www.loopital.com" },
   stack62: { name: "Pal", accent: "#4f46e5", url: "https://pal.loopital.com" },
-  sart34: { name: "Swift", accent: "#059669", url: "https://swift.loopital.com" },
+  // Swift was folded into Pal. Kept so historical notifications still resolve
+  // a label, but pointed at Pal — swift.loopital.com no longer exists.
+  sart34: { name: "Swift", accent: "#4f46e5", url: "https://pal.loopital.com" },
   fms13: { name: "Modus", accent: "#c2410c", url: "https://fms13.loopital.com" },
   edm73: { name: "Beacon", accent: "#a3122b", url: "https://beacon.loopital.com" },
   hms7: { name: "Henholib", accent: "#0369a1", url: "https://henholib.loopital.com" },

@@ -6,7 +6,7 @@ import { colors, gradientBrand } from "../lib/brand";
  * First-run "what this account is" note, shown once to new users and reachable
  * anytime from the account menu.
  *
- * It used to walk through Pal and Swift as well. Three product pitches is a lot
+ * It used to walk through the other products as well. Three product pitches is a lot
  * to put in front of someone who has just signed up and hasn't asked about
  * either product yet — so signup now explains the account and stops there. The
  * products sell themselves from their own pages, where someone arrives already
@@ -17,7 +17,7 @@ import { colors, gradientBrand } from "../lib/brand";
  */
 
 interface Guide {
-  key: "loopital" | "pal" | "swift";
+  key: "loopital" | "pal";
   name: string;
   tagline: string;
   icon: React.ReactNode;
@@ -35,7 +35,7 @@ const GUIDES: Guide[] = [
     icon: <Layers size={18} />,
     what: "Loopital is your single account across every product we build. One email and password signs you in everywhere — no separate logins, one shared profile.",
     can: [
-      "Open Pal and Swift with the same account",
+      "Open Pal with the same account",
       "Manage your plans and payments in one place",
       "Keep one profile (name, photo) across every app",
     ],

@@ -6,7 +6,6 @@ import { useAuth } from "../context/AuthContext";
 import { openPalWorkspace } from "../lib/pal";
 import { launchProductApp } from "../lib/api";
 import { productById } from "../config/products";
-import { SWIFT_URL } from "../config/site";
 import { colors, gradientBrand } from "../lib/brand";
 
 const initials = (name: string) =>
@@ -26,14 +25,12 @@ export function AccountMenu() {
 
   if (!user) return null;
   const pal = productById("stack62");
-  const swift = productById("sart34");
   const launchPal = () => { setOpen(false); openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal }); };
-  const launchSwift = () => { setOpen(false); launchProductApp(SWIFT_URL, "sart34", token); };
 
-  // Apps this one account unlocks — all live, all one login (SSO).
+  // Apps this one account unlocks. Pal alone since Swift was folded into it —
+  // social is now a surface inside the workspace, not a second app to launch.
   const apps = [
     { name: pal.name, onClick: launchPal, node: <ImageWithFallback src={pal.logo} alt={pal.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: false },
-    { name: swift.name, onClick: launchSwift, node: <ImageWithFallback src={swift.logo} alt={swift.name} className="w-6 h-6 object-contain" />, chip: "#fff", soon: false },
   ];
 
   const avatar = (size: number) =>

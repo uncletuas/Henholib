@@ -80,7 +80,7 @@ export function ContactPage() {
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-4">
                 <h2 style={{ fontWeight: 700, fontSize: "20px", color: colors.heading }}>What we help with</h2>
                 {[
-                  { tag: "Product inquiries", desc: "Questions about Pal, Swift, HMS7, or Modus" },
+                  { tag: "Product inquiries", desc: "Questions about Henholib, HMS7, Pal, Beacon, or Modus" },
                   { tag: "Partnership opportunities", desc: "Business partnerships, reseller arrangements, and integrations" },
                   { tag: "Support", desc: "Technical support for existing products or accounts" },
                 ].map(item => (

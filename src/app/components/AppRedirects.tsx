@@ -1,18 +1,16 @@
 import { useEffect } from "react";
-import { SWIFT_URL, MODUS_URL } from "../config/site";
+import { MODUS_URL } from "../config/site";
 
 /**
- * Swift and Modus no longer have on-site landing pages — their old
- * /products/* routes now bounce straight to the live app so any existing
- * bookmark or search result lands the user in the product itself.
+ * Modus has no on-site landing page — its old /products/* routes bounce
+ * straight to the live app so any existing bookmark or search result lands the
+ * user in the product itself.
+ *
+ * Swift used to redirect from here too. It was folded into Pal, so its paths
+ * now resolve to /products in routes.ts instead of a host that is gone.
  */
 function goto(url: string) {
   if (typeof window !== "undefined") window.location.replace(url);
-}
-
-export function SwiftRedirect() {
-  useEffect(() => goto(SWIFT_URL), []);
-  return null;
 }
 
 export function ModusRedirect() {

@@ -214,4 +214,13 @@ module.exports = [
      PRIMARY KEY (app_id, metric, day)
    )`,
   `CREATE INDEX IF NOT EXISTS zina_metrics_day_idx ON zina_metrics (day DESC)`,
+
+  // ── Swift folded into Pal ───────────────────────────────────────────────
+  // Removing sart34 from SEED_APPS is not enough on its own: seedApps() is
+  // ON CONFLICT DO UPDATE and never disables a row, so an already-seeded Swift
+  // would keep appearing in Zina forever. Disable it here instead of deleting,
+  // because zina_metrics and zina_app_health still carry its history and a
+  // delete would orphan them. listApps() filters on enabled, so it disappears
+  // from the portal either way.
+  `UPDATE zina_apps SET enabled = false, updated_at = now() WHERE id = 'sart34' AND enabled = true`,
 ];

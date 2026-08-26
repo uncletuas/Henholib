@@ -23,7 +23,7 @@ export function RootLayout() {
   const [params] = useSearchParams();
   const seo = getPageSeo(location.pathname);
 
-  // No in-site app shells — Pal and Swift are separate apps (external redirects).
+  // No in-site app shells — Pal is a separate app (external redirect).
   const isAppShell = false;
 
   // Deep-link from the Pal app's "Add the coworker" upgrade CTA:

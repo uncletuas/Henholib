@@ -7,7 +7,7 @@ import { Stack62Page } from "./pages/products/Stack62Page";
 import { Hms7Page } from "./pages/products/Hms7Page";
 import { HenholibPage } from "./pages/products/HenholibPage";
 import { Edm73Page } from "./pages/products/Edm73Page";
-import { SwiftRedirect, ModusRedirect } from "./components/AppRedirects";
+import { ModusRedirect } from "./components/AppRedirects";
 import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { InsightsPage } from "./pages/InsightsPage";
@@ -29,14 +29,16 @@ export const router = createBrowserRouter([
       // and in the company profile PDF, and a dead link is a worse outcome than
       // an old one that forwards.
       { path: "products/pal", Component: Stack62Page },
-      { path: "products/swift", Component: SwiftRedirect },
       { path: "products/modus", Component: ModusRedirect },
       { path: "products/beacon", Component: Edm73Page },
       { path: "products/henholib", Component: HenholibPage },
       { path: "products/hms7", Component: Hms7Page },
 
       { path: "products/stack62", loader: () => redirect("/products/pal") },
-      { path: "products/sart34", Component: SwiftRedirect },
+      // Swift was folded into Pal. Its old paths point at the portfolio
+      // rather than swift.loopital.com, which no longer resolves.
+      { path: "products/swift", loader: () => redirect("/products") },
+      { path: "products/sart34", loader: () => redirect("/products") },
       { path: "products/fms13", Component: ModusRedirect },
       { path: "products/edm73", loader: () => redirect("/products/beacon") },
       { path: "payment/callback", Component: PaymentCallbackPage },

@@ -9,7 +9,7 @@ interface StoreBadgesProps {
 }
 
 /**
- * App Store + Google Play download badges. Swift is the only product with a
+ * App Store + Google Play download badges. Henholib is the product with a
  * mobile app, so these live on its surfaces only. Links default to "#" until
  * real store URLs are supplied via the product catalog.
  */

@@ -24,15 +24,15 @@ const productCrumb = (name: string, path: string) =>
 
 export const pageSeo: Record<string, PageSeo> = {
   "/": {
-    title: "Loopital, Software, AI & Enterprise Platforms",
+    title: "Loopital, Health Technology & Clinical Software",
     description:
-      "Loopital builds software products, AI, and enterprise platforms, Pal (AI coworker), Swift (AI ads & CRM), HMS7 (hospital management), Henholib (personal health app), and Modus (facility management), helping organizations and people operate more intelligently.",
+      "Loopital is a health technology company. We build HMS7, the hospital operating system for patient records, billing and pharmacy, and Henholib, the personal health app that lets patients book consultations, message their care team and raise emergency alerts, connected as one network.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
-    title: "Products, AI, Healthcare & Enterprise Software",
+    title: "Products, Healthcare, Education & Enterprise Software",
     description:
-      "Explore Loopital's products: Pal AI coworker, Swift AI ads & CRM, HMS7 hospital management system, Henholib personal health app, and Modus facility management software, for businesses, hospitals, and individuals.",
+      "Explore Loopital's products: Henholib personal health app, HMS7 hospital management system, Modus facility management, Beacon for schools and training institutions, and Pal, the AI workspace with an autonomous coworker.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/products/hms7": {

@@ -4,7 +4,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  /** Shared "Google-style" profile fields, consistent across Loopital/Pal/Swift. */
+  /** Shared "Google-style" profile fields, consistent across Loopital and Pal. */
   username?: string | null;
   avatarUrl?: string | null;
   headline?: string | null;
@@ -66,7 +66,7 @@ export const authApi = {
 };
 
 // ── Waitlist ───────────────────────────────────────────────────────────
-// Public capture for products not yet open to the public (Pal, Swift).
+// Public capture for products not yet open to the public.
 export const waitlistApi = {
   join: (product: string, email: string, name?: string) =>
     request<{ ok: boolean }>("/waitlist", {
@@ -98,10 +98,10 @@ export async function uploadToS3(uploadUrl: string, file: File): Promise<void> {
 
 // ── Unified account portal ─────────────────────────────────────────────
 // loopital.com is the single portal for the account-linked products
-// (Swift + Pal). Subscriptions are kept separate per product. HMS7 and
+// (Pal). Subscriptions are kept separate per product. HMS7 and
 // Modus are demo-led and never appear here.
 
-export type AccountProductId = "sart34" | "stack62";
+export type AccountProductId = "stack62";
 
 export interface Subscription {
   product: AccountProductId;
@@ -137,7 +137,7 @@ export const accountApi = {
 };
 
 // ── Single sign-on ──────────────────────────────────────────────────────
-// loopital is the identity provider. To open a federated app (Swift/Pal)
+// loopital is the identity provider. To open a federated app (Pal)
 // for a logged-in user, mint a short-lived SSO token and carry it to the app,
 // which exchanges it server-side for the loopital user.
 
@@ -210,7 +210,7 @@ export const payApi = {
 // (from the page/nav you're already on), so the checkout NEVER shows a product
 // list — it just processes the payment for that one service, on the single
 // Paystack account. Each service has its own plans/pricing page that calls this.
-export type BillingProduct = "stack62" | "sart34" | "fms13" | "edm73";
+export type BillingProduct = "stack62" | "fms13" | "edm73";
 
 export const billingApi = {
   checkout: (

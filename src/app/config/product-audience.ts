@@ -22,8 +22,4 @@ export const productAudience: Record<string, { audience: string; need: string }>
     audience: "For teams & knowledge work",
     need: "An AI coworker for research, content, and workflow automation, so your team works at a higher level.",
   },
-  sart34: {
-    audience: "For marketers & sales",
-    need: "AI-powered advertising and CRM in one intelligent workspace, win attention and keep relationships.",
-  },
 };

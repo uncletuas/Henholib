@@ -25,7 +25,9 @@ export function ProductsPage() {
 
       {/* Ecosystem grid */}
       <Section background={colors.bg} pad="md">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Five now that Pal has joined the grid: one clean row at xl, 3+2 at
+            lg, 2-up on tablets. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {ecosystemProducts.map((p, i) => (
             <Reveal key={p.id} delay={i * 0.05}><EcosystemCard product={p} /></Reveal>
           ))}

@@ -97,7 +97,7 @@ export function LoginPage() {
         </form>
 
         <p className="mt-4 text-center text-[12px] text-[color:var(--sidebar-muted)]">
-          Managing Swift, Pal, Modus, Beacon, Henholib and Loopital.
+          Managing Pal, Modus, Beacon, Henholib and Loopital.
         </p>
       </div>
     </div>

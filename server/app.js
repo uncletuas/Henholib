@@ -17,7 +17,7 @@
  *   POST /api/sso/exchange           { token, product }   -> { user }
  *   GET  /api/health                                       -> { status: "ok" }
  *
- * The unified loopital account is the single identity provider (IdP). SART34
+ * The unified loopital account is the single identity provider (IdP). Pal
  * and STACK62 federate against it: loopital mints a short-lived, audience-bound
  * SSO token (POST /sso/token) that the user carries to the product app, whose
  * backend exchanges it for the canonical loopital user (POST /sso/exchange) and
@@ -138,7 +138,7 @@ async function signup(body) {
   return json(201, { token, user: publicUser(user) });
 }
 
-// Public waitlist capture for products not yet open to the public (STACK62, SART34).
+// Public waitlist capture for products not yet open to the public.
 // No account or auth required; idempotent per (email, product).
 async function joinWaitlist(body) {
   const email = (body.email || "").trim().toLowerCase();
@@ -189,7 +189,7 @@ async function signin(body) {
  * Sign in / up with Google. The frontend Google button returns a signed ID
  * token (credential); we verify it with Google, then find-or-create the loopital
  * user by email and issue our own session. New accounts inherit the Google name
- * and photo as their shared profile. One account across Loopital, Pal & Swift.
+ * and photo as their shared profile. One account across Loopital and Pal.
  */
 async function googleAuth(body) {
   const credential = body.credential || body.idToken || "";
@@ -274,7 +274,7 @@ async function me(headers) {
 
 /**
  * Update the shared profile (name, avatar, headline) — the single identity
- * surfaced across Loopital, Pal and Swift. Auth = loopital session JWT.
+ * surfaced across Loopital and Pal. Auth = loopital session JWT.
  */
 async function updateProfile(headers, body) {
   const payload = await authenticate(headers);
@@ -306,7 +306,9 @@ async function updateProfile(headers, body) {
 
 // Subscriptions/invoices for anything other than the account-linked products
 // are never returned by the portal — HMS7/FMS13 are handled via sales, not
-// self-serve. The IN ('sart34','stack62') filter enforces this in SQL.
+// self-serve. The IN (...) filter enforces this in SQL. 'sart34' stays in the
+// list even though Swift is gone: customers who bought Swift credits still have
+// real invoices, and dropping it would hide their own payment history.
 const money = (cents, currency) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD" })
     .format((Number(cents) || 0) / 100);
@@ -355,9 +357,9 @@ async function getInvoices(headers) {
   return json(200, { invoices });
 }
 
-// Products that federate against the loopital identity. STACK62 and SART34
-// only — HMS7/FMS13 are demo-led and excluded.
-const SSO_PRODUCTS = ["sart34", "stack62"];
+// Products that federate against the loopital identity. Pal only, since Swift
+// was folded into it — HMS7/FMS13 are demo-led and excluded.
+const SSO_PRODUCTS = ["stack62"];
 const SSO_TOKEN_TTL = "120s"; // short-lived; carried via redirect to the app
 
 /**
@@ -582,7 +584,7 @@ async function activatePalPayment(reference) {
 // One Paystack account, one checkout, many products. Any product asks loopital
 // to start a payment; loopital prices it server-side, tags it with metadata,
 // and the single webhook fulfills the right thing (subscription or credits).
-const swiftCreditUrl = () => process.env.SWIFT_CREDIT_URL || ""; // Swift's internal top-up hook
+const palCreditUrl = () => process.env.PAL_CREDIT_URL || ""; // Pal's internal top-up hook
 const billingHookSecret = () => process.env.BILLING_HOOK_SECRET || "";
 
 // Server-side price catalog (NGN kobo). The client only names product + purpose
@@ -593,8 +595,9 @@ const BILLING_CATALOG = {
       pro: { amountNgn: () => PAL_PLANS.pro.amountNgn, seatBased: false },
       business: { amountNgn: () => PAL_PLANS.business.amountNgn, seatBased: true, minSeats: PAL_PLANS.business.minSeats },
     },
-  },
-  sart34: {
+    // Credits moved here from sart34 when Swift was folded into Pal. The keys
+    // must match credit_bundles.bundle_key in Pal, or a paid bundle is priced
+    // here and never delivered there.
     credits: {
       starter: { amountNgn: 500000, credits: 100 },
       growth: { amountNgn: 1200000, credits: 300 },
@@ -603,6 +606,7 @@ const BILLING_CATALOG = {
       scale: { amountNgn: 18000000, credits: 6000 },
     },
   },
+
   // Modus (fms13) + Beacon (edm73): reserved. Add tiers here when they launch.
   fms13: { subscription: {} },
   edm73: { subscription: {} },
@@ -662,16 +666,17 @@ async function fulfillPayment(reference) {
       { uid: pay.user_id, product: pay.product, plan, seats }
     );
     if (pay.product === "stack62") await sendUserEmail(pay.email, palActivatedEmail(pay.name, plan, seats));
-  } else if (pay.purpose === "credits" && pay.product === "sart34" && swiftCreditUrl()) {
-    // Credits live in Swift's own wallet — call its internal top-up hook.
+  } else if (pay.purpose === "credits" && pay.product === "stack62" && palCreditUrl()) {
+    // Credits live in Pal's wallet — call its internal top-up hook. Pal is
+    // idempotent on `reference`, so a retried webhook credits exactly once.
     try {
-      await fetch(swiftCreditUrl(), {
+      await fetch(palCreditUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-billing-secret": billingHookSecret() },
         body: JSON.stringify({ email: pay.email, userId: pay.user_id, credits: pay.credits, reference }),
       });
     } catch (e) {
-      console.error("swift credit hook failed:", (e && e.message) || e); // payment recorded; Swift can reconcile
+      console.error("pal credit hook failed:", (e && e.message) || e); // payment recorded; Pal can reconcile
     }
   }
   return true;
@@ -1799,7 +1804,7 @@ async function sendUserEmail(to, tpl) {
 }
 
 // ── Ecosystem message copy (transactional email) ────────────────────────
-// One warm, plain-text voice across Loopital, Pal and Swift. First-name only,
+// One warm, plain-text voice across Loopital and Pal. First-name only,
 // clear next step, no marketing fluff.
 const MAIL_SIGNOFF = "\n\n— The Loopital team\nwww.loopital.com";
 const firstName = (name) => (String(name || "there").trim().split(/\s+/)[0] || "there");
@@ -1815,7 +1820,7 @@ Welcome to Loopital — one account for everything we build.
 Here's what's ready for you right now:
 
 • Pal — your AI workspace. It's free to use; switch on the AI coworker for research, content, automation and decisions whenever you're ready.
-• Swift — AI ads and CRM. Build and publish campaigns across Meta, Google, TikTok, WhatsApp, LinkedIn and X, and turn every lead into a sale.
+• Social, inside Pal — publish to Meta, Instagram, TikTok, LinkedIn and X, run your ads, and handle every customer conversation without leaving the workspace.
 
 You sign in to every Loopital app with this same email — nothing else to set up.
 

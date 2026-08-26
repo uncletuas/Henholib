@@ -3,10 +3,10 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { colors, shadow, tint } from "../../lib/brand";
 import { Reveal } from "../Reveal";
-import { BeaconDemo, HenholibDemo, Hms7Demo, ModusDemo, SwiftDemo } from "./ProductDemos";
+import { HenholibDemo, Hms7Demo } from "./ProductDemos";
 
 /**
- * The product grid: one card per product, each running a miniature of the real
+ * The health grid: Henholib and HMS7, each running a miniature of the real
  * screen.
  *
  * Laid out the way xAI lays its surfaces out — a centred grid with real air
@@ -15,11 +15,14 @@ import { BeaconDemo, HenholibDemo, Hms7Demo, ModusDemo, SwiftDemo } from "./Prod
  * is what turns a grid of demos into a feature table.
  *
  * The footer is a solid band of the product's own colour with light type on it.
- * At a glance, that row of coloured bands is what says these are five different
- * products rather than five views of one.
  *
- * Pal is deliberately absent — the hero runs a Pal demo directly above this
- * grid, and the same product twice on one screen reads as padding.
+ * Only the two health platforms appear here. Loopital is a health technology
+ * company on this page, and a homepage that lists everything the company has
+ * ever shipped says nothing about what it is for. Beacon, Modus and Pal are on
+ * /products, which is what that page is for.
+ *
+ * Pal is also deliberately absent: the hero runs the Pal coworker directly
+ * above this grid, and the same product twice on one screen reads as padding.
  */
 
 interface CardProps {
@@ -90,36 +93,20 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
 export function ProductShowcase() {
   return (
     <div className="mx-auto" style={{ maxWidth: 1040 }}>
-      {/* Phones get narrow columns, desktop screens wide ones, so nothing sits
-          marooned in space its device never meant to fill. */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-5">
+      {/* Two products, two halves of the same network: the phone in the
+          patient's hand and the system running the hospital they walk into.
+          Henholib takes the portrait column, HMS7 the wide one, because that is
+          the device each is actually used on. */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
         <Reveal className="md:col-span-2">
           <ShowcaseCard label="Henholib" blurb="Your health, in your pocket" href="/products/henholib" accent="#F26D21" shape="mobile">
             <HenholibDemo />
           </ShowcaseCard>
         </Reveal>
 
-        <Reveal delay={0.06} className="md:col-span-2">
-          <ShowcaseCard label="Modus" blurb="Facility and fleet operations" href="https://modus.loopital.com" external accent="#0891B2" shape="desktop">
-            <ModusDemo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.12} className="md:col-span-2">
-          <ShowcaseCard label="Swift" blurb="AI ads and CRM" href="https://swift.loopital.com" external accent="#12B76A" shape="mobile">
-            <SwiftDemo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.18} className="md:col-span-3">
+        <Reveal delay={0.08} className="md:col-span-3">
           <ShowcaseCard label="HMS7" blurb="The hospital operating system" href="/products/hms7" accent="#0D9F79" shape="desktop">
             <Hms7Demo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.24} className="md:col-span-3">
-          <ShowcaseCard label="Beacon" blurb="Schools and training institutions" href="/products/beacon" accent="#D6294E" shape="desktop">
-            <BeaconDemo />
           </ShowcaseCard>
         </Reveal>
       </div>

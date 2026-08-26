@@ -44,7 +44,7 @@ import {
  * inventing a hue that no longer passes the CVD check.
  */
 
-const SERIES_ORDER = ["stack62", "sart34", "fms13", "edm73", "hms7", "loopital"];
+const SERIES_ORDER = ["stack62", "fms13", "edm73", "hms7", "loopital"];
 const SLOTS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 const OTHER_COLOR = "var(--muted-foreground)";
 

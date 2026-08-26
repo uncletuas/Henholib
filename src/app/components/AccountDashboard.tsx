@@ -136,7 +136,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
 
               <div className="p-5 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
                 <p style={{ fontWeight: 600, fontSize: "14px", color: "#1D4ED8", marginBottom: "4px" }}>One account, every app</p>
-                <p style={{ color: colors.blue, fontSize: "13px", lineHeight: 1.65 }}>Sign in to Swift or Pal with this same email and password, your subscription activates automatically.</p>
+                <p style={{ color: colors.blue, fontSize: "13px", lineHeight: 1.65 }}>Sign in to Pal with this same email and password, your subscription activates automatically.</p>
               </div>
             </div>
           )}
@@ -220,7 +220,7 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
     try {
       const r = await accountApi.updateProfile(token, { name: name.trim(), avatarUrl: avatarUrl.trim(), headline: headline.trim() });
       onSaved(r.user);
-      setMsg({ ok: true, text: "Saved — this updates your profile across Loopital, Pal and Swift." });
+      setMsg({ ok: true, text: "Saved — this updates your profile across Loopital and Pal." });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "Couldn't save your profile." });
     } finally { setBusy(false); }
@@ -230,7 +230,7 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
     <div className="flex flex-col gap-6">
       <div className="p-4 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
         <p style={{ fontWeight: 600, fontSize: "13.5px", color: "#1D4ED8", marginBottom: "2px" }}>Your profile, everywhere</p>
-        <p style={{ color: colors.blue, fontSize: "12.5px", lineHeight: 1.6 }}>This is the name and photo people see across Loopital, Pal and Swift, one account, one identity.</p>
+        <p style={{ color: colors.blue, fontSize: "12.5px", lineHeight: 1.6 }}>This is the name and photo people see across Loopital and Pal, one account, one identity.</p>
       </div>
 
       {/* Avatar */}

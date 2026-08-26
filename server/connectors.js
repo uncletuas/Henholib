@@ -84,16 +84,6 @@ const SEED_APPS = [
     sort_order: 1,
   },
   {
-    id: "sart34",
-    name: "Swift",
-    tagline: "AI ads and CRM",
-    app_url: "https://swift.loopital.com",
-    admin_url: "https://senate.loopital.com",
-    ops_base_url: process.env.OPS_URL_SWIFT || "",
-    accent: "#059669",
-    sort_order: 2,
-  },
-  {
     id: "fms13",
     name: "Modus",
     tagline: "Facility and fleet operations",

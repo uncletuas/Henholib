@@ -14,7 +14,6 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 // because those subdomains are gone. fms13.loopital.com in particular is dead:
 // Modus moved to modus.loopital.com and the old host now serves nothing.
 export const PAL_URL = "https://pal.loopital.com";
-export const SWIFT_URL = "https://swift.loopital.com";
 export const MODUS_URL = "https://modus.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
 // Beacon has a subdomain but no deployment behind it yet, so it is deliberately
@@ -24,14 +23,9 @@ export const BEACON_URL = "https://beacon.loopital.com";
 
 // Google Sign-In client ID (public, safe to expose). The Google button uses it
 // to obtain an ID token that the backend verifies. Configure loopital.com +
-// swift.loopital.com as authorized JavaScript origins in the Google console.
+// www.loopital.com as authorized JavaScript origins in the Google console.
 export const GOOGLE_CLIENT_ID =
   "673117866604-4f0h5o89jdnams4h7aqej09lqsl3ngqk.apps.googleusercontent.com";
-
-// Swift is the only product with a mobile app. Replace these placeholders
-// with the real store listings when available.
-export const SWIFT_APP_STORE_URL = "#";
-export const SWIFT_PLAY_STORE_URL = "#";
 
 // Backend API base. Injected at build time via Vite env (VITE_API_BASE_URL);
 // falls back to same-origin "/api" for local dev behind a proxy.
