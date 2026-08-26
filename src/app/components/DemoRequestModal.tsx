@@ -52,7 +52,7 @@ const PER_PRODUCT: Partial<Record<ProductId, { orgLabel: string; fields: Field[]
         name: "students",
         label: "Roughly how many students?",
         type: "select",
-        options: ["Under 200", "200–500", "500–1,500", "1,500–5,000", "Over 5,000"],
+        options: ["Under 200", "200. 500", "500. 1,500", "1,500. 5,000", "Over 5,000"],
       },
       {
         name: "currentSystem",
@@ -74,7 +74,7 @@ const PER_PRODUCT: Partial<Record<ProductId, { orgLabel: string; fields: Field[]
         name: "beds",
         label: "Roughly how many beds?",
         type: "select",
-        options: ["Under 20", "20–50", "50–150", "150–500", "Over 500"],
+        options: ["Under 20", "20. 50", "50. 150", "150. 500", "Over 500"],
       },
       {
         name: "priority",
@@ -91,7 +91,7 @@ const PER_PRODUCT: Partial<Record<ProductId, { orgLabel: string; fields: Field[]
         name: "sites",
         label: "How many sites or buildings?",
         type: "select",
-        options: ["1", "2–5", "6–20", "Over 20"],
+        options: ["1", "2. 5", "6. 20", "Over 20"],
       },
       { name: "assets", label: "What are you maintaining?", placeholder: "Generators, chillers, lifts, fleet…" },
     ],
@@ -190,7 +190,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
               <Check size={22} />
             </span>
             <p style={{ color: colors.heading, fontSize: "16px", fontWeight: 600, marginTop: "14px" }}>
-              Thanks — we'll be in touch shortly.
+              Thanks. we'll be in touch shortly.
             </p>
             <p style={{ color: colors.textSecondary, fontSize: "14px", marginTop: "6px", lineHeight: 1.6 }}>
               A confirmation is on its way to {values.email}. Someone will follow up to arrange a time

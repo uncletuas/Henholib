@@ -7,14 +7,14 @@ import { colors, tint } from "../../lib/brand";
  *
  * Two chassis, chosen to match what each product actually is: a phone for
  * Henholib, a desktop window for HMS7 (and for Modus and Beacon, whose demos
- * are kept here for the products page). Drawing a mobile
- * product inside browser chrome promises a web app that does not exist, and the
- * reverse makes an operations console look like something you'd install.
+ * are kept here for the products page). Drawing a mobile product inside browser
+ * chrome promises a web app that does not exist, and the reverse makes an
+ * operations console look like something you would install.
  *
  * **Everything is written at natural size and scaled down.** A phone screen is
  * laid out at a real 320px width and then transformed to fit its card, rather
  * than authored directly at 7px type. That is what keeps the proportions
- * honest — padding, corner radii and type scale all stay in the ratios the real
+ * honest: padding, corner radii and type scale all stay in the ratios the real
  * app uses, instead of being guessed at thumbnail size.
  *
  * The data is invented. Nothing here should ever be mistaken for a real record.
@@ -244,7 +244,7 @@ export function HenholibDemo({ height = 320 }: { height?: number } = {}) {
             </span>
           </div>
 
-          {/* The health ID card — the thing the whole product is built around */}
+          {/* The health ID card. the thing the whole product is built around */}
           <div
             className="mx-4 px-4 py-4"
             style={{ background: `linear-gradient(140deg,${HEN_ORANGE} 0%,#E85D14 100%)`, borderRadius: 20 }}
@@ -423,7 +423,7 @@ export function ModusDemo() {
     <div ref={ref} className="h-full">
       <Screen
         accent={MODUS_ACCENT}
-        title="Modus — Work orders"
+        title="Modus. Work orders"
         sidebar={[{ label: "Orders", active: true }, { label: "Assets" }, { label: "Vendors" }, { label: "Sites" }, { label: "Reports" }]}
       >
         <div className="h-full flex flex-col">
@@ -480,7 +480,7 @@ export function BeaconDemo() {
     <div ref={ref} className="h-full">
       <Screen
         accent={BEACON_ACCENT}
-        title="Beacon — SS2 Mathematics"
+        title="Beacon. SS2 Mathematics"
         sidebar={[{ label: "Results", active: true }, { label: "Students" }, { label: "Fees" }, { label: "Timetable" }, { label: "Staff" }]}
       >
         <div className="h-full flex flex-col">
@@ -543,7 +543,7 @@ export function Hms7Demo() {
     <div ref={ref} className="h-full">
       <Screen
         accent={HMS_ACCENT}
-        title="HMS7 — Ward board"
+        title="HMS7. Ward board"
         sidebar={[{ label: "Wards", active: true }, { label: "Patients" }, { label: "Pharmacy" }, { label: "Billing" }, { label: "Lab" }]}
       >
         <div className="p-3.5 flex flex-col gap-3 h-full justify-center">

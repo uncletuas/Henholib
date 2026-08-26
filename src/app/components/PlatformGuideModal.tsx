@@ -33,14 +33,14 @@ const GUIDES: Guide[] = [
     name: "Loopital",
     tagline: "One account for everything",
     icon: <Layers size={18} />,
-    what: "Loopital is your single account across every product we build. One email and password signs you in everywhere — no separate logins, one shared profile.",
+    what: "Loopital is your single account across every product we build. One email and password signs you in everywhere. no separate logins, one shared profile.",
     can: [
       "Open Pal with the same account",
       "Manage your plans and payments in one place",
       "Keep one profile (name, photo) across every app",
     ],
     how: [
-      "You're already signed in — that's all it takes.",
+      "You're already signed in. that's all it takes.",
       "Use the app switcher in your account menu to jump between products.",
       "Open “Manage account” anytime to see plans and billing.",
     ],
@@ -61,7 +61,7 @@ export function PlatformGuideModal({ onClose }: { onClose: () => void }) {
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
           </div>
           <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>Here's what your Loopital account is.</p>
-          {/* Tabs — only worth showing when there's more than one page. */}
+          {/* Tabs. only worth showing when there's more than one page. */}
           {GUIDES.length > 1 && (
             <div className="flex gap-2 mt-4">
               {GUIDES.map((x, i) => (

@@ -69,7 +69,7 @@ export function GoogleSignInButton({
           width: 320,
         });
       })
-      .catch(() => { /* Google unavailable — the email/password form still works */ });
+      .catch(() => { /* Google unavailable. the email/password form still works */ });
     return () => { cancelled = true; };
   }, [text]);
 

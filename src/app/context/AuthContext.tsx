@@ -39,6 +39,8 @@ interface AuthContextType {
   setShowPalPlans: (v: boolean) => void;
   /** True when a "Try Pal" click is waiting for sign-in to complete. */
   pendingPal: boolean;
+  showPalWaitlist: boolean;
+  setShowPalWaitlist: (v: boolean) => void;
   setPendingPal: (v: boolean) => void;
   /** Ecosystem "how to use it" guide. */
   showGuide: boolean;
@@ -58,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showPalOnboarding, setShowPalOnboarding] = useState(false);
   const [showPalPlans, setShowPalPlans] = useState(false);
   const [pendingPal, setPendingPal] = useState(false);
+  const [showPalWaitlist, setShowPalWaitlist] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
   // Restore session from a stored token on first load.
@@ -107,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, initializing, signIn, signUp, signInWithGoogle, signOut, updateUser: setUser, showAuth, setShowAuth, waitlist, setWaitlist, demoFor, setDemoFor, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide }}
+      value={{ user, token, initializing, signIn, signUp, signInWithGoogle, signOut, updateUser: setUser, showAuth, setShowAuth, waitlist, setWaitlist, demoFor, setDemoFor, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showPalWaitlist, setShowPalWaitlist, showGuide, setShowGuide }}
     >
       {children}
     </AuthContext.Provider>

@@ -25,7 +25,7 @@ import { HenholibDemo } from "./ProductDemos";
 const MEDIA_SRC: string | null = null;
 
 const POINTS = [
-  { icon: FileHeart, text: "Your records, in your hands — not in a folder behind a counter." },
+  { icon: FileHeart, text: "Your records, in your hands. not in a folder behind a counter." },
   { icon: CalendarCheck, text: "Book consultations and see every visit, prescription and result." },
   { icon: ShieldCheck, text: "One verified health ID any hospital can check in seconds." },
   { icon: Wallet, text: "Pay bills and manage your HMO without the back-and-forth." },
@@ -114,7 +114,7 @@ export function HenholibCta() {
               Your medical records, finally in your hands.
             </h2>
             <p style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.7, marginBottom: "26px" }}>
-              Every hospital visit, prescription and test result in one place you actually control —
+              Every hospital visit, prescription and test result in one place you actually control. 
               with consultations, bills and your HMO handled from the same app.
             </p>
 

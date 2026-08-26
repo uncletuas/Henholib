@@ -19,13 +19,28 @@ interface PalCtx {
   setShowAuth: (v: AuthView) => void;
   setShowPalOnboarding: (v: boolean) => void;
   setPendingPal: (v: boolean) => void;
+  setShowPalWaitlist?: (v: boolean) => void;
 }
+
+/**
+ * Pal is closed to the public.
+ *
+ * Every in-site route into the workspace stops at the waitlist. What is
+ * deliberately NOT gated is pal.loopital.com itself: typing the address, or
+ * following a direct link, still reaches the app. That is what keeps internal
+ * testing working without a flag anyone has to remember to flip back.
+ */
+export const PAL_PUBLIC_ACCESS = false;
 
 /**
  * The "Try Pal" action. Not signed in → register (then resume after auth via
  * pendingPal). First-time → onboarding (personal/team). Otherwise → launch.
  */
 export function openPalWorkspace(ctx: PalCtx) {
+  if (!PAL_PUBLIC_ACCESS) {
+    ctx.setShowPalWaitlist?.(true);
+    return;
+  }
   if (!ctx.user || !ctx.token) {
     ctx.setPendingPal(true);
     ctx.setShowAuth("signup");

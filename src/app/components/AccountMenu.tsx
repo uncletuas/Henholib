@@ -13,7 +13,7 @@ const initials = (name: string) =>
 
 /** Google-style account button: avatar → dropdown with an app launcher. */
 export function AccountMenu() {
-  const { user, token, signOut, setShowAuth, setShowPalOnboarding, setPendingPal, setShowGuide } = useAuth();
+  const { user, token, signOut, setShowAuth, setShowPalOnboarding, setPendingPal, setShowGuide , setShowPalWaitlist } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -25,7 +25,7 @@ export function AccountMenu() {
 
   if (!user) return null;
   const pal = productById("stack62");
-  const launchPal = () => { setOpen(false); openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal }); };
+  const launchPal = () => { setOpen(false); openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal, setShowPalWaitlist }); };
 
   // Apps this one account unlocks. Pal alone since Swift was folded into it —
   // social is now a surface inside the workspace, not a second app to launch.

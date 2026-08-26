@@ -220,7 +220,7 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
     try {
       const r = await accountApi.updateProfile(token, { name: name.trim(), avatarUrl: avatarUrl.trim(), headline: headline.trim() });
       onSaved(r.user);
-      setMsg({ ok: true, text: "Saved — this updates your profile across Loopital and Pal." });
+      setMsg({ ok: true, text: "Saved. this updates your profile across Loopital and Pal." });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "Couldn't save your profile." });
     } finally { setBusy(false); }

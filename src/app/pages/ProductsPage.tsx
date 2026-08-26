@@ -34,7 +34,7 @@ export function ProductsPage() {
         </div>
       </Section>
 
-      {/* In development — only shown when there is something in development */}
+      {/* In development. only shown when there is something in development */}
       {inDevelopmentProducts.length > 0 && (
         <Section background={colors.surface} pad="md">
           <Reveal className="max-w-2xl mb-6">

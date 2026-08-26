@@ -10,6 +10,9 @@ import { DemoRequestModal } from "../components/DemoRequestModal";
 import { PalOnboardingModal } from "../components/PalOnboardingModal";
 import { PalPlansModal } from "../components/PalPlansModal";
 import { PlatformGuideModal } from "../components/PlatformGuideModal";
+import { PalWaitlistModal } from "../components/PalWaitlistModal";
+import { PalGenie } from "../components/pal/PalGenie";
+import { PAL_PUBLIC_ACCESS } from "../lib/pal";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { Seo } from "../components/Seo";
 import { getPageSeo } from "../config/seo-pages";
@@ -18,7 +21,7 @@ import { palApi } from "../lib/api";
 import { launchWorkspace } from "../lib/pal";
 
 export function RootLayout() {
-  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, demoFor, setDemoFor, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showGuide, setShowGuide } = useAuth();
+  const { showAuth, setShowAuth, signOut, user, token, waitlist, setWaitlist, demoFor, setDemoFor, showPalOnboarding, setShowPalOnboarding, showPalPlans, setShowPalPlans, pendingPal, setPendingPal, showPalWaitlist, setShowPalWaitlist, showGuide, setShowGuide } = useAuth();
   const location = useLocation();
   const [params] = useSearchParams();
   const seo = getPageSeo(location.pathname);
@@ -34,15 +37,20 @@ export function RootLayout() {
     setShowAuth(user ? "dashboard" : "signup");
   }, [params, user, setShowAuth]);
 
-  // Resume a "Try Pal" click after the user signs in/registers: onboard if
-  // first-time, otherwise launch straight into the workspace.
+  // Resume a "Try Pal" click after the user signs in or registers. While Pal
+  // is closed to the public that resume lands on the waitlist instead of the
+  // workspace, so signing up never becomes a side door into the app.
   useEffect(() => {
     if (!(user && token && pendingPal)) return;
     setPendingPal(false);
+    if (!PAL_PUBLIC_ACCESS) {
+      setShowPalWaitlist(true);
+      return;
+    }
     palApi.getProfile(token)
       .then((pr) => { if (!pr.onboarded) setShowPalOnboarding(true); else launchWorkspace(token); })
       .catch(() => launchWorkspace(token));
-  }, [user, token, pendingPal, setPendingPal, setShowPalOnboarding]);
+  }, [user, token, pendingPal, setPendingPal, setShowPalOnboarding, setShowPalWaitlist]);
 
   // Show the ecosystem guide once, the first time a signed-in user lands.
   useEffect(() => {
@@ -51,7 +59,7 @@ export function RootLayout() {
       if (localStorage.getItem("loopital_guide_seen")) return;
       localStorage.setItem("loopital_guide_seen", "1");
       setShowGuide(true);
-    } catch { /* storage blocked — skip */ }
+    } catch { /* storage blocked. skip */ }
   }, [user, setShowGuide]);
 
   return (
@@ -82,6 +90,14 @@ export function RootLayout() {
         <WaitlistModal product={waitlist} onClose={() => setWaitlist(null)} />
       )}
       {demoFor && <DemoRequestModal product={demoFor} onClose={() => setDemoFor(null)} />}
+      <PalWaitlistModal
+        open={showPalWaitlist}
+        onClose={() => setShowPalWaitlist(false)}
+        defaultEmail={user?.email}
+        defaultName={user?.name}
+      />
+      {/* Pal hovers over every page, saying what Loopital builds. */}
+      <PalGenie />
       {showPalOnboarding && <PalOnboardingModal />}
       {showPalPlans && token && (
         <PalPlansModal

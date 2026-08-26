@@ -507,9 +507,9 @@ export function CoworkerFace({
 function gestureTransform(type: Gesture, p: number): string {
   const env = Math.sin(p * Math.PI); // 0 → 1 → 0 ease envelope
   switch (type) {
-    case "nod": // a "yes" pitch — dip down and back up
+    case "nod": // a "yes" pitch. dip down and back up
       return `translateY(${(env * 1.7).toFixed(2)}px) scaleY(${(1 - env * 0.05).toFixed(3)})`;
-    case "shake": // a "no" yaw — quick left/right, damped
+    case "shake": // a "no" yaw. quick left/right, damped
       return `rotate(${(Math.sin(p * Math.PI * 3) * (1 - p) * 8).toFixed(2)}deg)`;
     case "turn": // glance to the side and back
       return `rotate(${(env * 9).toFixed(2)}deg) translateX(${(env * 1.3).toFixed(2)}px)`;

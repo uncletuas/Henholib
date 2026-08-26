@@ -18,8 +18,8 @@ const company = [
 
 export function Navbar() {
   const location = useLocation();
-  const { user, token, setShowAuth, signOut, setShowPalOnboarding, setPendingPal } = useAuth();
-  const tryPal = () => openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal });
+  const { user, token, setShowAuth, signOut, setShowPalOnboarding, setPendingPal , setShowPalWaitlist } = useAuth();
+  const tryPal = () => openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal, setShowPalWaitlist });
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);

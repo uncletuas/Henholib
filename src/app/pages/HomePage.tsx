@@ -1,97 +1,168 @@
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { CTAButton } from "../components/CTAButton";
-import { PalCoworkerPreview } from "../components/pal/PalCoworkerPreview";
 import { TypeCycle } from "../components/TypeCycle";
 import { wash, colors, gradientBrand } from "../lib/brand";
+import { HenholibShowcase } from "../components/home/HenholibShowcase";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { CommitmentSection } from "../components/home/CommitmentSection";
 import { HenholibCta } from "../components/home/HenholibCta";
 
+/**
+ * The homepage.
+ *
+ * Ordered the way a stranger reads: what we are for, the app running, the
+ * problem we picked, the two products, the mission, the ask. Short blocks. The
+ * app itself does the persuading, so the copy around it stays out of the way.
+ */
 
-// Rotating audiences for the hero headline. Health leads, because health is what
-// Loopital is for: the patient first, then the people and institutions who care
-// for them. The wider portfolio lives on /products rather than in this rotation.
 const AUDIENCES = [
   "modern healthcare",
   "hospitals & clinics",
   "doctors & care teams",
   "patients everywhere",
-  "public health systems",
-  "pharmacies & labs",
   "health across Africa",
 ];
 
+/** The problem, in three numbers. Concrete beats adjectives. */
+const PROBLEM = [
+  {
+    stat: "Paper",
+    line: "Most hospital records still live on paper, so nothing follows the patient out the door.",
+  },
+  {
+    stat: "Hours",
+    line: "Finding a hospital with the right specialist, or blood in stock, still means phone calls.",
+  },
+  {
+    stat: "Cash",
+    line: "Bills settle at a counter, in a queue, in a building you had to travel to.",
+  },
+];
 
 export function HomePage() {
   return (
     <div>
-      {/* ── HERO (centered) ── */}
+      {/* ── HERO ── */}
       <section className="relative overflow-hidden" style={{ background: colors.bg }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="brand-aura absolute" style={{ top: "-20%", right: "2%", width: "52vw", height: "52vw", background: "radial-gradient(circle at 50% 50%, rgba(14,165,233,0.18), rgba(16,185,129,0.10) 42%, transparent 70%)", filter: "blur(34px)" }} />
-          <div className="brand-aura-2 absolute" style={{ bottom: "-26%", left: "0%", width: "48vw", height: "48vw", background: "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.15), transparent 70%)", filter: "blur(38px)" }} />
-          <div className="brand-aura absolute" style={{ top: "8%", left: "34%", width: "36vw", height: "36vw", background: "radial-gradient(circle at 50% 50%, rgba(109,106,240,0.12), transparent 72%)", filter: "blur(44px)", animationDelay: "-9s" }} />
+          <div className="brand-aura absolute" style={{ top: "-22%", right: "0%", width: "54vw", height: "54vw", background: "radial-gradient(circle at 50% 50%, rgba(242,109,33,0.20), rgba(13,159,121,0.12) 42%, transparent 70%)", filter: "blur(38px)" }} />
+          <div className="brand-aura-2 absolute" style={{ bottom: "-28%", left: "-4%", width: "50vw", height: "50vw", background: "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.14), transparent 70%)", filter: "blur(42px)" }} />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 relative" style={{ padding: "clamp(64px,8vw,110px) 24px clamp(56px,7vw,90px)" }}>
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="max-w-3xl mx-auto text-center">
+        <div
+          className="max-w-7xl mx-auto px-6 relative grid items-center gap-10 lg:grid-cols-2"
+          style={{ padding: "clamp(56px,7vw,96px) 24px clamp(48px,6vw,80px)" }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center lg:text-left"
+          >
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass" style={{ fontSize: "12.5px" }}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: gradientBrand }} />
-              <span style={{ color: colors.heading, fontWeight: 600, letterSpacing: "0.02em" }}>Health technology · AI · Clinical platforms</span>
+              <span style={{ color: colors.heading, fontWeight: 600, letterSpacing: "0.02em" }}>
+                Health technology, built in Africa
+              </span>
             </span>
+
             <h1 style={{ marginBottom: "18px" }}>
               The intelligent infrastructure for<br />
               <TypeCycle phrases={AUDIENCES} />
             </h1>
-            <p className="mx-auto" style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.6, maxWidth: "540px", marginBottom: "28px" }}>
-              Loopital is a health technology company. We build the software that hospitals run on
-              and the app that puts your own health in your hands — connected, so care doesn't stop
-              at the door.
+
+            <p
+              className="mx-auto lg:mx-0"
+              style={{ color: colors.textSecondary, fontSize: "17.5px", lineHeight: 1.6, maxWidth: "520px", marginBottom: "28px" }}
+            >
+              Your records, your doctor and your emergency call belong in your
+              pocket. The hospital that answers should run on the same network.
+              We build both ends.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <CTAButton to="/products" size="md" variant="gradient">Explore products <ArrowRight size={16} /></CTAButton>
-              <CTAButton to="/contact" size="md" variant="outline">Talk to us</CTAButton>
+
+            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+              <CTAButton to="/products/henholib" size="md" variant="gradient">
+                Get Henholib <ArrowRight size={16} />
+              </CTAButton>
+              <CTAButton to="/products/hms7" size="md" variant="outline">
+                For hospitals
+              </CTAButton>
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }} className="max-w-xl mx-auto" style={{ marginTop: "clamp(40px,5vw,64px)" }}>
-            <PalCoworkerPreview />
+          <motion.div
+            initial={{ opacity: 0, y: 26, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.85, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className="flex justify-center"
+          >
+            <HenholibShowcase scale={0.78} />
           </motion.div>
         </div>
       </section>
 
-      {/* ── HEALTH PLATFORMS (live demos) ── */}
-      {/* Each tile runs a working miniature of the product rather than a
-          screenshot: the demos loop, pause off-screen, and settle on their end
-          state when the reader prefers reduced motion. */}
+      {/* ── THE PROBLEM ── */}
+      <Section background={colors.surface} pad="md">
+        <Reveal className="max-w-2xl mb-8">
+          <p style={{ color: colors.rose, fontSize: "13px", fontWeight: 700, letterSpacing: "0.08em", marginBottom: "12px" }}>
+            THE PROBLEM
+          </p>
+          <h2 style={{ marginBottom: "12px" }}>Care breaks down in the gaps.</h2>
+          <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
+            Not in the consulting room. In everything around it.
+          </p>
+        </Reveal>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PROBLEM.map((p, i) => (
+            <Reveal key={p.stat} delay={i * 0.07}>
+              <div
+                className="h-full"
+                style={{
+                  background: colors.bg,
+                  border: `1px solid ${colors.hairline}`,
+                  borderRadius: 18,
+                  padding: "22px 20px",
+                }}
+              >
+                <p style={{ fontSize: "26px", fontWeight: 800, color: colors.heading, marginBottom: 8 }}>
+                  {p.stat}
+                </p>
+                <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6 }}>
+                  {p.line}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── THE TWO PLATFORMS ── */}
       <Section background={wash.sky} pad="md">
         <Reveal className="max-w-2xl mb-8">
-          <h2 style={{ marginBottom: "12px" }}>Health technology, both sides of it.</h2>
-          <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.6 }}>
-            Care breaks down in the gap between the patient and the hospital. We build both ends of
-            it — Henholib puts your records, your doctor and your emergency call in your pocket, and
-            HMS7 runs the hospital that answers. They are one network, so the hospital you book with
-            is the system your care actually happens in.
+          <h2 style={{ marginBottom: "12px" }}>Both ends of the same network.</h2>
+          <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
+            Henholib is the patient's side. HMS7 runs the hospital that answers.
+            Book on one and it lands in the other.
           </p>
-          <p style={{ color: colors.textTertiary, fontSize: "15px", lineHeight: 1.6, marginTop: "12px" }}>
-            We build beyond health too, for facilities, schools and teams.{" "}
+          <p style={{ color: colors.textTertiary, fontSize: "15px", lineHeight: 1.6, marginTop: "10px" }}>
+            We build beyond health too.{" "}
             <Link to="/products" style={{ color: colors.blue, fontWeight: 600 }}>
-              See the full portfolio →
+              See everything →
             </Link>
           </p>
         </Reveal>
         <ProductShowcase />
       </Section>
 
-      {/* ── COMMITMENT (full-bleed, footage behind) ── */}
+      {/* ── MISSION ── */}
       <CommitmentSection />
 
-      {/* ── CLOSING: Henholib ── */}
+      {/* ── CLOSING ── */}
       <HenholibCta />
     </div>
   );

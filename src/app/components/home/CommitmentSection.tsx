@@ -19,7 +19,9 @@ import { Reveal } from "../Reveal";
  */
 
 
-const VIDEO_SRC = "https://www.loopital.com/media/49815-458438877_large.mp4";
+// Repo-managed, so it ships inside dist/ and a deploy cannot delete it. Drop
+// the file at public/media/commitment.mp4 (see the README there).
+const VIDEO_SRC = "/media/commitment.mp4";
 
 export function CommitmentSection() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -61,6 +63,7 @@ export function CommitmentSection() {
         loop
         playsInline
         preload="none"
+        poster="/media/commitment-poster.jpg"
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover"
         style={{ opacity: ready ? 0.72 : 0.4, transition: "opacity 1.2s ease" }}
@@ -69,7 +72,7 @@ export function CommitmentSection() {
       </video>
 
       {/* The scrim is what makes the type legible regardless of the frame
-          underneath — contrast can't depend on which moment the loop is at. */}
+          underneath. contrast can't depend on which moment the loop is at. */}
       <div
         className="absolute inset-0"
         aria-hidden="true"
@@ -93,15 +96,17 @@ export function CommitmentSection() {
               marginBottom: "16px",
             }}
           >
-            OUR COMMITMENT
+OUR MISSION
           </p>
-          <h2 style={{ color: "#FFFFFF", fontSize: "clamp(30px,4vw,46px)", lineHeight: 1.15, marginBottom: "20px" }}>
-            Technology that makes life measurably better.
+          <h2 style={{ color: "#FFFFFF", fontSize: "clamp(32px,4.4vw,50px)", lineHeight: 1.12, marginBottom: "20px" }}>
+            We are using technology to solve Africa's most important problems.
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.82)", fontSize: "17px", lineHeight: 1.7, maxWidth: "660px" }}>
-            We build health technology that improves lives globally, security systems that keep
-            people's information theirs, and operations software that makes real work simpler.
-            Built in Africa, for anywhere the same problems exist.
+          <p style={{ color: "rgba(255,255,255,0.84)", fontSize: "17.5px", lineHeight: 1.7, maxWidth: "620px" }}>
+            We are pushing the boundaries of what it means to digitise operations
+            and a nation. Built in Africa, for anywhere the same problems exist.
+          </p>
+          <p style={{ color: "#7FD8C0", fontSize: "17.5px", fontWeight: 600, lineHeight: 1.7, maxWidth: "620px", marginTop: "14px" }}>
+            We are making the world a better place.
           </p>
         </Reveal>
 
