@@ -161,7 +161,7 @@ function HomeScreen() {
           HL-ED5Y-7J6V-67 · Verified
         </p>
         <div style={{ display: "flex", gap: 12, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.28)" }}>
-          {[["Blood", "O+"], ["Genotype", "AA"], ["Allergies", "0"]].map(([k, v]) => (
+          {[["Genotype", "AA"], ["Allergies", "0"], ["Conditions", "0"]].map(([k, v]) => (
             <span key={k} style={{ fontSize: 9, color: "rgba(255,255,255,0.85)" }}>
               {k} <strong style={{ color: "#fff" }}>{v}</strong>
             </span>
@@ -198,10 +198,10 @@ function CareScreen() {
         <span style={{ background: ORANGE, color: "#fff", fontSize: 10, fontWeight: 700, padding: "7px 14px", borderRadius: 999 }}>+ Book</span>
       </div>
       <div style={{ background: CARD, borderRadius: 14, overflow: "hidden" }}>
-        <Row icon="◎" tint="#E3F5EA" title="Find a hospital" sub="Nearest first, or search by need." />
-        <Row icon="🩸" tint="#FDE7E7" title="Find blood" sub="Nearest bank with your type in stock." />
-        <Row icon="✔" tint="#FDF1DC" title="Reviews & complaints" sub="Routed automatically." />
-        <Row icon="🕐" tint="#FDF1DC" title="Specialist waitlist" sub="First refusal when a slot frees." />
+        <Row icon="◎" tint="#E3F5EA" title="Find a hospital" sub="Nearest first, or search by what you need treated." />
+        <Row icon="✚" tint="#E8F1FE" title="Book a consultation" sub="Pick a doctor, pick a time, done." />
+        <Row icon="✔" tint="#FDF1DC" title="Reviews & complaints" sub="Rate your visits, or file a complaint that gets routed automatically." />
+        <Row icon="🕐" tint="#FDF1DC" title="Specialist waitlist" sub="Fully booked? Get first refusal when a slot frees up." />
       </div>
       <p style={{ fontSize: 17, fontWeight: 800, color: INK, margin: "14px 0 8px" }}>Upcoming</p>
       <div style={{ background: CARD, borderRadius: 14, height: 70 }} />

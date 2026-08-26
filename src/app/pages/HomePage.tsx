@@ -9,14 +9,15 @@ import { wash, colors, gradientBrand } from "../lib/brand";
 import { HenholibShowcase } from "../components/home/HenholibShowcase";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { CommitmentSection } from "../components/home/CommitmentSection";
-import { HenholibCta } from "../components/home/HenholibCta";
+import { ProductGrid } from "../components/home/ProductGrid";
 
 /**
  * The homepage.
  *
  * Ordered the way a stranger reads: what we are for, the app running, the
- * problem we picked, the hospital end of it, the mission, the ask. Short
- * blocks. The app does the persuading, so the copy stays out of the way.
+ * problem we picked, the hospital end of it, the mission, then everything we
+ * build. Short blocks. The app does the persuading, so the copy stays out of
+ * the way.
  */
 
 const AUDIENCES = [
@@ -31,15 +32,15 @@ const AUDIENCES = [
 const PROBLEM = [
   {
     stat: "Paper",
-    line: "Most hospital records still live on paper, so nothing follows the patient out the door.",
+    line: "Hospitals still run on paper, so nothing follows the patient from one visit to the next.",
   },
   {
     stat: "Hours",
-    line: "Finding a hospital with the right specialist, or blood in stock, still means phone calls.",
+    line: "Finding a hospital with the right specialist still means phone calls and guesswork.",
   },
   {
-    stat: "Cash",
-    line: "Bills settle at a counter, in a queue, in a building you had to travel to.",
+    stat: "Paperwork",
+    line: "HMOs and insurers manage members on spreadsheets, so every claim and approval crawls.",
   },
 ];
 
@@ -79,9 +80,9 @@ export function HomePage() {
               className="mx-auto lg:mx-0"
               style={{ color: colors.textSecondary, fontSize: "17.5px", lineHeight: 1.6, maxWidth: "520px", marginBottom: "28px" }}
             >
-              Your records, your doctor and your emergency call belong in your
-              pocket. The hospital that answers should run on the same network.
-              We build both ends.
+              We build the software that hospitals, health plans and patients
+              run on, so getting care is faster and delivering it is simpler.
+              One network, from the clinic to the phone in your hand.
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
@@ -146,8 +147,9 @@ export function HomePage() {
         <Reveal className="max-w-2xl mb-8">
           <h2 style={{ marginBottom: "12px" }}>The other end of the network.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
-            HMS7 runs the hospital that answers. Records, appointments, billing
-            and pharmacy in one place. Book on Henholib and it lands here.
+            HMS7 runs the hospital that answers. Records, appointments, billing,
+            pharmacy and claims in one place, with HMOs and insurers managing
+            their members on the same platform.
           </p>
           <p style={{ color: colors.textTertiary, fontSize: "15px", lineHeight: 1.6, marginTop: "10px" }}>
             We build beyond health too.{" "}
@@ -162,8 +164,17 @@ export function HomePage() {
       {/* ── MISSION ── */}
       <CommitmentSection />
 
-      {/* ── CLOSING ── */}
-      <HenholibCta />
+      {/* ── WHAT WE BUILD ── */}
+      <Section background={colors.surface} pad="md">
+        <Reveal className="max-w-2xl mb-8">
+          <h2 style={{ marginBottom: "12px" }}>What we build.</h2>
+          <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
+            Software for everyone in the chain: the patient looking for care, the
+            hospital delivering it, and the health plan paying for it.
+          </p>
+        </Reveal>
+        <ProductGrid />
+      </Section>
     </div>
   );
 }

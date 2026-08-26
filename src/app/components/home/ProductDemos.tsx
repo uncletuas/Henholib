@@ -299,7 +299,7 @@ export function HenholibDemo({ height = 320 }: { height?: number } = {}) {
               style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.28)" }}
             >
               {[
-                ["Blood", "O+"],
+                ["Genotype", "AA"],
                 ["Genotype", "AA"],
                 ["Allergies", "0"],
               ].map(([k, v]) => (
