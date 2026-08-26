@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { colors } from "../../lib/brand";
@@ -19,57 +18,21 @@ import { Reveal } from "../Reveal";
  */
 
 
-// Repo-managed, so it ships inside dist/ and a deploy cannot delete it. Drop
-// the file at public/media/commitment.mp4 (see the README there).
-const VIDEO_SRC = "/media/commitment.mp4";
+// Repo-managed, so it ships inside dist/ and a deploy cannot delete it.
+const MEDIA_SRC = "/media/mission-bg.jpg";
 
 export function CommitmentSection() {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const [ready, setReady] = useState(false);
-
-  // Only fetch and play the footage once the section is near the viewport, and
-  // pause it again when it leaves — a background video that decodes for the
-  // whole visit is a battery cost with nothing to show for it.
-  useEffect(() => {
-    const node = sectionRef.current;
-    const video = videoRef.current;
-    if (!node || !video || typeof IntersectionObserver === "undefined") return;
-
-    const reduced =
-      typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          if (video.preload !== "auto") video.preload = "auto";
-          video.play().then(() => setReady(true)).catch(() => setReady(false));
-        } else {
-          video.pause();
-        }
-      },
-      { rootMargin: "200px" }
-    );
-    io.observe(node);
-    return () => io.disconnect();
-  }, []);
-
   return (
-    <section ref={sectionRef} className="relative overflow-hidden" style={{ background: colors.ink }}>
-      <video
-        ref={videoRef}
-        muted
-        loop
-        playsInline
-        preload="none"
-        poster="/media/commitment-poster.jpg"
+    <section className="relative overflow-hidden" style={{ background: colors.ink }}>
+      <img
+        src={MEDIA_SRC}
+        alt=""
         aria-hidden="true"
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ opacity: ready ? 0.72 : 0.4, transition: "opacity 1.2s ease" }}
-      >
-        <source src={VIDEO_SRC} type="video/mp4" />
-      </video>
+        style={{ opacity: 0.55 }}
+      />
 
       {/* The scrim is what makes the type legible regardless of the frame
           underneath. contrast can't depend on which moment the loop is at. */}
