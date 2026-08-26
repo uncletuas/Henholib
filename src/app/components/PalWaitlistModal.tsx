@@ -112,9 +112,9 @@ export function PalWaitlistModal({
               Pal opens soon.
             </h2>
             <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.6, marginBottom: 20 }}>
-              An AI coworker that drafts the report, answers the inbox and
-              publishes to your socials. We are onboarding in small groups. Leave
-              your email and we will come to you.
+              Pal Workspace is the office of your AI coworker. A member of your
+              team, not a tool you operate. We are onboarding in small groups.
+              Leave your email and we will come to you.
             </p>
 
             <form onSubmit={join} className="grid gap-2.5">

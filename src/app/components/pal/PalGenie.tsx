@@ -24,7 +24,7 @@ interface Line {
 const LINES: Line[] = [
   { text: "Henholib puts your records, your doctor and your emergency call on your phone.", mood: "happy" },
   { text: "HMS7 runs the hospital that answers when you book. Same network, both ends.", mood: "neutral" },
-  { text: "I am Pal. I draft the report, answer the email and post to your socials while you do the work only you can do.", mood: "excited" },
+  { text: "I am Pal. Not a tool you operate, a member of your team. Give me the work and I get on with it.", mood: "excited" },
   { text: "Modus keeps every building, asset and work order in one place.", mood: "neutral" },
   { text: "Beacon runs admissions, fees and results for schools end to end.", mood: "happy" },
   { text: "One Loopital account opens all of it. No separate logins.", mood: "excited" },

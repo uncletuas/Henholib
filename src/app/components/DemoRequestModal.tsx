@@ -74,7 +74,7 @@ const PER_PRODUCT: Partial<Record<ProductId, { orgLabel: string; fields: Field[]
         name: "beds",
         label: "Roughly how many beds?",
         type: "select",
-        options: ["Under 20", "20. 50", "50. 150", "150. 500", "Over 500"],
+        options: ["Under 20", "20 to 50", "50 to 150", "150 to 500", "Over 500"],
       },
       {
         name: "priority",
@@ -102,6 +102,8 @@ const FALLBACK = { orgLabel: "Organisation", fields: [] as Field[] };
 
 export function DemoRequestModal({ product, onClose }: { product: ProductId; onClose: () => void }) {
   const p = productById(product);
+  // Health organisations register and get onboarded; everyone else books a demo.
+  const isRegister = p.ctaType === "register";
   const spec = PER_PRODUCT[product] ?? FALLBACK;
   const fields: Field[] = [
     { name: "organisation", label: spec.orgLabel, required: true },
@@ -153,7 +155,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={`Request a ${p.name} demo`}
+        aria-label={isRegister ? `Register your organisation for ${p.name}` : `Request a ${p.name} demo`}
         className="w-full rounded-[24px] overflow-hidden"
         style={{ maxWidth: 560, background: colors.surface, boxShadow: shadow.lg }}
       >
@@ -163,11 +165,13 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
               {p.name.toUpperCase()}
             </p>
             <h2 style={{ color: colors.heading, fontSize: "21px", fontWeight: 700, marginTop: "4px" }}>
-              {done ? "Request received" : "Request a demo"}
+              {done ? (isRegister ? "Registration received" : "Request received") : (isRegister ? "Register your organisation" : "Request a demo")}
             </h2>
             {!done && (
               <p style={{ color: colors.textSecondary, fontSize: "13.5px", marginTop: "6px" }}>
-                A few details so the first conversation is useful rather than introductory.
+                {isRegister
+                  ? "A few details so we can set you up properly and get in touch about onboarding."
+                  : "A few details so the first conversation is useful rather than introductory."}
               </p>
             )}
           </div>
@@ -190,11 +194,12 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
               <Check size={22} />
             </span>
             <p style={{ color: colors.heading, fontSize: "16px", fontWeight: 600, marginTop: "14px" }}>
-              Thanks. we'll be in touch shortly.
+              {isRegister ? "You are registered." : "Thanks, we will be in touch shortly."}
             </p>
             <p style={{ color: colors.textSecondary, fontSize: "14px", marginTop: "6px", lineHeight: 1.6 }}>
-              A confirmation is on its way to {values.email}. Someone will follow up to arrange a time
-              that suits {values.organisation}.
+              {isRegister
+                ? `A confirmation is on its way to ${values.email}. Our team will contact you to begin onboarding ${values.organisation}.`
+                : `A confirmation is on its way to ${values.email}. Someone will follow up to arrange a time that suits ${values.organisation}.`}
             </p>
             <button
               onClick={onClose}

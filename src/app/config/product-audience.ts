@@ -20,6 +20,6 @@ export const productAudience: Record<string, { audience: string; need: string }>
   },
   stack62: {
     audience: "For teams & knowledge work",
-    need: "An AI coworker for research, content, and workflow automation, so your team works at a higher level.",
+    need: "A member of your team who happens to be AI. Give it work and it gets on with it.",
   },
 };

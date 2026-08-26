@@ -18,7 +18,7 @@ import fms13Logo from "../../imports/modus-logo.svg";
 import edm73Logo from "../../imports/edm73-logo.svg";
 
 export type ProductId = "stack62" | "hms7" | "henholib" | "fms13" | "edm73";
-export type CtaType = "launch" | "demo" | "waitlist";
+export type CtaType = "launch" | "demo" | "waitlist" | "register";
 
 export interface Product {
   id: ProductId;
@@ -63,11 +63,11 @@ export const products: Product[] = [
     id: "stack62",
     name: "Pal",
     logo: stack62Logo,
-    category: "Your AI Workspace",
+    category: "The Office of Your AI Coworker",
     theme: "The Future of Work",
-    tagline: "Your AI workspace, it comes with your account.",
+    tagline: "The office of your AI coworker.",
     description:
-      "Pal is your AI workspace, included with every Loopital account. Organize your work in one place, and switch on the AI coworker, research, content, automation, and decision support, whenever you're ready. Free to use; the coworker is a paid upgrade.",
+      "Pal Workspace is where your AI coworker works. Not a tool you operate, a member of your team you give work to. It drafts, researches, answers the inbox, publishes and runs the jobs you would rather not, in one place alongside your documents, files and systems.",
     platforms: ["web", "desktop"],
     accent: productAccent.stack62,
     detailHref: "/products/pal",
@@ -76,7 +76,7 @@ export const products: Product[] = [
     accountLinked: true,
     ctaType: "launch",
     appHref: PAL_URL,
-    highlights: ["Free workspace with your account", "AI coworker (paid)", "Research & content", "Workflow automation"],
+    highlights: ["A coworker, not a chatbot", "Works while you do not", "Drafts, replies and publishes", "One office for the whole team"],
   },
   {
     id: "hms7",
@@ -93,7 +93,8 @@ export const products: Product[] = [
     stage: "available",
     external: false,
     accountLinked: false,
-    ctaType: "demo",
+    // Hospitals register and we onboard them. There is no demo to book.
+    ctaType: "register",
     offer: "Free for the first 3 months",
     highlights: ["Patient records (EMR)", "Billing & insurance", "Connected to Henholib", "Staff & pharmacy"],
   },

@@ -32,7 +32,7 @@ export const pageSeo: Record<string, PageSeo> = {
   "/products": {
     title: "Products: Hospital, Health, Facility and School Software",
     description:
-      "Henholib for patients, HMS7 for hospitals, Modus for facilities, Beacon for schools and Pal, the AI workspace. One Loopital account opens all of them.",
+      "Henholib for patients, HMS7 for hospitals, Modus for facilities, Beacon for schools and Pal, the office of your AI coworker. One account opens all of them.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/products/hms7": {
@@ -98,15 +98,15 @@ export const pageSeo: Record<string, PageSeo> = {
     ],
   },
   "/products/pal": {
-    title: "Pal, an AI Coworker for Your Business",
+    title: "Pal, the Office of Your AI Coworker",
     description:
-      "Pal drafts the report, answers the inbox and publishes to your socials. An AI coworker inside one workspace. Join the waitlist for early access.",
+      "Pal Workspace is where your AI coworker works. A member of your team, not a tool you operate. Join the waitlist for early access.",
     jsonLd: [
       softwareApplicationLd({
         name: "Pal",
         category: "BusinessApplication",
         description:
-          "AI coworker platform for research, knowledge management, content generation, and workflow automation.",
+          "The office of your AI coworker. A member of your team that drafts, researches, answers the inbox and runs the work you hand it.",
         path: "/products/pal",
       }),
       productCrumb("Pal", "/products/pal"),
