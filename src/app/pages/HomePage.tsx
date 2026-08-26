@@ -10,14 +10,14 @@ import { HenholibShowcase } from "../components/home/HenholibShowcase";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { CommitmentSection } from "../components/home/CommitmentSection";
 import { ProductGrid } from "../components/home/ProductGrid";
+import { RealLifeSection } from "../components/home/RealLifeSection";
 
 /**
  * The homepage.
  *
- * Ordered the way a stranger reads: what we are for, the app running, the
- * problem we picked, the hospital end of it, the mission, then everything we
- * build. Short blocks. The app does the persuading, so the copy stays out of
- * the way.
+ * Ordered the way a stranger reads: what we are for, the app running, who it
+ * is for, the hospital end of it, the mission, then everything we build. Short
+ * blocks. The app does the persuading, so the copy stays out of the way.
  */
 
 const AUDIENCES = [
@@ -26,22 +26,6 @@ const AUDIENCES = [
   "doctors & care teams",
   "patients everywhere",
   "health across Africa",
-];
-
-/** The problem, in three numbers. Concrete beats adjectives. */
-const PROBLEM = [
-  {
-    stat: "Paper",
-    line: "Hospitals still run on paper, so nothing follows the patient from one visit to the next.",
-  },
-  {
-    stat: "Hours",
-    line: "Finding a hospital with the right specialist still means phone calls and guesswork.",
-  },
-  {
-    stat: "Paperwork",
-    line: "HMOs and insurers manage members on spreadsheets, so every claim and approval crawls.",
-  },
 ];
 
 export function HomePage() {
@@ -106,41 +90,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ── THE PROBLEM ── */}
-      <Section background={colors.surface} pad="md">
-        <Reveal className="max-w-2xl mb-8">
-          <p style={{ color: colors.rose, fontSize: "13px", fontWeight: 700, letterSpacing: "0.08em", marginBottom: "12px" }}>
-            THE PROBLEM
-          </p>
-          <h2 style={{ marginBottom: "12px" }}>Care breaks down in the gaps.</h2>
-          <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
-            Not in the consulting room. In everything around it.
-          </p>
-        </Reveal>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          {PROBLEM.map((p, i) => (
-            <Reveal key={p.stat} delay={i * 0.07}>
-              <div
-                className="h-full"
-                style={{
-                  background: colors.bg,
-                  border: `1px solid ${colors.hairline}`,
-                  borderRadius: 18,
-                  padding: "22px 20px",
-                }}
-              >
-                <p style={{ fontSize: "26px", fontWeight: 800, color: colors.heading, marginBottom: 8 }}>
-                  {p.stat}
-                </p>
-                <p style={{ color: colors.textSecondary, fontSize: "14.5px", lineHeight: 1.6 }}>
-                  {p.line}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      {/* ── FOR REAL LIFE ── */}
+      <RealLifeSection />
 
       {/* ── HMS7, THE HOSPITAL END ── */}
       <Section background={wash.sky} pad="md">
