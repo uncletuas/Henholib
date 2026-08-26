@@ -15,8 +15,8 @@ import { HenholibCta } from "../components/home/HenholibCta";
  * The homepage.
  *
  * Ordered the way a stranger reads: what we are for, the app running, the
- * problem we picked, the two products, the mission, the ask. Short blocks. The
- * app itself does the persuading, so the copy around it stays out of the way.
+ * problem we picked, the hospital end of it, the mission, the ask. Short
+ * blocks. The app does the persuading, so the copy stays out of the way.
  */
 
 const AUDIENCES = [
@@ -141,13 +141,13 @@ export function HomePage() {
         </div>
       </Section>
 
-      {/* ── THE TWO PLATFORMS ── */}
+      {/* ── HMS7, THE HOSPITAL END ── */}
       <Section background={wash.sky} pad="md">
         <Reveal className="max-w-2xl mb-8">
-          <h2 style={{ marginBottom: "12px" }}>Both ends of the same network.</h2>
+          <h2 style={{ marginBottom: "12px" }}>The other end of the network.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
-            Henholib is the patient's side. HMS7 runs the hospital that answers.
-            Book on one and it lands in the other.
+            HMS7 runs the hospital that answers. Records, appointments, billing
+            and pharmacy in one place. Book on Henholib and it lands here.
           </p>
           <p style={{ color: colors.textTertiary, fontSize: "15px", lineHeight: 1.6, marginTop: "10px" }}>
             We build beyond health too.{" "}

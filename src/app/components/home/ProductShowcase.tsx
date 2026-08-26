@@ -3,11 +3,10 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { colors, shadow, tint } from "../../lib/brand";
 import { Reveal } from "../Reveal";
-import { HenholibDemo, Hms7Demo } from "./ProductDemos";
+import { Hms7Demo } from "./ProductDemos";
 
 /**
- * The health grid: Henholib and HMS7, each running a miniature of the real
- * screen.
+ * HMS7, running a miniature of the real screen.
  *
  * Laid out the way xAI lays its surfaces out — a centred grid with real air
  * around it, every tile a working sample, the name bottom-left and a quiet
@@ -16,13 +15,9 @@ import { HenholibDemo, Hms7Demo } from "./ProductDemos";
  *
  * The footer is a solid band of the product's own colour with light type on it.
  *
- * Only the two health platforms appear here. Loopital is a health technology
- * company on this page, and a homepage that lists everything the company has
- * ever shipped says nothing about what it is for. Beacon, Modus and Pal are on
- * /products, which is what that page is for.
- *
- * Pal is also deliberately absent: the hero runs the Pal coworker directly
- * above this grid, and the same product twice on one screen reads as padding.
+ * HMS7 alone. Henholib is already running in the hero, and the same phone twice
+ * on one page reads as padding. Beacon, Modus and Pal live on /products, which
+ * is what that page is for.
  */
 
 interface CardProps {
@@ -93,18 +88,10 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
 export function ProductShowcase() {
   return (
     <div className="mx-auto" style={{ maxWidth: 1040 }}>
-      {/* Two products, two halves of the same network: the phone in the
-          patient's hand and the system running the hospital they walk into.
-          Henholib takes the portrait column, HMS7 the wide one, because that is
-          the device each is actually used on. */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
-        <Reveal className="md:col-span-2">
-          <ShowcaseCard label="Henholib" blurb="Your health, in your pocket" href="/products/henholib" accent="#F26D21" shape="mobile">
-            <HenholibDemo />
-          </ShowcaseCard>
-        </Reveal>
-
-        <Reveal delay={0.08} className="md:col-span-3">
+      {/* HMS7 alone, full width. Henholib is already running in the hero, and
+          showing the same phone twice on one page reads as padding. */}
+      <div className="grid grid-cols-1">
+        <Reveal>
           <ShowcaseCard label="HMS7" blurb="The hospital operating system" href="/products/hms7" accent="#0D9F79" shape="desktop">
             <Hms7Demo />
           </ShowcaseCard>
