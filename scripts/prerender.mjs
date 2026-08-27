@@ -146,12 +146,11 @@ async function writeSitemap(pageSeo) {
     '/terms': { priority: '0.2', changefreq: 'yearly' },
   };
 
-  // The live apps on their own subdomains. Listed because they are real
-  // destinations a searcher may want; Swift is absent because it no longer
-  // exists, and pal.loopital.com is absent because it is closed to the public.
+  // The live apps on their own subdomains. Only Henholib now: Modus, Pal, Zina
+  // and Swift are no longer hosted, and advertising a URL that does not resolve
+  // is worse than omitting it.
   const SUBDOMAINS = [
     { loc: 'https://henholib.loopital.com/', priority: '0.8', changefreq: 'weekly' },
-    { loc: 'https://modus.loopital.com/', priority: '0.7', changefreq: 'weekly' },
   ];
 
   const rows = [];

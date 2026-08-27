@@ -14,7 +14,6 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 // because those subdomains are gone. fms13.loopital.com in particular is dead:
 // Modus moved to modus.loopital.com and the old host now serves nothing.
 export const PAL_URL = "https://pal.loopital.com";
-export const MODUS_URL = "https://modus.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
 // Beacon has a subdomain but no deployment behind it yet, so it is deliberately
 // not linked from anywhere on the marketing site — a live link to a placeholder

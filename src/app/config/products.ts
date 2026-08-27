@@ -4,7 +4,6 @@
 // account-linking rules stay consistent everywhere.
 
 import {
-  MODUS_URL,
   HENHOLIB_URL,
   PAL_URL,
 } from "./site";
@@ -129,14 +128,13 @@ export const products: Product[] = [
       "Modus is a complete facility management system, managing assets, maintenance, work orders, service requests, vendors, compliance, and space across every building and site from one platform, so your facilities run efficiently and safely at scale. Open it and get started right away, or talk to us about a rollout.",
     platforms: ["web", "desktop"],
     accent: productAccent.fms13,
-    // Modus has no on-site landing page — links go straight to the app sign-in.
-    detailHref: MODUS_URL,
-    stage: "available",
-    appHref: MODUS_URL,
-    external: true,
+    // The app is not hosted any more, so the page lives on-site and the CTA is
+    // a waitlist rather than a link to a subdomain that no longer answers.
+    detailHref: "/products/modus",
+    stage: "coming_soon",
+    external: false,
     accountLinked: false,
-    ctaType: "launch",
-    offer: "Free for the first 3 months",
+    ctaType: "waitlist",
     highlights: ["Asset & maintenance", "Work orders & requests", "Vendor management", "Compliance & safety"],
   },
   {

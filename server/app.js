@@ -28,6 +28,7 @@
 // Data layer: Postgres (pg) on Render. `sql()` keeps the same named-parameter
 // contract the RDS Data API helper had, so no call site below changes.
 const { sql } = require("./db");
+const submissions = require("./submissions");
 const {
   S3Client,
   PutObjectCommand,
@@ -140,6 +141,34 @@ async function signup(body) {
 
 // Public waitlist capture for products not yet open to the public.
 // No account or auth required; idempotent per (email, product).
+/**
+ * Record one inbound submission.
+ *
+ * Every form on the site funnels through here, so "who has asked us for
+ * something" is one query rather than three. Deliberately best-effort: a
+ * failure to log must never fail the submission the visitor just made, which
+ * is why it swallows and logs rather than throwing.
+ */
+async function recordSubmission(kind, input) {
+  try {
+    await sql(
+      `INSERT INTO submissions (kind, product, name, email, phone, organisation, details)
+       VALUES (:kind, :product, :name, :email, :phone, :organisation, CAST(:details AS jsonb))`,
+      {
+        kind,
+        product: input.product || null,
+        name: input.name || null,
+        email: input.email || null,
+        phone: input.phone || null,
+        organisation: input.organisation || null,
+        details: JSON.stringify(input.details || {}),
+      }
+    );
+  } catch (e) {
+    console.error("submission log failed:", (e && e.message) || e);
+  }
+}
+
 async function joinWaitlist(body) {
   const email = (body.email || "").trim().toLowerCase();
   const product = String(body.product || "").trim().toLowerCase();
@@ -154,6 +183,7 @@ async function joinWaitlist(body) {
      ON CONFLICT (email, product) DO NOTHING`,
     { email, product, name }
   );
+  await recordSubmission("waitlist", { product, name, email });
   await notifyAdmins(
     `New waitlist signup — ${product}`,
     `Someone joined a product waitlist.\n\nProduct: ${product}\nEmail: ${email}\nName: ${name || "—"}`
@@ -1871,6 +1901,12 @@ async function handleContact(body) {
     return json(400, { error: "Please add your name, a valid email, and a message." });
   const text = `New contact form submission\n\nName: ${name}\nEmail: ${email}\nTopic: ${subject}\n\nMessage:\n${message}`;
 
+  await recordSubmission("contact", {
+    name,
+    email,
+    details: { subject, message },
+  });
+
   // Into the one support queue first. The email that follows is a heads-up, not
   // the record — a contact form that only ever became an inbox message is how
   // things get lost, and Zina's support screen is meant to be the whole picture.
@@ -1931,6 +1967,17 @@ async function handleDemoRequest(body) {
     `Organisation: ${organisation}`,
     ...extras,
   ].join("\n");
+
+  await recordSubmission(product === "hms7" ? "registration" : "demo", {
+    product,
+    name,
+    email,
+    phone: body && body.phone ? String(body.phone) : null,
+    organisation,
+    details: Object.fromEntries(
+      Object.entries(body || {}).filter(([k, v]) => !known.has(k) && v !== "" && v != null)
+    ),
+  });
 
   try {
     await zina.ingestTicket(
@@ -2012,6 +2059,10 @@ exports.handler = async (event) => {
     if (method === "POST" && route === "/auth/signup") return await signup(body);
     if (method === "POST" && route === "/auth/signin") return await signin(body);
     if (method === "POST" && route === "/auth/google") return await googleAuth(body);
+    // Every inbound submission, as one table. Gated on SUBMISSIONS_KEY; see
+    // server/submissions.js for why it is not a file in the S3 bucket.
+    if (method === "GET" && route === "/submissions")
+      return await submissions.handleSubmissions(query);
     if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
     if (method === "POST" && route === "/contact") return await handleContact(body);
     if (method === "POST" && route === "/demo-request") return await handleDemoRequest(body);

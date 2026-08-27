@@ -62,6 +62,29 @@ module.exports = [
    )`,
   `CREATE INDEX IF NOT EXISTS waitlist_email_idx ON waitlist (email)`,
 
+  // ── Every inbound submission, in one place ─────────────────────────────
+  // Registrations, demo requests and waitlist joins used to land in three
+  // different places: waitlist in its own table, demo requests only as a Zina
+  // ticket and an email, contact only as an email. That made "who has asked us
+  // for something" a question nobody could answer without three lookups.
+  //
+  // `details` is jsonb because each form asks different questions. A hospital
+  // sends bed count and facility type; a waitlist join sends almost nothing.
+  // Forcing them into shared columns would mean a column per form field.
+  `CREATE TABLE IF NOT EXISTS submissions (
+     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     kind         TEXT NOT NULL,
+     product      TEXT,
+     name         TEXT,
+     email        TEXT,
+     phone        TEXT,
+     organisation TEXT,
+     details      JSONB NOT NULL DEFAULT '{}'::jsonb,
+     created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS submissions_created_idx ON submissions (created_at DESC)`,
+  `CREATE INDEX IF NOT EXISTS submissions_kind_idx ON submissions (kind, created_at DESC)`,
+
   // ── Loopital Academy ──────────────────────────────────────────────────
   // Course catalog for the Academy training arm. Content is DB-backed (not
   // hardcoded) so it can be managed from the admin portal without a deploy.
