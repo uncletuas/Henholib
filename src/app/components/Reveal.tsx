@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { motion } from "motion/react";
 
 interface RevealProps {
@@ -11,6 +11,8 @@ interface RevealProps {
   distance?: number;
   className?: string;
   once?: boolean;
+  /** Inline styles for the wrapper, so a revealed block can also be the card. */
+  style?: CSSProperties;
 }
 
 const offset = (from: RevealProps["from"], d: number) => {
@@ -27,10 +29,11 @@ const offset = (from: RevealProps["from"], d: number) => {
  * Quiet scroll-reveal wrapper. Subtle, intentional motion that respects
  * prefers-reduced-motion (durations are collapsed globally in app.css).
  */
-export function Reveal({ children, from = "up", delay = 0, distance = 20, className, once = true }: RevealProps) {
+export function Reveal({ children, from = "up", delay = 0, distance = 20, className, once = true, style }: RevealProps) {
   return (
     <motion.div
       className={className}
+      style={style}
       initial={{ opacity: 0, ...offset(from, distance) }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once, margin: "-80px" }}

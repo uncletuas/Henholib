@@ -8,7 +8,7 @@ import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 import { useAuth } from "../context/AuthContext";
 import { openPalWorkspace } from "../lib/pal";
-import loopitalLogo from "../../imports/loopital-logo.svg";
+import loopitalMark from "../../imports/loopital-mark.png";
 
 const company = [
   { label: "About Loopital", href: "/about" },
@@ -57,7 +57,10 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center flex-shrink-0">
-            <ImageWithFallback src={loopitalLogo} alt="Loopital" className="h-7 w-auto object-contain" />
+            <span className="flex items-center gap-2">
+              <ImageWithFallback src={loopitalMark} alt="" className="h-8 w-8 object-contain" />
+              <span style={{ fontSize: "20px", fontWeight: 700, color: colors.heading, letterSpacing: "-0.02em" }}>Loopital</span>
+            </span>
           </Link>
 
           {/* Desktop nav */}

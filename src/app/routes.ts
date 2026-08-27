@@ -3,7 +3,7 @@ import { RootLayout } from "./layouts/RootLayout";
 import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProductsPage } from "./pages/ProductsPage";
-import { Stack62Page } from "./pages/products/Stack62Page";
+import { PalPage } from "./pages/products/PalPage";
 import { Hms7Page } from "./pages/products/Hms7Page";
 import { HenholibPage } from "./pages/products/HenholibPage";
 import { Edm73Page } from "./pages/products/Edm73Page";
@@ -28,7 +28,7 @@ export const router = createBrowserRouter([
       // as 301-style redirects rather than deleted: they are in search results
       // and in the company profile PDF, and a dead link is a worse outcome than
       // an old one that forwards.
-      { path: "products/pal", Component: Stack62Page },
+      { path: "products/pal", Component: PalPage },
       { path: "products/modus", Component: ModusRedirect },
       { path: "products/beacon", Component: Edm73Page },
       { path: "products/henholib", Component: HenholibPage },

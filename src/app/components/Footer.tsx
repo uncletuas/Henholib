@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { colors } from "../lib/brand";
-import loopitalLogo from "../../imports/loopital-logo.svg";
+import loopitalMark from "../../imports/loopital-mark.png";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { products } from "../config/products";
 
@@ -36,7 +36,10 @@ export function Footer() {
         {/* Top */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-20">
           <div className="md:col-span-1">
-            <ImageWithFallback src={loopitalLogo} alt="Loopital" className="h-7 w-auto object-contain mb-5" />
+            <span className="flex items-center gap-2 mb-5">
+              <ImageWithFallback src={loopitalMark} alt="" className="h-8 w-8 object-contain" />
+              <span style={{ fontSize: "20px", fontWeight: 700, letterSpacing: "-0.02em" }}>Loopital</span>
+            </span>
             <p style={{ color: "#8A8A93", fontSize: "14px", lineHeight: 1.8 }}>
               Building the connected digital infrastructure powering the next generation of work, communication, healthcare, and enterprise.
             </p>
