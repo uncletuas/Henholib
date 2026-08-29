@@ -27,7 +27,7 @@ export function ContactPage() {
   const inputStyle = {
     width: "100%",
     padding: "12px 16px",
-    borderRadius: "12px",
+    borderRadius: 0,
     border: "1px solid rgba(0,0,0,0.1)",
     background: colors.surfaceMuted,
     color: colors.heading,
@@ -46,7 +46,6 @@ export function ContactPage() {
       <section style={{ background: colors.surfaceMuted, padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
-            <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>CONTACT US</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               Let's talk.
             </h1>
@@ -84,7 +83,7 @@ export function ContactPage() {
                   { tag: "Partnership opportunities", desc: "Business partnerships, reseller arrangements, and integrations" },
                   { tag: "Support", desc: "Technical support for existing products or accounts" },
                 ].map(item => (
-                  <div key={item.tag} className="flex flex-col gap-1 p-4 rounded-xl" style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.06)" }}>
+                  <div key={item.tag} className="flex flex-col gap-1 p-4 " style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.06)" }}>
                     <p style={{ fontWeight: 600, fontSize: "14px", color: colors.blue }}>{item.tag}</p>
                     <p style={{ fontSize: "13px", color: colors.textSecondary }}>{item.desc}</p>
                   </div>
@@ -96,7 +95,7 @@ export function ContactPage() {
             <div className="lg:col-span-3 flex flex-col gap-8">
               {/* Contact form */}
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <div className="p-8 rounded-2xl" style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.07)" }}>
+                <div className="p-8 " style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.07)" }}>
                   {sent ? (
                     <div className="flex flex-col items-center gap-4 py-12 text-center">
                       <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#ECFDF5" }}>
@@ -134,7 +133,7 @@ export function ContactPage() {
                         <textarea required rows={5} placeholder="Tell us more about what you need…" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ ...inputStyle, resize: "vertical" }} onFocus={e => { (e.target as HTMLTextAreaElement).style.borderColor = colors.blue; }} onBlur={e => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(0,0,0,0.1)"; }} />
                       </div>
                       {error && <p style={{ color: "#DC2626", fontSize: "13px" }}>{error}</p>}
-                      <button type="submit" disabled={loading} className="py-3.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center" style={{ background: colors.blue, color: "#fff" }}>
+                      <button type="submit" disabled={loading} className="py-3.5  font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center" style={{ background: colors.blue, color: "#fff" }}>
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Send message"}
                       </button>
                     </form>

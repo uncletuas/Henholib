@@ -20,7 +20,6 @@ export function InsightsPage() {
       <section style={{ background: colors.surfaceMuted, padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
-            <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>NEWS & INSIGHTS</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               Thoughts on technology, products, and what we're building.
             </h1>
@@ -46,7 +45,7 @@ export function InsightsPage() {
         <div className="max-w-7xl mx-auto px-6">
           {/* Featured */}
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 8px 32px rgba(0,0,0,0.06)" }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0  overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 8px 32px rgba(0,0,0,0.06)" }}>
               <div className="relative" style={{ minHeight: "320px" }}>
                 <ImageWithFallback src={posts[0].image} alt={posts[0].title} className="w-full h-full object-cover absolute inset-0" />
                 <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold" style={{ background: colors.blue, color: "#fff" }}>{posts[0].category}</div>
@@ -64,7 +63,7 @@ export function InsightsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.slice(1).map((post, i) => (
               <motion.div key={post.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
-                <div className="flex flex-col rounded-2xl overflow-hidden cursor-pointer group h-full" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
+                <div className="flex flex-col  overflow-hidden cursor-pointer group h-full" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
                   <div className="relative overflow-hidden" style={{ aspectRatio: "3/2" }}>
                     <ImageWithFallback src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "#fff", color: colors.blue }}>{post.category}</div>

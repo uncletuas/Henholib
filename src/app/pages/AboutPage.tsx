@@ -20,7 +20,6 @@ export function AboutPage() {
       <section style={{ background: colors.surfaceMuted, padding: "80px 0 64px" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-3xl">
-            <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>ABOUT LOOPITAL</p>
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
               A technology company building for the long run.
             </h1>
@@ -48,7 +47,7 @@ export function AboutPage() {
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
+              <div className=" overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
                 <ImageWithFallback src={teamImg} alt="Loopital team" className="w-full h-full object-cover" />
               </div>
             </motion.div>
@@ -60,14 +59,13 @@ export function AboutPage() {
       <section style={{ background: colors.surfaceMuted, padding: "96px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14">
-            <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>HOW WE WORK</p>
             <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, maxWidth: "480px" }}>
               The principles that guide everything we build.
             </h2>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {values.map((v, i) => (
-              <motion.div key={v.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="p-8 rounded-2xl bg-white" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
+              <motion.div key={v.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="p-8  bg-white" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontWeight: 700, fontSize: "18px", color: colors.heading, marginBottom: "10px" }}>{v.title}</h3>
                 <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.75 }}>{v.desc}</p>
               </motion.div>
@@ -81,13 +79,12 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
+              <div className=" overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
                 <ImageWithFallback src={officeImg} alt="Loopital" className="w-full h-full object-cover" />
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-6">
               <div>
-                <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>A NIGERIAN COMPANY, BUILDING GLOBALLY</p>
                 <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "16px" }}>
                   Global products, built to travel.
                 </h2>
@@ -96,7 +93,7 @@ export function AboutPage() {
                 </p>
               </div>
               <div className="flex gap-3 mt-2">
-                <Link to="/contact" className="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
+                <Link to="/contact" className="inline-flex items-center px-6 py-3  font-semibold text-sm transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
                   Contact us
                 </Link>
               </div>

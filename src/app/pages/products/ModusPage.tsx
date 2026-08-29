@@ -1,42 +1,52 @@
-import { ProductPageShell } from "../../components/product/ProductPageShell";
+import { ProductLanding } from "../../components/product/ProductLanding";
 import { productById } from "../../config/products";
 
 /**
- * Modus.
+ * Modus, written for whoever gets the call when something breaks.
  *
- * On-site rather than a redirect: the app itself is no longer hosted, so the
- * old link to modus.loopital.com would land on nothing. The page stays, the
- * story stays, and the CTA is a waitlist until it ships.
+ * The action is unchanged: it still joins the waitlist.
  */
 export function ModusPage() {
   return (
-    <ProductPageShell
+    <ProductLanding
       product={productById("fms13")}
-      heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      heroBody="Modus keeps every building, asset and work order in one place. Assets, maintenance, service requests, vendors, compliance and space across every site you run."
-      stats={[
-        { value: "Every site", label: "One platform, all buildings" },
-        { value: "Web + Desktop", label: "Office and on the ground" },
-        { value: "Guided setup", label: "We migrate your asset register" },
+      headline={
+        <>
+          Every building,
+          <br />
+          under control.
+        </>
+      }
+      subhead="Assets, maintenance, work orders, vendors and compliance across every site you run. One register, one queue, one record."
+      ctaNote="Join the waitlist for early access."
+      heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1400"
+      heroImageAlt="A building exterior"
+      ideaTitle="Facilities work is reactive. It does not have to be."
+      ideaBody="A generator fails, someone calls someone, a contractor comes out, and none of it is written down anywhere the next person will find. So the same fault gets diagnosed three times by three people."
+      ideaPunch="Log it once. Everyone after you knows."
+      steps={[
+        {
+          title: "Put everything in the register.",
+          body: "Every asset across every site, with what it is and when it was last touched.",
+        },
+        {
+          title: "Work goes in a queue.",
+          body: "Requests and faults become work orders with an owner, so nothing sits in an inbox.",
+        },
+        {
+          title: "The history stays.",
+          body: "What was done, by whom, at what cost. The next person is not starting from scratch.",
+        },
       ]}
-      featuresEyebrow="WHAT MODUS DOES"
-      featuresTitle="Every facility, fully under control."
-      features={[
-        { title: "Assets & Maintenance", desc: "One register for everything you own, with planned and reactive maintenance against each item." },
-        { title: "Work Orders", desc: "Raise, assign and close work orders, so nothing sits in somebody's inbox unnoticed." },
-        { title: "Service Requests", desc: "Let the people using a building report a problem, and route it to whoever fixes it." },
-        { title: "Vendors", desc: "Contractors, contracts and callouts tracked in one place, with the history behind every job." },
-        { title: "Compliance & Safety", desc: "Inspections, certificates and renewals, with the dates that matter surfaced before they pass." },
-        { title: "Space", desc: "Know what each room and floor is for, who is in it, and what it costs to run." },
-      ]}
-      splitImage="https://images.unsplash.com/photo-1503387762-592deb58ef4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
-      splitTitle="Built for the people who keep buildings running."
-      splitBody="Facilities work is reactive by nature. Modus makes it plannable: one register, one queue, one record of what was done and when, so the next person picking it up is not starting from scratch."
-      splitBullets={[
-        "Assets, maintenance and work orders in one place",
-        "Vendors and compliance tracked against every job",
-        "Works across every site you operate",
-      ]}
+      splitTitle="Planned beats reactive, every time."
+      splitBody="Modus turns maintenance from a series of emergencies into a schedule. Inspections and certificates surface before they lapse, contractors are tracked against the jobs they did, and you can see what a building actually costs to run."
+      splitImage="https://images.unsplash.com/photo-1503387762-592deb58ef4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1400"
+      splitImageAlt="A technician working on building equipment"
+      scopeTitle="For the people who keep buildings running."
+      scopeBody="Assets and maintenance, work orders and service requests, vendors and contracts, compliance and safety, and space across every site. Whether that is one office or forty."
+      noteTitle="Modus is not open yet."
+      noteBody="We are finishing it properly before handing it to teams who depend on it. Join the waitlist and we will bring you in as we open access."
+      closing="Stop firefighting. Start running the estate."
     />
   );
 }

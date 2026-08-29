@@ -44,7 +44,7 @@ export function AccountMenu() {
 
   const tileInner = (a: typeof apps[number]) => (
     <>
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: a.chip, border: a.chip === "#fff" ? `1px solid ${colors.hairline}` : "none" }}>{a.node}</div>
+      <div className="w-10 h-10  flex items-center justify-center" style={{ background: a.chip, border: a.chip === "#fff" ? `1px solid ${colors.hairline}` : "none" }}>{a.node}</div>
       <span style={{ fontSize: "12px", fontWeight: 600, color: colors.heading }}>{a.name}</span>
       {a.soon && <span className="absolute top-1 right-1" style={{ fontSize: "8.5px", fontWeight: 700, color: colors.textTertiary, background: colors.surfaceMuted, borderRadius: "999px", padding: "1px 5px" }}>SOON</span>}
     </>
@@ -58,7 +58,7 @@ export function AccountMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.05)" }}>
+        <div className="absolute right-0 top-full mt-2 w-72  overflow-hidden" style={{ background: colors.surface, boxShadow: "0 30px 80px rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.05)" }}>
           <div className="p-4 flex items-center gap-3" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
             {avatar(40)}
             <div className="min-w-0">
@@ -68,8 +68,8 @@ export function AccountMenu() {
           </div>
 
           <div className="p-3 pb-1">
-            <button onClick={launchPal} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-white transition-all hover:opacity-95" style={{ background: gradientBrand }}>
-              <span className="w-7 h-7 rounded-lg flex items-center justify-center bg-white flex-shrink-0"><ImageWithFallback src={pal.logo} alt="Pal" className="w-5 h-5 object-contain" /></span>
+            <button onClick={launchPal} className="w-full flex items-center gap-2.5 px-3 py-2.5  text-left text-white transition-all hover:opacity-95" style={{ background: gradientBrand }}>
+              <span className="w-7 h-7  flex items-center justify-center bg-white flex-shrink-0"><ImageWithFallback src={pal.logo} alt="Pal" className="w-5 h-5 object-contain" /></span>
               <span className="flex-1" style={{ fontSize: "13.5px", fontWeight: 700 }}>Open your Pal workspace</span>
               <ArrowRight size={15} />
             </button>
@@ -79,21 +79,21 @@ export function AccountMenu() {
             <p style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em", color: colors.textTertiary, marginBottom: "8px" }}>YOUR APPS</p>
             <div className="grid grid-cols-3 gap-1.5">
               {apps.map((a) => a.onClick ? (
-                <button key={a.name} onClick={a.onClick} className="relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</button>
+                <button key={a.name} onClick={a.onClick} className="relative flex flex-col items-center gap-1.5 p-2.5  transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</button>
               ) : (
-                <Link key={a.name} to={a.to!} onClick={() => setOpen(false)} className="relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</Link>
+                <Link key={a.name} to={a.to!} onClick={() => setOpen(false)} className="relative flex flex-col items-center gap-1.5 p-2.5  transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</Link>
               ))}
             </div>
           </div>
 
           <div className="p-2" style={{ borderTop: `1px solid ${colors.hairline}` }}>
-            <button onClick={() => { setShowGuide(true); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
+            <button onClick={() => { setShowGuide(true); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5  text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
               <HelpCircle size={16} style={{ color: colors.textSecondary }} /> How to use Loopital
             </button>
-            <button onClick={() => { setShowAuth("dashboard"); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
+            <button onClick={() => { setShowAuth("dashboard"); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5  text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
               <Settings size={16} style={{ color: colors.textSecondary }} /> Manage account
             </button>
-            <button onClick={() => { signOut(); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
+            <button onClick={() => { signOut(); setOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2.5  text-left transition-colors hover:bg-[#F5F5F7]" style={{ fontSize: "13.5px", color: colors.heading }}>
               <LogOut size={16} style={{ color: colors.textSecondary }} /> Sign out
             </button>
           </div>

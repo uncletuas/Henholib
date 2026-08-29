@@ -10,10 +10,10 @@ export function NotFoundPage() {
         <p style={{ color: colors.textSecondary, fontSize: "16px" }}>The page you're looking for doesn't exist or has been moved.</p>
       </div>
       <div className="flex gap-3">
-        <Link to="/" className="px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
+        <Link to="/" className="px-6 py-3  font-semibold text-sm transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
           Go home
         </Link>
-        <Link to="/contact" className="px-6 py-3 rounded-xl font-medium text-sm transition-all hover:bg-gray-50" style={{ border: "1px solid rgba(0,0,0,0.1)", color: colors.textSecondary }}>
+        <Link to="/contact" className="px-6 py-3  font-medium text-sm transition-all hover:bg-gray-50" style={{ border: "1px solid rgba(0,0,0,0.1)", color: colors.textSecondary }}>
           Contact support
         </Link>
       </div>

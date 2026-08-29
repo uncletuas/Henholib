@@ -46,7 +46,7 @@ export function GlassCard({ children, accent, interactive = true, panel, classNa
   const onLeave = () => { if (ref.current) ref.current.style.transform = ""; };
 
   const css: CSSProperties = {
-    borderRadius: "24px",
+    borderRadius: 0,
     transition: "transform 0.25s ease, box-shadow 0.25s ease",
     ...(enabled ? ({ "--glow": glow(accent) } as CSSProperties) : {}),
     ...style,

@@ -27,7 +27,7 @@ export function StoreBadges({ appStore = "#", playStore = "#", theme = "dark", s
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-3 rounded-2xl transition-all hover:-translate-y-0.5 ${pad}`}
+      className={`inline-flex items-center gap-3  transition-all hover:-translate-y-0.5 ${pad}`}
       style={base}
     >
       <Icon size={size === "sm" ? 22 : 26} />

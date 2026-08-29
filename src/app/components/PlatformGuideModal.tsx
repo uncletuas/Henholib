@@ -53,12 +53,12 @@ export function PlatformGuideModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[105] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.5)", backdropFilter: "blur(16px)" }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="relative w-full max-w-lg rounded-[28px] flex flex-col overflow-hidden" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.25)", maxHeight: "92vh" }}>
+      <div className="relative w-full max-w-lg  flex flex-col overflow-hidden" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.25)", maxHeight: "92vh" }}>
         {/* Header */}
         <div className="px-7 pt-6 pb-4" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
           <div className="flex items-center justify-between">
             <p style={{ color: colors.heading, fontSize: "17px", fontWeight: 700 }}>Getting started</p>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
+            <button onClick={onClose} className="p-2  hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
           </div>
           <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>Here's what your Loopital account is.</p>
           {/* Tabs. only worth showing when there's more than one page. */}

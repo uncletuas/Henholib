@@ -52,13 +52,13 @@ export function FounderPage() {
             <Reveal from="right">
               <div className="relative mx-auto" style={{ maxWidth: "440px" }}>
                 {/* gradient ring frame */}
-                <div className="rounded-[32px] p-[3px]" style={{ background: gradientBrand, boxShadow: shadow.lg }}>
-                  <div className="rounded-[30px] overflow-hidden" style={{ aspectRatio: "4/5", background: colors.surfaceMuted }}>
+                <div className=" p-[3px]" style={{ background: gradientBrand, boxShadow: shadow.lg }}>
+                  <div className=" overflow-hidden" style={{ aspectRatio: "4/5", background: colors.surfaceMuted }}>
                     <ImageWithFallback src={FOUNDER_IMAGE} alt="Tuamene Bestgod, Founder & CEO of Loopital" className="w-full h-full object-cover" />
                   </div>
                 </div>
                 {/* floating caption chip */}
-                <div className="absolute -bottom-5 -left-4 sm:left-6 px-5 py-3.5 rounded-2xl flex items-center gap-3" style={{ background: colors.surface, boxShadow: shadow.md, border: `1px solid ${colors.hairline}` }}>
+                <div className="absolute -bottom-5 -left-4 sm:left-6 px-5 py-3.5  flex items-center gap-3" style={{ background: colors.surface, boxShadow: shadow.md, border: `1px solid ${colors.hairline}` }}>
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: gradientBrand }} />
                   <div>
                     <p style={{ fontSize: "13px", fontWeight: 700, color: colors.heading, lineHeight: 1.2 }}>Tuamene Bestgod</p>
@@ -95,10 +95,10 @@ export function FounderPage() {
 
           {/* At a glance */}
           <Reveal from="right">
-            <div className="rounded-3xl p-7 lg:sticky lg:top-24" style={{ background: colors.bg, border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>              <div className="flex flex-col gap-5">
+            <div className=" p-7 lg:sticky lg:top-24" style={{ background: colors.bg, border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>              <div className="flex flex-col gap-5">
                 {glance.map((g) => (
                   <div key={g.label} className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: gradientBrand }}>
+                    <div className="w-9 h-9  flex items-center justify-center flex-shrink-0" style={{ background: gradientBrand }}>
                       <g.icon size={16} color="#fff" />
                     </div>
                     <div>

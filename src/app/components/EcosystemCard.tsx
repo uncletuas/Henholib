@@ -17,7 +17,7 @@ export function EcosystemCard({ product: p }: { product: Product }) {
     <GlassCard accent={p.accent} className="h-full">
       <div className="p-5 flex flex-col h-full">
         <div className="flex items-center gap-2.5 mb-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
+          <div className="w-9 h-9  flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
             <ImageWithFallback src={p.logo} alt={p.name} className="w-6 h-6 object-contain" />
           </div>
           <span style={{ fontSize: "11px", fontWeight: 700, color: p.accent, letterSpacing: "0.04em" }}>{a?.audience.toUpperCase()}</span>

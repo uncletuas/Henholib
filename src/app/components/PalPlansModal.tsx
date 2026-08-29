@@ -103,7 +103,7 @@ export function PalPlansModal({ token, currentPlan, onClose, onContinueFree }: P
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.5)", backdropFilter: "blur(16px)" }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="relative w-full max-w-4xl rounded-[28px] flex flex-col" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.25)", maxHeight: "92vh" }}>
+      <div className="relative w-full max-w-4xl  flex flex-col" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.25)", maxHeight: "92vh" }}>
         <div className="flex items-center justify-between px-8 py-6" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
           <div>
             <p style={{ color: colors.heading, fontSize: "18px", fontWeight: 700 }}>Choose your Pal plan</p>
@@ -117,7 +117,7 @@ export function PalPlansModal({ token, currentPlan, onClose, onContinueFree }: P
                 </button>
               ))}
             </div>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}><X size={18} /></button>
+            <button onClick={onClose} className="p-2  hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}><X size={18} /></button>
           </div>
         </div>
 
@@ -128,10 +128,10 @@ export function PalPlansModal({ token, currentPlan, onClose, onContinueFree }: P
               const pr = price(p);
               const isCurrent = currentPlan === p.key;
               return (
-                <div key={p.key} className="flex flex-col rounded-3xl p-6" style={{ background: p.highlight ? colors.bg : "#fff", border: p.highlight ? `2px solid ${colors.blue}` : `1px solid ${colors.hairline}` }}>
+                <div key={p.key} className="flex flex-col  p-6" style={{ background: p.highlight ? colors.bg : "#fff", border: p.highlight ? `2px solid ${colors.blue}` : `1px solid ${colors.hairline}` }}>
                   <div className="flex items-center gap-2">
                     <span style={{ color: colors.heading, fontSize: "16px", fontWeight: 700 }}>{p.name}</span>
-                    {p.highlight && <span className="px-2 py-0.5 rounded-md text-white text-[10px] font-semibold" style={{ background: gradientBrand }}>POPULAR</span>}
+                    {p.highlight && <span className="px-2 py-0.5  text-white text-[10px] font-semibold" style={{ background: gradientBrand }}>POPULAR</span>}
                   </div>
                   <p style={{ color: colors.textTertiary, fontSize: "12.5px", marginTop: "4px", minHeight: "34px" }}>{p.tagline}</p>
                   <div className="flex items-baseline gap-1.5 mt-2 mb-1">
@@ -143,9 +143,9 @@ export function PalPlansModal({ token, currentPlan, onClose, onContinueFree }: P
                     <div className="flex items-center gap-3 my-2">
                       <span style={{ color: colors.textSecondary, fontSize: "12.5px" }}>Seats</span>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => setSeats((s) => Math.max(p.minSeats || 3, s - 1))} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}><Minus size={13} /></button>
+                        <button onClick={() => setSeats((s) => Math.max(p.minSeats || 3, s - 1))} className="w-7 h-7  flex items-center justify-center" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}><Minus size={13} /></button>
                         <span style={{ color: colors.heading, fontSize: "14px", fontWeight: 600, minWidth: "20px", textAlign: "center" }}>{seats}</span>
-                        <button onClick={() => setSeats((s) => Math.min(500, s + 1))} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}><Plus size={13} /></button>
+                        <button onClick={() => setSeats((s) => Math.min(500, s + 1))} className="w-7 h-7  flex items-center justify-center" style={{ border: `1px solid ${colors.hairline}`, color: colors.heading }}><Plus size={13} /></button>
                       </div>
                       <span style={{ color: colors.textTertiary, fontSize: "12px" }}>
                         = {currency === "NGN" ? fmtNgn(p.ngn * seats) : fmtUsd(p.usd * seats)}/mo

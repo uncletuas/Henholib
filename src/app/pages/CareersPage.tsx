@@ -38,7 +38,7 @@ export function CareersPage() {
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
-              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
+              <div className=" overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: "0 24px 64px rgba(0,0,0,0.1)" }}>
                 <ImageWithFallback src={teamImg} alt="Loopital team" className="w-full h-full object-cover" />
               </div>
             </motion.div>
@@ -57,7 +57,7 @@ export function CareersPage() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {perks.map((p, i) => (
-              <motion.div key={p.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="p-8 rounded-2xl" style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.06)" }}>
+              <motion.div key={p.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="p-8 " style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontWeight: 700, fontSize: "17px", color: colors.heading, marginBottom: "8px" }}>{p.title}</h3>
                 <p style={{ color: colors.textSecondary, fontSize: "15px", lineHeight: 1.75 }}>{p.desc}</p>
               </motion.div>
@@ -78,7 +78,7 @@ export function CareersPage() {
           <div className="flex flex-col gap-3">
             {openings.map((role, i) => (
               <motion.div key={role.title} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-xl bg-white hover:shadow-md transition-shadow cursor-pointer" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6  bg-white hover:shadow-md transition-shadow cursor-pointer" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
                   <div>
                     <p style={{ fontWeight: 700, fontSize: "16px", color: colors.heading, marginBottom: "4px" }}>{role.title}</p>
                     <div className="flex items-center gap-3 flex-wrap">
@@ -87,7 +87,7 @@ export function CareersPage() {
                       <span style={{ color: colors.textTertiary, fontSize: "13px" }}>{role.type}</span>
                     </div>
                   </div>
-                  <Link to="/contact" className="flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
+                  <Link to="/contact" className="flex-shrink-0 px-5 py-2.5  text-sm font-semibold transition-all hover:opacity-90" style={{ background: colors.blue, color: "#fff" }}>
                     Apply now
                   </Link>
                 </div>

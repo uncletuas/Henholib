@@ -7,7 +7,7 @@ import { productById } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
 
 const pal = productById("stack62");
-const input: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: "12px", border: `1px solid ${colors.hairline}`, background: colors.surfaceMuted, fontSize: "14px", color: colors.heading, outline: "none" };
+const input: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 0, border: `1px solid ${colors.hairline}`, background: colors.surfaceMuted, fontSize: "14px", color: colors.heading, outline: "none" };
 
 export function PalOnboardingModal() {
   const { token, setShowPalOnboarding, setShowPalPlans } = useAuth();
@@ -32,8 +32,8 @@ export function PalOnboardingModal() {
   };
 
   const Choice = ({ id, icon, title, desc }: { id: "personal" | "team"; icon: React.ReactNode; title: string; desc: string }) => (
-    <button onClick={() => setUseType(id)} className="flex-1 text-left p-4 rounded-2xl transition-all" style={{ border: `1.5px solid ${useType === id ? colors.blue : colors.hairline}`, background: useType === id ? `${colors.blue}0a` : colors.surface }}>
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-2.5" style={{ background: useType === id ? gradientBrand : colors.surfaceMuted, color: useType === id ? "#fff" : colors.textSecondary }}>{icon}</div>
+    <button onClick={() => setUseType(id)} className="flex-1 text-left p-4  transition-all" style={{ border: `1.5px solid ${useType === id ? colors.blue : colors.hairline}`, background: useType === id ? `${colors.blue}0a` : colors.surface }}>
+      <div className="w-9 h-9  flex items-center justify-center mb-2.5" style={{ background: useType === id ? gradientBrand : colors.surfaceMuted, color: useType === id ? "#fff" : colors.textSecondary }}>{icon}</div>
       <p style={{ fontWeight: 700, fontSize: "14.5px", color: colors.heading }}>{title}</p>
       <p style={{ fontSize: "12.5px", color: colors.textSecondary, marginTop: "2px", lineHeight: 1.4 }}>{desc}</p>
     </button>
@@ -41,10 +41,10 @@ export function PalOnboardingModal() {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.45)", backdropFilter: "blur(16px)" }} onClick={(e) => { if (e.target === e.currentTarget) setShowPalOnboarding(false); }}>
-      <div className="relative w-full max-w-md rounded-[28px] p-8 flex flex-col gap-5" style={{ background: colors.surface, boxShadow: "0 40px 100px rgba(0,0,0,0.22)", border: `1px solid ${colors.hairline}` }}>
-        <button onClick={() => setShowPalOnboarding(false)} className="absolute top-5 right-5 p-2 rounded-lg hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
+      <div className="relative w-full max-w-md  p-8 flex flex-col gap-5" style={{ background: colors.surface, boxShadow: "0 40px 100px rgba(0,0,0,0.22)", border: `1px solid ${colors.hairline}` }}>
+        <button onClick={() => setShowPalOnboarding(false)} className="absolute top-5 right-5 p-2  hover:bg-[#F5F5F7]" style={{ color: colors.textTertiary }}><X size={18} /></button>
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
+          <div className="w-11 h-11  flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
             <ImageWithFallback src={pal.logo} alt="Pal" className="w-8 h-8 object-contain" />
           </div>
           <div>

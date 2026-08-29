@@ -84,7 +84,7 @@ export function Navbar() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold" style={{ color: colors.heading }}>{p.name}</span>
-                              <span className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: `${p.accent}14`, color: p.accent }}>{p.category}</span>
+                              <span className="text-xs px-1.5 py-0.5 " style={{ background: `${p.accent}14`, color: p.accent }}>{p.category}</span>
                             </div>
                             <p className="text-xs mt-1 leading-relaxed" style={{ color: colors.textSecondary }}>{p.theme}</p>
                           </div>
@@ -140,8 +140,8 @@ export function Navbar() {
         <div className="lg:hidden px-6 py-4 flex flex-col gap-1" style={{ background: colors.bg, borderTop: `1px solid ${colors.hairline}`, maxHeight: "82vh", overflowY: "auto" }}>
           <p className="text-xs font-semibold px-3 py-2" style={{ color: colors.textTertiary, letterSpacing: "0.06em" }}>PRODUCTS</p>
           {products.map((p) => (
-            <ProductLink key={p.id} product={p} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7]">
-              <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
+            <ProductLink key={p.id} product={p} className="flex items-center gap-3 px-3 py-2.5  hover:bg-[#F5F5F7]">
+              <div className="w-9 h-9  overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
                 <ImageWithFallback src={p.logo} alt={p.name} className="w-7 h-7 object-contain" />
               </div>
               <div>
@@ -152,15 +152,15 @@ export function Navbar() {
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
           {company.map((c) => (
-            <Link key={c.label} to={c.href} className="block px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
+            <Link key={c.label} to={c.href} className="block px-3 py-2.5  text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
           <div className="flex flex-col gap-2 mt-2">
             <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
             {user ? (
               <>
-                <button onClick={() => { setShowAuth("dashboard"); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Manage account</button>
-                <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Sign out</button>
+                <button onClick={() => { setShowAuth("dashboard"); setMobileOpen(false); }} className="text-left px-3 py-2.5  text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Manage account</button>
+                <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-left px-3 py-2.5  text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Sign out</button>
               </>
             ) : (
               <button onClick={() => { setShowAuth("signin"); setMobileOpen(false); }} className="py-3 text-sm font-semibold text-white text-center" style={{ background: gradientBrand }}>Sign in</button>

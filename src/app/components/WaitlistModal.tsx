@@ -39,7 +39,7 @@ export function WaitlistModal({ product, onClose }: WaitlistModalProps) {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "13px 16px",
-    borderRadius: "14px",
+    borderRadius: 0,
     border: "1px solid rgba(0,0,0,0.12)",
     background: colors.surfaceMuted,
     color: colors.heading,
@@ -54,14 +54,14 @@ export function WaitlistModal({ product, onClose }: WaitlistModalProps) {
       style={{ background: "rgba(10,10,15,0.45)", backdropFilter: "blur(16px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="relative w-full max-w-md rounded-[28px] p-9 flex flex-col gap-6" style={{ background: colors.surface, boxShadow: "0 40px 100px rgba(0,0,0,0.22)", border: `1px solid ${colors.hairline}` }}>
-        <button onClick={onClose} className="absolute top-5 right-5 p-2 rounded-lg hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}>
+      <div className="relative w-full max-w-md  p-9 flex flex-col gap-6" style={{ background: colors.surface, boxShadow: "0 40px 100px rgba(0,0,0,0.22)", border: `1px solid ${colors.hairline}` }}>
+        <button onClick={onClose} className="absolute top-5 right-5 p-2  hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}>
           <X size={18} />
         </button>
 
         {done ? (
           <div className="flex flex-col items-center text-center gap-4 py-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: `${p.accent}16` }}>
+            <div className="w-14 h-14  flex items-center justify-center" style={{ background: `${p.accent}16` }}>
               <Check size={26} style={{ color: p.accent }} />
             </div>
             <div>
@@ -77,7 +77,7 @@ export function WaitlistModal({ product, onClose }: WaitlistModalProps) {
         ) : (
           <>
             <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${p.accent}22` }}>
+              <div className="w-14 h-14  overflow-hidden flex items-center justify-center" style={{ background: colors.surfaceMuted, border: `1px solid ${p.accent}22` }}>
                 <ImageWithFallback src={p.logo} alt={p.name} className="w-9 h-9 object-contain" />
               </div>
               <div className="text-center">

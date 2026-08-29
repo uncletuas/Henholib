@@ -88,7 +88,7 @@ export function PalGenie() {
         className="glass-panel hidden sm:block"
         style={{
           maxWidth: 300,
-          borderRadius: 18,
+          borderRadius: 0,
           padding: "12px 14px",
           boxShadow: shadow.md,
           opacity: showing ? 1 : 0,

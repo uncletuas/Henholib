@@ -44,8 +44,8 @@ export function HomePage() {
             className="text-center lg:text-left"
           >
             <h1 style={{ marginBottom: "20px", letterSpacing: "-0.035em", lineHeight: 1.02 }}>
-              The intelligent infrastructure for<br />
-              <TypeCycle phrases={AUDIENCES} />
+              The intelligent infrastructure<br />
+              for <TypeCycle phrases={AUDIENCES} />
             </h1>
 
             <p

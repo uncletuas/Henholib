@@ -48,7 +48,7 @@ export function HenholibShowcase({ width = 300 }: { width?: number }) {
       typeof matchMedia !== "undefined" &&
       matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced || paused) return;
-    const id = setInterval(() => setI((v) => (v + 1) % SHOTS.length), 3400);
+    const id = setInterval(() => setI((v) => (v + 1) % SHOTS.length), 1900);
     return () => clearInterval(id);
   }, [paused]);
 
@@ -98,7 +98,7 @@ export function HenholibShowcase({ width = 300 }: { width?: number }) {
                 height: "100%",
                 objectFit: "cover",
                 opacity: idx === i ? 1 : 0,
-                transition: "opacity 520ms ease",
+                transition: "opacity 320ms ease",
               }}
             />
           ))}

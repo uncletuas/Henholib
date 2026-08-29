@@ -62,7 +62,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(10,10,15,0.45)", backdropFilter: "blur(16px)" }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="relative w-full max-w-2xl rounded-[28px] flex flex-col" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.2)", maxHeight: "90vh" }}>
+      <div className="relative w-full max-w-2xl  flex flex-col" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 40px 110px rgba(0,0,0,0.2)", maxHeight: "90vh" }}>
         {/* Header */}
         <div className="flex items-center gap-4 px-8 py-6" style={{ borderBottom: `1px solid ${colors.hairline}` }}>
           <AccountAvatar url={authUser?.avatarUrl} name={user.name} />
@@ -70,7 +70,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
             <p style={{ color: colors.heading, fontSize: "16px", fontWeight: 600 }}>{user.name}</p>
             <p style={{ color: colors.textTertiary, fontSize: "13px" }}>{authUser?.headline || user.email}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}><X size={18} /></button>
+          <button onClick={onClose} className="p-2  hover:bg-[#F5F5F7] transition-colors" style={{ color: colors.textTertiary }}><X size={18} /></button>
         </div>
 
         {/* Tabs */}
@@ -94,14 +94,14 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                       const sub = subFor(p.id as AccountProductId);
                       const st = sub ? statusMeta[sub.status] : null;
                       return (
-                        <div key={p.id} className="flex items-center gap-4 p-5 rounded-2xl" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
-                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
+                        <div key={p.id} className="flex items-center gap-4 p-5 " style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+                          <div className="w-12 h-12  flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
                             <ImageWithFallback src={p.logo} alt={p.name} className="w-9 h-9 object-contain" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span style={{ fontWeight: 600, color: colors.heading, fontSize: "15px" }}>{p.name}</span>
-                              {sub && <span className="px-2 py-0.5 rounded-md text-xs" style={{ background: `${p.accent}14`, color: p.accent }}>{sub.plan}</span>}
+                              {sub && <span className="px-2 py-0.5  text-xs" style={{ background: `${p.accent}14`, color: p.accent }}>{sub.plan}</span>}
                             </div>
                             <p style={{ color: colors.textTertiary, fontSize: "13px", marginTop: "2px" }}>
                               {sub ? `AI coworker active, renews ${fmtDate(sub.currentPeriodEnd)}` : "Workspace included free · AI coworker not added"}
@@ -126,7 +126,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
               </div>
 
               {/* Enterprise products are demo-led, not account-managed */}
-              <div className="p-5 rounded-2xl" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
+              <div className="p-5 " style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
                 <p style={{ fontWeight: 600, fontSize: "14px", color: colors.heading, marginBottom: "4px" }}>Looking for HMS7 or Modus?</p>
                 <p style={{ color: colors.textSecondary, fontSize: "13px", lineHeight: 1.6 }}>
                   Our enterprise platforms are set up with your team directly.{" "}
@@ -134,7 +134,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
+              <div className="p-5 " style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
                 <p style={{ fontWeight: 600, fontSize: "14px", color: "#1D4ED8", marginBottom: "4px" }}>One account, every app</p>
                 <p style={{ color: colors.blue, fontSize: "13px", lineHeight: 1.65 }}>Sign in to Pal with this same email and password, your subscription activates automatically.</p>
               </div>
@@ -145,9 +145,9 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
             <div className="flex flex-col gap-8">
               <div>
                 <p style={{ color: colors.textTertiary, fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>PAYMENT METHOD</p>
-                <div className="flex items-center justify-between p-5 rounded-2xl" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
+                <div className="flex items-center justify-between p-5 " style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-8 rounded-lg flex items-center justify-center bg-white" style={{ border: `1px solid ${colors.hairline}` }}><CreditCard size={16} style={{ color: colors.blue }} /></div>
+                    <div className="w-12 h-8  flex items-center justify-center bg-white" style={{ border: `1px solid ${colors.hairline}` }}><CreditCard size={16} style={{ color: colors.blue }} /></div>
                     <div><p style={{ color: colors.heading, fontSize: "14px", fontWeight: 500 }}>Visa ending in 4242</p><p style={{ color: colors.textTertiary, fontSize: "12px" }}>Expires 12/28</p></div>
                   </div>
                   <button className="flex items-center gap-1 text-sm" style={{ color: colors.blue }}>Update <ChevronRight size={14} /></button>
@@ -160,7 +160,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                 ) : invoices.length === 0 ? (
                   <p style={{ color: colors.textTertiary, fontSize: "14px" }}>No invoices yet.</p>
                 ) : (
-                  <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${colors.hairline}` }}>
+                  <div className=" overflow-hidden" style={{ border: `1px solid ${colors.hairline}` }}>
                     {invoices.map((inv, i) => {
                       const p = productById(inv.product);
                       return (
@@ -171,7 +171,7 @@ export function AccountDashboard({ user, onClose, onSignOut }: AccountDashboardP
                           </div>
                           <div className="flex items-center gap-4">
                             <span style={{ color: colors.heading, fontSize: "14px", fontWeight: 500 }}>{inv.amount}</span>
-                            <span className="px-2 py-0.5 rounded-md text-xs capitalize" style={{ background: "rgba(16,185,129,0.1)", color: colors.green }}>{inv.status}</span>
+                            <span className="px-2 py-0.5  text-xs capitalize" style={{ background: "rgba(16,185,129,0.1)", color: colors.green }}>{inv.status}</span>
                           </div>
                         </div>
                       );
@@ -228,7 +228,7 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="p-4 rounded-2xl" style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
+      <div className="p-4 " style={{ background: "#EEF4FF", border: "1px solid #C7D9FF" }}>
         <p style={{ fontWeight: 600, fontSize: "13.5px", color: "#1D4ED8", marginBottom: "2px" }}>Your profile, everywhere</p>
         <p style={{ color: colors.blue, fontSize: "12.5px", lineHeight: 1.6 }}>This is the name and photo people see across Loopital and Pal, one account, one identity.</p>
       </div>
@@ -238,23 +238,23 @@ function ProfileSettings({ email, current, token, onSaved, onSignOut }: {
         <AccountAvatar url={avatarUrl || null} name={name} size={64} radius={20} />
         <div className="flex-1 flex flex-col gap-2 min-w-0">
           <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Profile photo URL</label>
-          <input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://…/your-photo.jpg" className="w-full px-4 py-2.5 rounded-2xl outline-none" style={inputStyle} />
+          <input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://…/your-photo.jpg" className="w-full px-4 py-2.5  outline-none" style={inputStyle} />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Full name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-2xl outline-none" style={inputStyle} />
+        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3  outline-none" style={inputStyle} />
       </div>
 
       <div className="flex flex-col gap-2">
         <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Headline <span style={{ color: colors.textTertiary, fontWeight: 400 }}>(optional)</span></label>
-        <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Founder at Acme · Growth marketer" className="w-full px-4 py-3 rounded-2xl outline-none" style={inputStyle} />
+        <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Founder at Acme · Growth marketer" className="w-full px-4 py-3  outline-none" style={inputStyle} />
       </div>
 
       <div className="flex flex-col gap-2">
         <label style={{ color: colors.heading, fontSize: "13px", fontWeight: 500 }}>Email address</label>
-        <input type="email" value={email} disabled className="w-full px-4 py-3 rounded-2xl outline-none" style={{ ...inputStyle, opacity: 0.65 }} />
+        <input type="email" value={email} disabled className="w-full px-4 py-3  outline-none" style={{ ...inputStyle, opacity: 0.65 }} />
       </div>
 
       <div className="flex items-center gap-3">

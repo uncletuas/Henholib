@@ -135,7 +135,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
 
   const inputStyle = {
     width: "100%",
-    borderRadius: "12px",
+    borderRadius: 0,
     border: `1px solid ${colors.hairline}`,
     background: colors.surface,
     padding: "10px 13px",
@@ -156,7 +156,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
         role="dialog"
         aria-modal="true"
         aria-label={isRegister ? `Register your organisation for ${p.name}` : `Request a ${p.name} demo`}
-        className="w-full rounded-[24px] overflow-hidden"
+        className="w-full  overflow-hidden"
         style={{ maxWidth: 560, background: colors.surface, boxShadow: shadow.lg }}
       >
         <div className="flex items-start justify-between gap-4 px-7 pt-6 pb-5" style={{ background: `${p.accent}0f` }}>
@@ -178,7 +178,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-lg p-1.5 shrink-0"
+            className=" p-1.5 shrink-0"
             style={{ color: colors.textTertiary }}
           >
             <X size={18} />
