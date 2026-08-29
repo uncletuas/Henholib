@@ -3,8 +3,8 @@ import { colors } from "../lib/brand";
 import { Link } from "react-router";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
-const teamImg = "https://images.unsplash.com/photo-1606857521015-7f9fcf423740?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBvZmZpY2UlMjB0ZWFtJTIwd29ya2luZyUyMGNvbXB1dGVyc3xlbnwxfHx8fDE3ODA5NTc4ODV8MA&ixlib=rb-4.1.0&q=80&w=1080";
-const officeImg = "https://images.unsplash.com/photo-1531972111231-7482a960e109?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBvZmZpY2UlMjBmYWNpbGl0eSUyMG1hbmFnZW1lbnQlMjJidWlsZGluZ3xlbnwxfHx8fDE3ODA5NTc4Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080";
+const teamImg = "/media/office-meeting.jpg";
+const officeImg = "/media/lagos-skyline.jpg";
 
 const values = [
   { title: "Product over process", desc: "We measure everything by the quality and impact of what we build. Great products come from focused engineering, clear thinking, and a relentless user focus." },

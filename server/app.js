@@ -1892,6 +1892,85 @@ In the meantime, you can explore what else we're building at www.loopital.com.${
   };
 }
 
+/**
+ * "Contribute to Henholib" — the research questionnaire.
+ *
+ * Treated as a real signal rather than a form fill, which is what the spec
+ * asks for. Two things follow from that:
+ *
+ *  - Every answer is stored, not just the contact fields. The question set
+ *    changes as we learn, so the answers live in the jsonb `details` column
+ *    rather than a column per question.
+ *  - An organisation submission alerts the team immediately. A facility that
+ *    filled in eighteen questions about how it runs is worth a same-day reply,
+ *    and a weekly export is how that goes cold.
+ *
+ * Only name, email, phone and consent are enforced. The spec is explicit that
+ * an impatient visitor should be able to submit something rather than abandon,
+ * so everything else is skippable.
+ */
+async function handleContribute(body) {
+  const path = String((body && body.path) || "").trim().toLowerCase();
+  const name = String((body && body.name) || "").trim();
+  const email = String((body && body.email) || "").trim().toLowerCase();
+  const phone = String((body && body.phone) || "").trim();
+  const organisation = String((body && body.organisation) || "").trim();
+  const answers = (body && body.answers) || {};
+  const attribution = (body && body.attribution) || {};
+
+  if (path !== "individual" && path !== "organization") {
+    return json(400, { error: "Tell us whether you are an individual or an organisation." });
+  }
+  if (!name) return json(400, { error: "Please add your name." });
+  if (!EMAIL_RE.test(email)) return json(400, { error: "Please add a valid email address." });
+  if (!phone) return json(400, { error: "Please add a phone number." });
+  if (!body || body.consent !== true) {
+    return json(400, { error: "Please tick the consent box so we can reply." });
+  }
+
+  await recordSubmission("contribute", {
+    product: "henholib",
+    name,
+    email,
+    phone,
+    organisation: organisation || null,
+    details: { path, ...answers, attribution },
+  });
+
+  const who = path === "organization" ? (organisation || "an organisation") : name;
+  const lines = Object.entries(answers)
+    .filter(([, v]) => v !== "" && v != null && !(Array.isArray(v) && v.length === 0))
+    .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`);
+
+  // Organisations get an immediate alert; individuals go into the digest the
+  // submissions table already provides.
+  if (path === "organization") {
+    await notifyAdmins(
+      `[Henholib] Facility contribution — ${organisation || name}`,
+      `${name} <${email}> ${phone}\nFacility: ${organisation || "-"}\n\n${lines.join("\n")}`
+    );
+  }
+
+  try {
+    await sendUserEmail(email, {
+      subject: "Thanks for helping us build Henholib",
+      text:
+`Hi ${firstName(name)},
+
+Thank you, this genuinely helps. We are reading every response as we finish
+building Henholib${path === "organization" ? " and HMS7" : ""}.
+
+${path === "organization"
+  ? `Our team personally reviews every facility response. If there is a fit for an early pilot, we will reach out directly.`
+  : `If you asked for early access, we will reach out when we are ready for you.`}${MAIL_SIGNOFF}`,
+    });
+  } catch (e) {
+    console.error("contribute confirmation failed:", (e && e.message) || e);
+  }
+
+  return json(201, { ok: true });
+}
+
 async function handleContact(body) {
   const name = (body.name || "").trim();
   const email = (body.email || "").trim().toLowerCase();
@@ -2064,6 +2143,7 @@ exports.handler = async (event) => {
     if (method === "GET" && route === "/submissions")
       return await submissions.handleSubmissions(query);
     if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
+    if (method === "POST" && route === "/contribute") return await handleContribute(body);
     if (method === "POST" && route === "/contact") return await handleContact(body);
     if (method === "POST" && route === "/demo-request") return await handleDemoRequest(body);
     if (method === "GET" && route === "/auth/me") return await me(headers);

@@ -10,6 +10,7 @@ import { Edm73Page } from "./pages/products/Edm73Page";
 import { ModusPage } from "./pages/products/ModusPage";
 import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
+import { ContributePage } from "./pages/ContributePage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
@@ -43,6 +44,9 @@ export const router = createBrowserRouter([
       { path: "products/edm73", loader: () => redirect("/products/beacon") },
       { path: "payment/callback", Component: PaymentCallbackPage },
       { path: "contact", Component: ContactPage },
+      // The Henholib research questionnaire. Lives here rather than on the
+      // Henholib subdomain because this is where the traffic already lands.
+      { path: "contribute", Component: ContributePage },
       { path: "insights", Component: InsightsPage },
       { path: "privacy", Component: PrivacyPage },
       { path: "terms", Component: TermsPage },

@@ -3,7 +3,7 @@ import { colors } from "../lib/brand";
 import { Link } from "react-router";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
-const teamImg = "https://images.unsplash.com/photo-1551434678-e076c223a692?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBvZmZpY2UlMjB0ZWFtJTIwd29ya2luZyUyMGNvbXB1dGVyc3xlbnwxfHx8fDE3ODA5NTc4ODV8MA&ixlib=rb-4.1.0&q=80&w=1080";
+const teamImg = "/media/office-focus.jpg";
 
 const openings = [
   { title: "Senior Software Engineer", dept: "Engineering", location: "Port Harcourt, Nigeria (Hybrid)", type: "Full-time" },

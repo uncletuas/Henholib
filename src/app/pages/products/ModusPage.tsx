@@ -19,8 +19,8 @@ export function ModusPage() {
       }
       subhead="Assets, maintenance, work orders, vendors and compliance across every site you run. One register, one queue, one record."
       ctaNote="Join the waitlist for early access."
-      heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1400"
-      heroImageAlt="A building exterior"
+      heroImage="/media/tower-lagos.jpg"
+      heroImageAlt="An office tower in Lagos"
       ideaTitle="Facilities work is reactive. It does not have to be."
       ideaBody="A generator fails, someone calls someone, a contractor comes out, and none of it is written down anywhere the next person will find. So the same fault gets diagnosed three times by three people."
       ideaPunch="Log it once. Everyone after you knows."
@@ -40,8 +40,8 @@ export function ModusPage() {
       ]}
       splitTitle="Planned beats reactive, every time."
       splitBody="Modus turns maintenance from a series of emergencies into a schedule. Inspections and certificates surface before they lapse, contractors are tracked against the jobs they did, and you can see what a building actually costs to run."
-      splitImage="https://images.unsplash.com/photo-1503387762-592deb58ef4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1400"
-      splitImageAlt="A technician working on building equipment"
+      splitImage="/media/facility-engineer.jpg"
+      splitImageAlt="A field engineer working on building equipment"
       scopeTitle="For the people who keep buildings running."
       scopeBody="Assets and maintenance, work orders and service requests, vendors and contracts, compliance and safety, and space across every site. Whether that is one office or forty."
       noteTitle="Modus is not open yet."

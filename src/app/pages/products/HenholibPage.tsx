@@ -13,8 +13,8 @@ export function HenholibPage() {
       headline={<>Your hospital,<br />in your pocket.</>}
       subhead="Find care, book it, carry your records, and get help fast when it matters. Free, and yours from the day you sign up."
       ctaNote="Free to join. No card, no paperwork."
-      heroImage="/media/henholib-home.jpg"
-      heroImageAlt="The Henholib home screen showing a health ID card"
+      heroImage="/media/family-newborn.jpg"
+      heroImageAlt="A young family with their newborn baby"
 
       ideaTitle="Care shouldn't start with a phone call."
       ideaBody="Finding a hospital that treats what you have, has a slot this week, and takes your cover usually means ringing round and hoping. Henholib already knows. Search by what you need treated, see who is nearest, and book."
@@ -27,9 +27,9 @@ export function HenholibPage() {
       ]}
 
       splitTitle="When it's an emergency, seconds matter."
-      splitBody="Press SOS and Henholib shares your live location with responders and alerts the nearest Henholib hospital. Medical, police or fire. Your blood group, allergies and emergency contact are already on the card a paramedic needs to see."
-      splitImage="/media/henholib-sos.jpg"
-      splitImageAlt="The Henholib emergency SOS screen"
+      splitBody="Press SOS and Henholib shares your live location with responders and alerts the nearest Henholib hospital. Medical, police or fire. Your allergies, medications and emergency contact are already on the card a responder needs to see."
+      splitImage="/media/care-ward.jpg"
+      splitImageAlt="A nurse attending to a child on a hospital ward"
 
       scopeTitle="For you, and for everyone you look after."
       scopeBody="Add your parents, your children, your partner. Pay a hospital bill from the app. Keep every prescription in one place. It is the whole business of being a patient, on one screen."

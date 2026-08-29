@@ -19,8 +19,8 @@ export function Hms7Page() {
       }
       subhead="Records, appointments, billing, pharmacy, staff and claims in a single system. Register your hospital and we set you up."
       ctaNote="Free for the first three months."
-      heroImage="/media/mission-bg.jpg"
-      heroImageAlt="A patient checking in at a hospital reception"
+      heroImage="/media/clinic-team.jpg"
+      heroImageAlt="A doctor and nurse reviewing patient charts in a hospital"
       ideaTitle="The paper is the problem."
       ideaBody="A file that lives in a cabinet cannot tell you which beds are free, which claims are unpaid, or what a patient was given last time. Every question becomes a walk down a corridor, and every answer arrives late."
       ideaPunch="Ask the system. It already knows."
@@ -40,8 +40,8 @@ export function Hms7Page() {
       ]}
       splitTitle="Your patients arrive already checked in."
       splitBody="Hospitals on HMS7 are on the Henholib network. Patients book from their phone, show a QR code at reception, and their record is on your screen before they sit down. The appointment, the notes and the bill are the same record."
-      splitImage="/media/henholib-care.jpg"
-      splitImageAlt="The Henholib care screen, where patients book a hospital"
+      splitImage="/media/ward-visit.jpg"
+      splitImageAlt="A patient being seen at their bedside"
       scopeTitle="Built for how hospitals actually run."
       scopeBody="Patient records, appointments, admissions, pharmacy stock, staff rosters, billing, insurance claims and compliance. HMOs and insurers manage their members on the same platform, so approvals stop living in email."
       noteTitle="We onboard you properly."

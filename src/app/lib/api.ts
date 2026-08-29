@@ -75,6 +75,26 @@ export const waitlistApi = {
     }),
 };
 
+// "Contribute to Henholib" — the research questionnaire. Every answer travels
+// in `answers`; the backend stores it as jsonb, so adding a question here needs
+// no API change.
+export const contributeApi = {
+  send: (input: {
+    path: "individual" | "organization";
+    name: string;
+    email: string;
+    phone: string;
+    organisation?: string;
+    consent: boolean;
+    answers: Record<string, string | string[]>;
+    attribution: Record<string, string>;
+  }) =>
+    request<{ ok: boolean }>("/contribute", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+};
+
 // Demo requests for the enterprise products. Separate from the contact form so
 // the qualifying answers (organisation, size, role) travel with the request and
 // it lands in Zina tagged with the product it is about.

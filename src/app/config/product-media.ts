@@ -1,8 +1,10 @@
 // Per-product cover imagery, shared by the product cards and featured cards.
+// Self-hosted under public/media rather than hotlinked: these ship inside dist,
+// so a deploy can never leave a card pointing at an image that is not there.
 export const productImagery: Record<string, string> = {
-  stack62: "https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  hms7: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  henholib: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  fms13: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-  edm73: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  stack62: "/media/office-meeting.jpg",
+  hms7: "/media/doctor-tablet.jpg",
+  henholib: "/media/mother-child.jpg",
+  fms13: "/media/tower-lagos.jpg",
+  edm73: "/media/school-students.jpg",
 };

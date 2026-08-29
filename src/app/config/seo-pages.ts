@@ -97,6 +97,17 @@ export const pageSeo: Record<string, PageSeo> = {
       ]),
     ],
   },
+  // The Henholib research questionnaire. Indexed on purpose: we want people to
+  // find it and answer it, and it is linked from campaigns that run off-site.
+  "/contribute": {
+    title: "Help Us Build Henholib",
+    description:
+      "Tell us how you get healthcare today, or how your hospital runs. A few minutes of answers shape what Henholib and HMS7 become.",
+    jsonLd: breadcrumbLd([
+      { name: "Home", path: "/" },
+      { name: "Contribute", path: "/contribute" },
+    ]),
+  },
   "/products/pal": {
     title: "Pal, the Office of Your AI Coworker",
     description:
