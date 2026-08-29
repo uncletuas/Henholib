@@ -68,7 +68,7 @@ function ProductCard({ card }: { card: Card }) {
         className="relative overflow-hidden"
         style={{
           aspectRatio: "16 / 9",
-          borderRadius: 10,
+          borderRadius: 0,
           background: card.gradient,
           display: "grid",
           placeItems: "center",

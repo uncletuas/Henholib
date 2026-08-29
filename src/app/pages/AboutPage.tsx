@@ -36,9 +36,7 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-7">
-              <div>
-                <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.07em", marginBottom: "12px" }}>OUR MISSION</p>
-                <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "20px" }}>
+              <div>                <h2 style={{ fontSize: "clamp(1.8rem,3.5vw,2.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.025em", lineHeight: 1.2, marginBottom: "20px" }}>
                   To build technology that moves organizations forward.
                 </h2>
                 <p style={{ color: colors.textSecondary, fontSize: "16px", lineHeight: 1.8, marginBottom: "16px" }}>

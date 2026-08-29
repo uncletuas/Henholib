@@ -25,6 +25,8 @@ export const colors = {
   hairlineStrong: "rgba(10,10,11,0.18)",
 
   // ── Brand ──────────────────────────────────────────────────────────────
+  /** The primary. Pal's violet, and what any "brand colour" call site should use. */
+  primary: "#6D5AF0",
   blue: "#2563EB",
   cyan: "#0EA5E9",
   green: "#10B981",

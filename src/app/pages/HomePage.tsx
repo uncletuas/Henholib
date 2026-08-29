@@ -43,19 +43,6 @@ export function HomePage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="text-center lg:text-left"
           >
-            <span
-              className="inline-flex items-center mb-7"
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                letterSpacing: "0.09em",
-                textTransform: "uppercase",
-                color: colors.textTertiary,
-              }}
-            >
-              Health technology, built in Africa
-            </span>
-
             <h1 style={{ marginBottom: "20px", letterSpacing: "-0.035em", lineHeight: 1.02 }}>
               The intelligent infrastructure for<br />
               <TypeCycle phrases={AUDIENCES} />
@@ -92,6 +79,8 @@ export function HomePage() {
       </section>
 
       {/* ── FOR REAL LIFE ── */}
+      {/* Subtle ground: it sits between the white hero and the white HMS7
+          band, and three white sections in a row read as one long page. */}
       <RealLifeSection />
 
       {/* ── HMS7, THE HOSPITAL END ── */}

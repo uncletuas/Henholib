@@ -74,9 +74,7 @@ export function FounderPage() {
       {/* ── THE WORK (narrative + at-a-glance) ── */}
       <Section background={colors.surface} pad="lg">
         <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_0.65fr] gap-14 lg:gap-16">
-          <Reveal>
-            <p style={{ color: colors.green, fontSize: "13px", fontWeight: 600, letterSpacing: "0.1em", marginBottom: "16px" }}>THE WORK</p>
-            <h2 style={{ fontSize: "clamp(1.9rem,3.4vw,2.8rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "28px", maxWidth: "620px" }}>
+          <Reveal>            <h2 style={{ fontSize: "clamp(1.9rem,3.4vw,2.8rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "28px", maxWidth: "620px" }}>
               Technology that serves people, and leadership that outlasts the title.
             </h2>
             <div className="flex flex-col gap-6" style={{ color: colors.textSecondary, fontSize: "18.5px", lineHeight: 1.85 }}>
@@ -97,9 +95,7 @@ export function FounderPage() {
 
           {/* At a glance */}
           <Reveal from="right">
-            <div className="rounded-3xl p-7 lg:sticky lg:top-24" style={{ background: colors.bg, border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>
-              <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.09em", color: colors.textTertiary, marginBottom: "20px" }}>AT A GLANCE</p>
-              <div className="flex flex-col gap-5">
+            <div className="rounded-3xl p-7 lg:sticky lg:top-24" style={{ background: colors.bg, border: `1px solid ${colors.hairline}`, boxShadow: shadow.sm }}>              <div className="flex flex-col gap-5">
                 {glance.map((g) => (
                   <div key={g.label} className="flex items-start gap-3.5">
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: gradientBrand }}>

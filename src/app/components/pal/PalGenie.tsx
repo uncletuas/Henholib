@@ -115,12 +115,12 @@ export function PalGenie() {
         </button>
 
         <div
-          className="rounded-[30%] overflow-hidden grid place-items-center"
+          className="overflow-hidden grid place-items-center"
           style={{
             width: 60,
             height: 60,
-            background: "linear-gradient(135deg,#6366F1 0%,#4F46E5 100%)",
-            boxShadow: "0 14px 34px rgba(79,70,229,0.34)",
+            background: colors.primary,
+            boxShadow: "0 10px 26px rgba(109,90,240,0.30)",
             animation: reduce ? "none" : "pal-hover 4.8s ease-in-out infinite",
           }}
         >

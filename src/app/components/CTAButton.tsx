@@ -60,7 +60,7 @@ export function CTAButton({
   const css: CSSProperties = {
     ...sizeMap[size],
     ...variantStyle(variant),
-    borderRadius: "8px",
+    borderRadius: 0,
     fontWeight: 600,
     letterSpacing: "-0.005em",
     ...style,

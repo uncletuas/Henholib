@@ -66,7 +66,7 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
   );
 
   const style = {
-    borderRadius: "12px",
+    borderRadius: 0,
     overflow: "hidden",
     border: `1px solid ${colors.hairline}`,
     background: colors.surface,

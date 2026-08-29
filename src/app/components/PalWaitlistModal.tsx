@@ -61,7 +61,7 @@ export function PalWaitlistModal({
         style={{
           maxWidth: 440,
           background: colors.surface,
-          borderRadius: 26,
+          borderRadius: 0,
           padding: "30px 28px",
           boxShadow: shadow.lg,
         }}
@@ -77,11 +77,11 @@ export function PalWaitlistModal({
         </button>
 
         <div
-          className="grid place-items-center rounded-[30%] overflow-hidden"
+          className="grid place-items-center overflow-hidden"
           style={{
             width: 62,
             height: 62,
-            background: "linear-gradient(135deg,#6366F1 0%,#4F46E5 100%)",
+            background: colors.primary,
             marginBottom: 16,
           }}
         >
@@ -100,7 +100,7 @@ export function PalWaitlistModal({
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 w-full rounded-full py-3 font-semibold"
+              className="mt-6 w-full py-3 font-semibold"
               style={{ background: colors.surfaceMuted, color: colors.heading, fontSize: "14.5px" }}
             >
               Close
@@ -125,7 +125,7 @@ export function PalWaitlistModal({
                 className="w-full"
                 style={{
                   border: `1px solid ${colors.hairlineStrong}`,
-                  borderRadius: 12,
+                  borderRadius: 0,
                   padding: "12px 14px",
                   fontSize: "15px",
                   color: colors.heading,
@@ -140,7 +140,7 @@ export function PalWaitlistModal({
                 className="w-full"
                 style={{
                   border: `1px solid ${colors.hairlineStrong}`,
-                  borderRadius: 12,
+                  borderRadius: 0,
                   padding: "12px 14px",
                   fontSize: "15px",
                   color: colors.heading,
@@ -152,8 +152,8 @@ export function PalWaitlistModal({
               <button
                 type="submit"
                 disabled={state === "sending"}
-                className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full py-3 font-semibold disabled:opacity-60"
-                style={{ background: "linear-gradient(120deg,#6366F1,#4F46E5)", color: "#fff", fontSize: "14.5px" }}
+                className="mt-1 inline-flex w-full items-center justify-center gap-2 py-3 font-semibold disabled:opacity-60"
+                style={{ background: colors.primary, color: "#fff", fontSize: "14.5px" }}
               >
                 {state === "sending" ? "Adding you…" : (<><Check size={16} /> Join the waitlist</>)}
               </button>

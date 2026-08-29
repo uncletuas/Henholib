@@ -12,9 +12,7 @@ export function ProductsPage() {
     <div>
       {/* Header */}
       <Section background={colors.surface} pad="md">
-        <Reveal className="max-w-3xl">
-          <p style={{ color: colors.blue, fontSize: "13px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "14px" }}>PRODUCTS</p>
-          <h1 style={{ marginBottom: "16px" }}>
+        <Reveal className="max-w-3xl">          <h1 style={{ marginBottom: "16px" }}>
             One ecosystem, <GradientText>built around your needs</GradientText>.
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: "17px", lineHeight: 1.65 }}>

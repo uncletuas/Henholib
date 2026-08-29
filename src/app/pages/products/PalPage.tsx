@@ -16,8 +16,9 @@ import { colors, shadow } from "../../lib/brand";
  * because there is only one thing to do here until Pal opens.
  */
 
-const INDIGO = "#4F46E5";
-const INDIGO_LIGHT = "#7C74FF";
+// Pal reads in the brand primary rather than its own indigo pair.
+const INDIGO = colors.primary;
+const INDIGO_LIGHT = "#8A79FF";
 
 function WaitlistButton({
   onClick,
@@ -33,13 +34,13 @@ function WaitlistButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-full font-semibold transition-transform hover:-translate-y-0.5"
+      className="inline-flex items-center gap-2 font-semibold transition-opacity hover:opacity-90"
       style={{
-        background: solid ? `linear-gradient(120deg, ${INDIGO_LIGHT}, ${INDIGO})` : "#FFFFFF",
+        background: solid ? INDIGO : "#FFFFFF",
         color: solid ? "#FFFFFF" : INDIGO,
         padding: size === "lg" ? "16px 30px" : "13px 24px",
         fontSize: size === "lg" ? "16px" : "15px",
-        boxShadow: solid ? "0 14px 30px rgba(79,70,229,0.32)" : shadow.sm,
+        boxShadow: "none",
       }}
     >
       Join the Waitlist <ArrowRight size={17} />
@@ -52,11 +53,11 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
     <div className="flex gap-4">
       <span
-        className="grid shrink-0 place-items-center rounded-full font-bold"
+        className="grid shrink-0 place-items-center font-bold"
         style={{
           width: 34,
           height: 34,
-          background: "rgba(79,70,229,0.10)",
+          background: "rgba(109,90,240,0.10)",
           color: INDIGO,
           fontSize: "14px",
         }}
@@ -95,11 +96,7 @@ export function PalPage() {
           className="relative mx-auto grid items-center gap-10 px-6 lg:grid-cols-2"
           style={{ maxWidth: 1200, paddingTop: "clamp(56px,7vw,92px)", paddingBottom: "clamp(48px,6vw,80px)" }}
         >
-          <Reveal>
-            <p style={{ color: INDIGO_LIGHT, fontSize: "13px", fontWeight: 700, letterSpacing: "0.12em", marginBottom: 16 }}>
-              MEET YOUR NEWEST COWORKER
-            </p>
-            <h1
+          <Reveal>            <h1
               style={{
                 color: "#FFFFFF",
                 fontSize: "clamp(2.4rem,5vw,4rem)",
@@ -127,7 +124,7 @@ export function PalPage() {
               src="/media/pal-hero.png"
               alt="Pal at its own workspace, with today's tasks and team activity beside it"
               className="w-full"
-              style={{ borderRadius: 18, boxShadow: "0 40px 90px rgba(0,0,0,0.45)" }}
+              style={{ borderRadius: 0, boxShadow: "0 40px 90px rgba(0,0,0,0.45)" }}
             />
           </Reveal>
         </div>
@@ -191,7 +188,7 @@ export function PalPage() {
               src="/media/pal-secondary.png"
               alt="A team around a table working alongside Pal"
               className="w-full"
-              style={{ borderRadius: 18, boxShadow: shadow.lg }}
+              style={{ borderRadius: 0, boxShadow: shadow.lg }}
             />
           </Reveal>
           <Reveal delay={0.1}>
@@ -227,7 +224,7 @@ export function PalPage() {
             maxWidth: 720,
             background: colors.surface,
             border: `1px solid ${colors.hairline}`,
-            borderRadius: 24,
+            borderRadius: 0,
             padding: "clamp(32px,4vw,48px)",
             boxShadow: shadow.md,
           }}

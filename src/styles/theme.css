@@ -165,27 +165,33 @@
      3.25rem and stepped down gently, so a hero and a section heading looked
      like the same thing at slightly different sizes. Enterprise sites get their
      authority from a big, tightly-tracked h1 and a clear drop to h2. */
+  /* MetaMap's scale: a light serif at 45/36/28 with roomy leading. The weight
+     is the point. At 300 a serif headline reads as editorial and calm; the
+     same words at 700 read as a pitch deck. */
   h1 {
-    font-size: clamp(2.5rem, 5.2vw, 4.25rem);
-    font-weight: 700;
-    line-height: 1.02;
-    letter-spacing: -0.038em;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 2.85rem);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
     color: var(--heading);
   }
 
   h2 {
-    font-size: clamp(1.75rem, 3.2vw, 2.75rem);
-    font-weight: 650;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 300;
+    line-height: 1.16;
+    letter-spacing: -0.008em;
     color: var(--heading);
   }
 
   h3 {
-    font-size: clamp(1.2rem, 1.8vw, 1.5rem);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.25;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 1.7vw, 1.45rem);
+    font-weight: 300;
+    line-height: 1.28;
+    letter-spacing: -0.005em;
     color: var(--heading);
   }
 

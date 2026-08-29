@@ -104,7 +104,7 @@ export function ProductPageShell(c: ProductPageContent) {
               )}
             </Reveal>
             <Reveal from="right">
-              <div className="relative rounded-[28px] overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: shadow.lg }}>
+              <div className="relative  overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: shadow.lg }}>
                 <ImageWithFallback src={c.heroImage} alt={p.name} className="w-full h-full object-cover" />
                 <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${p.accent}22 0%, transparent 55%)` }} />
               </div>
@@ -131,15 +131,13 @@ export function ProductPageShell(c: ProductPageContent) {
 
       {/* Features */}
       <Section background={colors.surface} pad="lg">
-        <Reveal className="mb-14 max-w-xl">
-          <p style={{ color: p.accent, fontSize: "14px", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "12px" }}>{c.featuresEyebrow}</p>
-          <h2>{c.featuresTitle}</h2>
+        <Reveal className="mb-14 max-w-xl">          <h2>{c.featuresTitle}</h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {c.features.map((f, i) => (
             <Reveal key={f.title} delay={i * 0.06}>
               <div className="flex flex-col gap-3 p-7 rounded-3xl h-full" style={{ background: colors.bg, border: `1px solid ${colors.hairline}` }}>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-1" style={{ background: `${p.accent}14` }}>
+                <div className="w-9 h-9  flex items-center justify-center mb-1" style={{ background: `${p.accent}14` }}>
                   <Check size={16} style={{ color: p.accent }} />
                 </div>
                 <h3 style={{ fontSize: "17px" }}>{f.title}</h3>
@@ -168,7 +166,7 @@ export function ProductPageShell(c: ProductPageContent) {
             </ul>
           </Reveal>
           <Reveal from="right">
-            <div className="rounded-[28px] overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: shadow.lg }}>
+            <div className=" overflow-hidden" style={{ aspectRatio: "4/3", boxShadow: shadow.lg }}>
               <ImageWithFallback src={c.splitImage} alt={c.splitTitle} className="w-full h-full object-cover" />
             </div>
           </Reveal>

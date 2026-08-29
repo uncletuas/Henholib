@@ -4,8 +4,8 @@ interface SectionProps {
   children: ReactNode;
   /** Background fill. Defaults to the page canvas. */
   background?: string;
-  /** Hairline above the section. Sections separate by rule and space now that
-   *  the tinted backgrounds are gone. */
+  /** A light shadow edge above the section, so bands separate without a hard
+   *  rule and without tinting the whole page. */
   divided?: boolean;
   /** Vertical padding scale. */
   pad?: "sm" | "md" | "lg";
@@ -17,10 +17,12 @@ interface SectionProps {
   innerStyle?: CSSProperties;
 }
 
+/* Tightened. The old rhythm topped out at 140px, which left the page feeling
+   like separate documents stacked up rather than one argument. */
 const padMap = {
-  sm: "clamp(52px, 6vw, 80px)",
-  md: "clamp(72px, 8vw, 108px)",
-  lg: "clamp(96px, 10vw, 140px)",
+  sm: "clamp(36px, 4vw, 52px)",
+  md: "clamp(48px, 5vw, 72px)",
+  lg: "clamp(64px, 6.5vw, 92px)",
 };
 
 const widthMap = {
@@ -52,7 +54,12 @@ export function Section({
       style={{
         background,
         padding: `${padMap[pad]} 0`,
-        ...(divided ? { borderTop: "1px solid rgba(10,10,11,0.08)" } : {}),
+        // A soft inset edge rather than a 1px line: it reads as one surface
+        // lifting off another, which is how sections separate on a white page
+        // without borders drawing themselves to your attention.
+        ...(divided
+          ? { boxShadow: "inset 0 1px 0 rgba(10,10,11,0.06), 0 -1px 3px rgba(10,10,11,0.04)" }
+          : {}),
         ...style,
       }}
     >

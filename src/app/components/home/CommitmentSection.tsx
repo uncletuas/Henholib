@@ -49,19 +49,7 @@ export function CommitmentSection() {
         className="relative mx-auto px-6"
         style={{ maxWidth: 1120, paddingTop: "clamp(84px,10vw,130px)", paddingBottom: "clamp(84px,10vw,130px)" }}
       >
-        <Reveal className="max-w-3xl">
-          <p
-            style={{
-              color: "#7FD8C0",
-              fontSize: "13px",
-              fontWeight: 600,
-              letterSpacing: "0.1em",
-              marginBottom: "16px",
-            }}
-          >
-OUR MISSION
-          </p>
-          <h2 style={{ color: "#FFFFFF", fontSize: "clamp(32px,4.4vw,50px)", lineHeight: 1.12, marginBottom: "20px" }}>
+        <Reveal className="max-w-3xl">          <h2 style={{ color: "#FFFFFF", fontSize: "clamp(32px,4.4vw,50px)", lineHeight: 1.12, marginBottom: "20px" }}>
             We are using technology to solve Africa's most important problems.
           </h2>
           <p style={{ color: "rgba(255,255,255,0.84)", fontSize: "17.5px", lineHeight: 1.7, maxWidth: "620px" }}>
