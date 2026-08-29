@@ -4,6 +4,9 @@ interface SectionProps {
   children: ReactNode;
   /** Background fill. Defaults to the page canvas. */
   background?: string;
+  /** Hairline above the section. Sections separate by rule and space now that
+   *  the tinted backgrounds are gone. */
+  divided?: boolean;
   /** Vertical padding scale. */
   pad?: "sm" | "md" | "lg";
   /** Constrain inner content width. */
@@ -34,6 +37,7 @@ const widthMap = {
 export function Section({
   children,
   background = "transparent",
+  divided = false,
   pad = "lg",
   width = "default",
   id,
@@ -42,7 +46,16 @@ export function Section({
   innerStyle,
 }: SectionProps) {
   return (
-    <section id={id} className={className} style={{ background, padding: `${padMap[pad]} 0`, ...style }}>
+    <section
+      id={id}
+      className={className}
+      style={{
+        background,
+        padding: `${padMap[pad]} 0`,
+        ...(divided ? { borderTop: "1px solid rgba(10,10,11,0.08)" } : {}),
+        ...style,
+      }}
+    >
       <div
         className="mx-auto px-6"
         style={{ maxWidth: widthMap[width], width: "100%", ...innerStyle }}

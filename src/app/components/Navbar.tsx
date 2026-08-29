@@ -118,7 +118,7 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-2.5">
-            <button onClick={tryPal} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-95" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
+            <button onClick={tryPal} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
             {user ? (
               <AccountMenu />
             ) : (
@@ -154,14 +154,14 @@ export function Navbar() {
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
           <div className="flex flex-col gap-2 mt-2">
-            <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 rounded-full text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
+            <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 rounded-lg text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
             {user ? (
               <>
                 <button onClick={() => { setShowAuth("dashboard"); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Manage account</button>
                 <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-left px-3 py-2.5 rounded-xl text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Sign out</button>
               </>
             ) : (
-              <button onClick={() => { setShowAuth("signin"); setMobileOpen(false); }} className="py-3 rounded-full text-sm font-semibold text-white text-center" style={{ background: gradientBrand }}>Sign in</button>
+              <button onClick={() => { setShowAuth("signin"); setMobileOpen(false); }} className="py-3 rounded-lg text-sm font-semibold text-white text-center" style={{ background: gradientBrand }}>Sign in</button>
             )}
           </div>
         </div>

@@ -29,30 +29,11 @@ body {
 
 /* Signature blue→green gradient painted onto text. */
 .brand-gradient-text {
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* Slow, ambient drift for hero aura backgrounds. */
-@keyframes brand-aura-drift {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(2%, -3%, 0) scale(1.08); }
-  100% { transform: translate3d(0, 0, 0) scale(1); }
-}
-.brand-aura {
-  animation: brand-aura-drift 18s ease-in-out infinite;
-}
-/* A second, wider drift so the mesh backdrop feels alive without repeating. */
-@keyframes brand-aura-drift-2 {
-  0%   { transform: translate3d(0, 0, 0) scale(1.05); }
-  50%  { transform: translate3d(-3%, 4%, 0) scale(1.15); }
-  100% { transform: translate3d(0, 0, 0) scale(1.05); }
-}
-.brand-aura-2 {
-  animation: brand-aura-drift-2 24s ease-in-out infinite;
+  /* Was a blue-to-green gradient clipped to the text. Rainbow words inside a
+     headline are the loudest generic tell there is. Solid ink, and the
+     emphasis comes from weight rather than hue. */
+  color: var(--heading);
+  font-weight: 700;
 }
 
 /* ── Frosted glass ──────────────────────────────────────────────────────

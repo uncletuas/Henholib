@@ -1,6 +1,6 @@
 import { Baby, Briefcase, HeartHandshake } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { colors, tint } from "../../lib/brand";
+import { colors } from "../../lib/brand";
 import { Reveal } from "../Reveal";
 import { Section } from "../Section";
 
@@ -51,48 +51,29 @@ function Card({ card }: { card: LifeCard }) {
   const Icon = card.icon;
   return (
     <article
-      className="group relative h-full overflow-hidden transition-transform duration-300 hover:-translate-y-1.5"
+      className="group relative h-full transition-colors duration-200"
       style={{
         background: colors.surface,
-        border: `1px solid ${tint(card.accent, 0.18)}`,
-        borderRadius: 22,
-        padding: "30px 26px 28px",
-        boxShadow: "0 10px 30px rgba(15,23,41,0.06)",
+        border: `1px solid ${colors.hairline}`,
+        borderRadius: 12,
+        padding: "28px 26px",
       }}
     >
-      {/* A wash of the card's own colour, strongest at the top where the icon
-          sits, fading out before it reaches the text. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: `radial-gradient(110% 80% at 12% 0%, ${tint(card.accent, 0.16)} 0%, transparent 62%)`,
-          opacity: 0.85,
-        }}
-      />
-
       <div className="relative">
-        <span
-          className="inline-grid place-items-center transition-transform duration-300 group-hover:scale-105"
-          style={{
-            width: 52,
-            height: 52,
-            borderRadius: 16,
-            background: `linear-gradient(140deg, ${card.accent} 0%, ${tint(card.accent, 0.72)} 100%)`,
-            boxShadow: `0 10px 22px ${tint(card.accent, 0.34)}`,
-            marginBottom: 18,
-          }}
-        >
-          <Icon size={24} strokeWidth={2} color="#FFFFFF" />
+        {/* The icon is the one place colour appears, and it appears as a mark
+            rather than a filled tile. Three saturated gradient medallions in a
+            row was the loudest thing on the page. */}
+        <span className="inline-grid place-items-center" style={{ marginBottom: 20 }}>
+          <Icon size={26} strokeWidth={1.75} color={card.accent} />
         </span>
 
         <h3
           style={{
-            fontSize: "20px",
-            fontWeight: 700,
+            fontSize: "19px",
+            fontWeight: 600,
             color: colors.heading,
-            marginBottom: 8,
-            letterSpacing: "-0.01em",
+            marginBottom: 9,
+            letterSpacing: "-0.015em",
           }}
         >
           {card.title}
@@ -108,45 +89,16 @@ function Card({ card }: { card: LifeCard }) {
 
 export function RealLifeSection() {
   return (
-    <div className="relative overflow-hidden">
-      {/* Warm aura behind the band. Keeps the section from sitting on flat
-          white without tinting the cards themselves. */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div
-          className="brand-aura absolute"
-          style={{
-            top: "-30%",
-            left: "8%",
-            width: "46vw",
-            height: "46vw",
-            background:
-              "radial-gradient(circle at 50% 50%, rgba(242,109,33,0.13), transparent 68%)",
-            filter: "blur(46px)",
-          }}
-        />
-        <div
-          className="brand-aura-2 absolute"
-          style={{
-            bottom: "-34%",
-            right: "4%",
-            width: "42vw",
-            height: "42vw",
-            background:
-              "radial-gradient(circle at 50% 50%, rgba(13,159,121,0.12), transparent 70%)",
-            filter: "blur(48px)",
-          }}
-        />
-      </div>
-
+    <div>
       <Section background="transparent" pad="md">
         <Reveal className="max-w-2xl mb-10">
           <p
             style={{
-              color: "#F26D21",
-              fontSize: "13px",
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              marginBottom: "14px",
+              color: colors.textTertiary,
+              fontSize: "12px",
+              fontWeight: 600,
+              letterSpacing: "0.09em",
+              marginBottom: "16px",
             }}
           >
             FOR REAL LIFE

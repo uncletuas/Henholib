@@ -3,24 +3,26 @@
 // JS and CSS stay in lockstep. Import these instead of hardcoding hex values.
 
 export const colors = {
-  // ── Neutral foundation (light, but not bare) ────────────────────────────
-  // The canvas was flat #FBFBFD everywhere, which read as glare rather than as
-  // design. These neutrals are *tinted* — a few points of blue mixed into every
-  // grey — so the page has a temperature instead of being an absence of colour,
-  // and white cards sitting on it actually look like cards.
-  bg: "#F2F5FB",           // page ground, cool and soft
-  bgWarm: "#FBF6F2",       // the alternate wash, for a section that needs a turn
+  // ── Neutral foundation ──────────────────────────────────────────────────
+  // White, and genuinely white. The previous palette mixed a few points of blue
+  // into every grey on the theory that a tinted canvas has "temperature". In
+  // practice a page of faintly blue panels reads as a template. Separation now
+  // comes from hairlines and space, which is what it comes from on every site
+  // that looks considered.
+  bg: "#FFFFFF",           // page ground
+  bgSubtle: "#F7F7F8",     // the one step down, for a band that needs to recede
   surface: "#FFFFFF",      // cards and panels
-  surfaceMuted: "#E9EFF9", // insets, chips, table stripes
-  surfaceRaised: "#F7FAFF",
+  surfaceMuted: "#F2F2F4", // insets, chips, table stripes
+  surfaceRaised: "#FFFFFF",
 
-  heading: "#0F1729",
-  text: "#1B2437",
-  textSecondary: "#556074",
-  textTertiary: "#646F81",
+  // Near-black rather than blue-black, and greys that are actually grey.
+  heading: "#0A0A0B",
+  text: "#1A1A1C",
+  textSecondary: "#5B5D63",
+  textTertiary: "#8A8C93",
 
-  hairline: "rgba(15,23,41,0.08)",
-  hairlineStrong: "rgba(15,23,41,0.14)",
+  hairline: "rgba(10,10,11,0.10)",
+  hairlineStrong: "rgba(10,10,11,0.18)",
 
   // ── Brand ──────────────────────────────────────────────────────────────
   blue: "#2563EB",
@@ -39,18 +41,22 @@ export const colors = {
 } as const;
 
 /**
- * Soft colour washes for section backgrounds.
+ * Section grounds.
  *
- * The fix for "too white" is not darkness, it is variation: alternating these
- * down the page gives each band its own temperature, so sections separate
- * without borders and the eye has somewhere to travel.
+ * These used to be four tinted gradients, alternated down the page so each band
+ * had its own colour. That is the tell of a generated site. There are two now:
+ * white, and one flat step down for a band that genuinely needs to recede. No
+ * gradients. Sections separate by space and by a hairline, not by hue.
  */
 export const wash = {
-  sky: "linear-gradient(180deg, #EEF4FF 0%, #F5F9FF 100%)",
-  mint: "linear-gradient(180deg, #ECFBF4 0%, #F4FCF8 100%)",
-  violet: "linear-gradient(180deg, #F1EEFE 0%, #F7F5FF 100%)",
-  peach: "linear-gradient(180deg, #FFF2EA 0%, #FFF8F4 100%)",
   plain: "#FFFFFF",
+  subtle: "#F7F7F8",
+  // Aliases kept so existing callers keep compiling; all resolve to the same
+  // two grounds rather than four different tints.
+  sky: "#F7F7F8",
+  mint: "#FFFFFF",
+  violet: "#F7F7F8",
+  peach: "#FFFFFF",
 } as const;
 
 /** A 10%-ish tint of any accent, for chips and card headers. */
@@ -60,11 +66,18 @@ export const tint = (hex: string, alpha = 0.12) => {
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
-// Signature blue→green gradient, the single brand accent. Use sparingly.
-export const gradientBrand =
-  "linear-gradient(120deg, #2563EB 0%, #0EA5E9 45%, #10B981 100%)";
-export const gradientBrandSoft =
-  "linear-gradient(120deg, rgba(37,99,235,0.12) 0%, rgba(14,165,233,0.10) 45%, rgba(16,185,129,0.12) 100%)";
+/**
+ * The primary action is near-black, not a gradient.
+ *
+ * A three-stop blue-to-green gradient on every button is the loudest thing on
+ * the page and says nothing. Solid ink reads as deliberate, and it leaves the
+ * product accents free to mean something when they do appear.
+ *
+ * `gradientBrand` keeps its name because a dozen call sites use it; it is now
+ * simply the ink fill.
+ */
+export const gradientBrand = "#0A0A0B";
+export const gradientBrandSoft = "rgba(10,10,11,0.06)";
 
 // Per-product accents, harmonized within the blue-green family.
 export const productAccent = {
@@ -75,13 +88,12 @@ export const productAccent = {
   edm73: "#D6294E",
 } as const;
 
-// Soft, low-contrast elevation used across cards and panels.
-// Shadows carry almost nothing on a dark ground — depth comes from the surface
-// ladder above. These stay for layering large panels off the page background.
-// Cool-tinted shadows rather than neutral black: a grey shadow on a tinted
-// canvas looks like dirt, a blue-tinted one looks like depth.
+// Elevation, deliberately almost nothing.
+// On a white ground a heavy drop shadow is the other tell of a template. Depth
+// comes from a hairline border; these exist only so a panel that genuinely
+// floats (a modal, an image) can lift off the page by a hair.
 export const shadow = {
-  sm: "0 6px 18px rgba(15,23,41,0.06)",
-  md: "0 18px 44px rgba(15,23,41,0.09)",
-  lg: "0 36px 80px rgba(15,23,41,0.13)",
+  sm: "0 1px 2px rgba(10,10,11,0.04)",
+  md: "0 4px 16px rgba(10,10,11,0.06)",
+  lg: "0 12px 40px rgba(10,10,11,0.10)",
 } as const;

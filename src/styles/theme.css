@@ -13,7 +13,7 @@
   --brand-blue: #2563EB;
   --brand-cyan: #0EA5E9;
   --brand-green: #10B981;
-  --gradient-brand: linear-gradient(120deg, #2563EB 0%, #0EA5E9 45%, #10B981 100%);
+  --gradient-brand: #0A0A0B;
   --gradient-brand-soft: linear-gradient(120deg, rgba(37,99,235,0.12) 0%, rgba(14,165,233,0.10) 45%, rgba(16,185,129,0.12) 100%);
 
   /* Per-product accents — all within the blue–green family so the four
@@ -161,21 +161,23 @@
     font-size: var(--font-size);
   }
 
-  /* Compact, restrained display scale. Kept tight and confident, not oversized;
-     Tailwind text-* utilities still override per element. */
+  /* Display scale with a real jump between levels. The old one topped out at
+     3.25rem and stepped down gently, so a hero and a section heading looked
+     like the same thing at slightly different sizes. Enterprise sites get their
+     authority from a big, tightly-tracked h1 and a clear drop to h2. */
   h1 {
-    font-size: clamp(2rem, 4vw, 3.25rem);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.08;
-    letter-spacing: -0.03em;
+    font-size: clamp(2.5rem, 5.2vw, 4.25rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.038em;
     color: var(--heading);
   }
 
   h2 {
-    font-size: clamp(1.55rem, 2.8vw, 2.3rem);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.14;
-    letter-spacing: -0.025em;
+    font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+    font-weight: 650;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
     color: var(--heading);
   }
 

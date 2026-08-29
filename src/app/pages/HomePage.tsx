@@ -5,7 +5,7 @@ import { Section } from "../components/Section";
 import { Reveal } from "../components/Reveal";
 import { CTAButton } from "../components/CTAButton";
 import { TypeCycle } from "../components/TypeCycle";
-import { wash, colors, gradientBrand } from "../lib/brand";
+import { colors } from "../lib/brand";
 import { HenholibShowcase } from "../components/home/HenholibShowcase";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { CommitmentSection } from "../components/home/CommitmentSection";
@@ -33,11 +33,6 @@ export function HomePage() {
     <div>
       {/* ── HERO ── */}
       <section className="relative overflow-hidden" style={{ background: colors.bg }}>
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="brand-aura absolute" style={{ top: "-22%", right: "0%", width: "54vw", height: "54vw", background: "radial-gradient(circle at 50% 50%, rgba(242,109,33,0.20), rgba(13,159,121,0.12) 42%, transparent 70%)", filter: "blur(38px)" }} />
-          <div className="brand-aura-2 absolute" style={{ bottom: "-28%", left: "-4%", width: "50vw", height: "50vw", background: "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.14), transparent 70%)", filter: "blur(42px)" }} />
-        </div>
-
         <div
           className="max-w-7xl mx-auto px-6 relative grid items-center gap-10 lg:grid-cols-2"
           style={{ padding: "clamp(56px,7vw,96px) 24px clamp(48px,6vw,80px)" }}
@@ -48,21 +43,27 @@ export function HomePage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="text-center lg:text-left"
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass" style={{ fontSize: "12.5px" }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: gradientBrand }} />
-              <span style={{ color: colors.heading, fontWeight: 600, letterSpacing: "0.02em" }}>
-                Health technology, built in Africa
-              </span>
+            <span
+              className="inline-flex items-center mb-7"
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                letterSpacing: "0.09em",
+                textTransform: "uppercase",
+                color: colors.textTertiary,
+              }}
+            >
+              Health technology, built in Africa
             </span>
 
-            <h1 style={{ marginBottom: "18px" }}>
+            <h1 style={{ marginBottom: "20px", letterSpacing: "-0.035em", lineHeight: 1.02 }}>
               The intelligent infrastructure for<br />
               <TypeCycle phrases={AUDIENCES} />
             </h1>
 
             <p
               className="mx-auto lg:mx-0"
-              style={{ color: colors.textSecondary, fontSize: "17.5px", lineHeight: 1.6, maxWidth: "520px", marginBottom: "28px" }}
+              style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.6, maxWidth: "500px", marginBottom: "32px" }}
             >
               We build the software that hospitals, health plans and patients
               run on, so getting care is faster and delivering it is simpler.
@@ -94,7 +95,7 @@ export function HomePage() {
       <RealLifeSection />
 
       {/* ── HMS7, THE HOSPITAL END ── */}
-      <Section background={wash.sky} pad="md">
+      <Section background={colors.surface} pad="md" divided>
         <Reveal className="max-w-2xl mb-8">
           <h2 style={{ marginBottom: "12px" }}>The other end of the network.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>
@@ -116,7 +117,7 @@ export function HomePage() {
       <CommitmentSection />
 
       {/* ── WHAT WE BUILD ── */}
-      <Section background={colors.surface} pad="md">
+      <Section background={colors.surface} pad="md" divided>
         <Reveal className="max-w-2xl mb-8">
           <h2 style={{ marginBottom: "12px" }}>What we build.</h2>
           <p style={{ color: colors.textSecondary, fontSize: "16.5px", lineHeight: 1.6 }}>

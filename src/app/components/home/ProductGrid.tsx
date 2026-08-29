@@ -23,7 +23,8 @@ interface Card {
   title: string;
   href: string;
   external?: boolean;
-  /** Two stops plus an off-axis highlight, so the banner has depth rather than a flat fill. */
+  /** Flat brand colour. A two-layer gradient per tile was four different
+   *  light sources on one row. */
   gradient: string;
   /** Banner text colour. */
   ink?: string;
@@ -35,32 +36,28 @@ const CARDS: Card[] = [
     category: "For patients",
     title: "Henholib, find care and reach it",
     href: "/products/henholib",
-    gradient:
-      "radial-gradient(120% 120% at 78% 12%, #FFC58A 0%, transparent 55%), linear-gradient(140deg, #F26D21 0%, #E0521A 100%)",
+    gradient: "#F26D21",
   },
   {
     banner: "The hospital, running",
     category: "For hospitals and clinics",
     title: "HMS7, the hospital operating system",
     href: "/products/hms7",
-    gradient:
-      "radial-gradient(120% 120% at 20% 10%, #6FE3C4 0%, transparent 55%), linear-gradient(140deg, #0D9F79 0%, #07634C 100%)",
+    gradient: "#0D9F79",
   },
   {
     banner: "HMOs & Insurance",
     category: "For health plans",
     title: "Run your policies and members on our platform",
     href: "/contact",
-    gradient:
-      "radial-gradient(120% 120% at 82% 18%, #B49CFF 0%, transparent 55%), linear-gradient(140deg, #6D5AF0 0%, #3B2E9E 100%)",
+    gradient: "#6D5AF0",
   },
   {
     banner: "Beyond health",
     category: "Facilities, schools and teams",
     title: "Modus, Beacon and Pal",
     href: "/products",
-    gradient:
-      "radial-gradient(120% 120% at 25% 85%, #7FD8C0 0%, transparent 55%), linear-gradient(140deg, #1E3A34 0%, #0B1A17 100%)",
+    gradient: "#12211E",
   },
 ];
 
@@ -71,7 +68,7 @@ function ProductCard({ card }: { card: Card }) {
         className="relative overflow-hidden"
         style={{
           aspectRatio: "16 / 9",
-          borderRadius: 12,
+          borderRadius: 10,
           background: card.gradient,
           display: "grid",
           placeItems: "center",

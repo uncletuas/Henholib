@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { colors, shadow, tint } from "../../lib/brand";
+import { colors } from "../../lib/brand";
 import { Reveal } from "../Reveal";
 import { Hms7Demo } from "./ProductDemos";
 
@@ -39,9 +39,10 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
         style={{
           height: 320,
           overflow: "hidden",
-          // A soft wash of the product's colour behind the device, so the screen
-          // sits on something rather than floating on flat white.
-          background: `linear-gradient(180deg, ${tint(accent, 0.14)} 0%, ${tint(accent, 0.04)} 100%)`,
+          // One flat neutral behind the device. A tinted gradient per product
+          // meant every card lit differently, which is the thing that reads as
+          // decoration rather than design.
+          background: colors.bgSubtle,
         }}
       >
         {children}
@@ -65,14 +66,13 @@ function ShowcaseCard({ label, blurb, href, external, accent, shape, children }:
   );
 
   const style = {
-    borderRadius: "22px",
+    borderRadius: "12px",
     overflow: "hidden",
-    boxShadow: shadow.md,
-    border: `1px solid ${tint(accent, 0.2)}`,
+    border: `1px solid ${colors.hairline}`,
     background: colors.surface,
   };
 
-  const cls = "group block h-full transition-transform duration-300 hover:-translate-y-1";
+  const cls = "group block h-full transition-colors duration-200";
 
   return external ? (
     <a href={href} target="_blank" rel="noreferrer" className={cls} style={style}>

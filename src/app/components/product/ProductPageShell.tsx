@@ -52,7 +52,6 @@ export function ProductPageShell(c: ProductPageContent) {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden" style={{ background: colors.surface, padding: "clamp(64px,9vw,120px) 0" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 70% 60% at 75% 25%, ${p.accent}14, transparent 70%)` }} />
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <Reveal from="left">
