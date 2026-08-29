@@ -57,16 +57,42 @@ const PRODUCT_LABEL = {
   sart34: "Swift",
 };
 
+/** "someFieldName" -> "Some Field Name" */
+function humanLabel(key) {
+  return key
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^utm /i, "UTM ")
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
+
+/**
+ * Render one jsonb value for a table cell.
+ *
+ * The contribute questionnaire nests: multi-selects arrive as arrays and
+ * attribution as an object of UTM keys. Interpolating either straight into a
+ * template literal prints "[object Object]", which is how the first real
+ * submission came back. Recurse one level instead.
+ */
+function detailValue(v) {
+  if (v === null || v === undefined || v === "") return "";
+  if (Array.isArray(v)) return v.join(", ");
+  if (typeof v === "object") {
+    return Object.entries(v)
+      .map(([k, inner]) => `${humanLabel(k)}=${detailValue(inner)}`)
+      .join(", ");
+  }
+  return String(v);
+}
+
 /** Flatten the jsonb details into "Label: value" lines for the table cell. */
 function detailLines(details) {
   if (!details || typeof details !== "object") return "";
   return Object.entries(details)
-    .map(([k, v]) => {
-      const label = k
-        .replace(/([A-Z])/g, " $1")
-        .replace(/^./, (c) => c.toUpperCase());
-      return `${label}: ${v}`;
-    })
+    .map(([k, v]) => [humanLabel(k), detailValue(v)])
+    .filter(([, v]) => v !== "")
+    .map(([label, v]) => `${label}: ${v}`)
     .join("\n");
 }
 
