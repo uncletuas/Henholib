@@ -32,7 +32,7 @@ export function InsightsPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex gap-2 flex-wrap">
             {categories.map((cat, i) => (
-              <button key={cat} className="px-4 py-1.5 rounded-full text-sm transition-all" style={{ background: i === 0 ? colors.blue : colors.surfaceMuted, color: i === 0 ? "#fff" : colors.textSecondary, border: "1px solid", borderColor: i === 0 ? colors.blue : "rgba(0,0,0,0.07)" }}>
+              <button key={cat} className="px-4 py-1.5 text-sm transition-all" style={{ background: i === 0 ? colors.blue : colors.surfaceMuted, color: i === 0 ? "#fff" : colors.textSecondary, border: "1px solid", borderColor: i === 0 ? colors.blue : "rgba(0,0,0,0.07)" }}>
                 {cat}
               </button>
             ))}
@@ -48,7 +48,7 @@ export function InsightsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0  overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 8px 32px rgba(0,0,0,0.06)" }}>
               <div className="relative" style={{ minHeight: "320px" }}>
                 <ImageWithFallback src={posts[0].image} alt={posts[0].title} className="w-full h-full object-cover absolute inset-0" />
-                <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold" style={{ background: colors.blue, color: "#fff" }}>{posts[0].category}</div>
+                <div className="absolute top-4 left-4 px-3 py-1 text-xs font-semibold" style={{ background: colors.blue, color: "#fff" }}>{posts[0].category}</div>
               </div>
               <div className="flex flex-col justify-center gap-4 p-10 bg-white">
                 <span style={{ color: colors.textTertiary, fontSize: "13px" }}>{posts[0].date}</span>
@@ -66,7 +66,7 @@ export function InsightsPage() {
                 <div className="flex flex-col  overflow-hidden cursor-pointer group h-full" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
                   <div className="relative overflow-hidden" style={{ aspectRatio: "3/2" }}>
                     <ImageWithFallback src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "#fff", color: colors.blue }}>{post.category}</div>
+                    <div className="absolute top-3 left-3 px-2.5 py-1 text-xs font-semibold" style={{ background: "#fff", color: colors.blue }}>{post.category}</div>
                   </div>
                   <div className="flex flex-col gap-3 p-6 flex-1 bg-white">
                     <span style={{ color: colors.textTertiary, fontSize: "12px" }}>{post.date}</span>

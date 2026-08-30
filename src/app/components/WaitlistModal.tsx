@@ -70,7 +70,7 @@ export function WaitlistModal({ product, onClose }: WaitlistModalProps) {
                 Thanks for your interest in {p.name}. We'll email <strong style={{ color: colors.heading }}>{email}</strong> the moment it opens up.
               </p>
             </div>
-            <button onClick={onClose} className="mt-2 px-6 py-3 rounded-full font-semibold text-white transition-all hover:opacity-95 active:scale-[0.98]" style={{ background: p.accent, fontSize: "15px" }}>
+            <button onClick={onClose} className="mt-2 px-6 py-3 font-semibold text-white transition-all hover:opacity-95 active:scale-[0.98]" style={{ background: p.accent, fontSize: "15px" }}>
               Done
             </button>
           </div>
@@ -97,7 +97,7 @@ export function WaitlistModal({ product, onClose }: WaitlistModalProps) {
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@company.com" style={inputStyle} onFocus={focus} onBlur={blur} />
               </div>
               {error && <p style={{ color: "#EF4444", fontSize: "13px" }}>{error}</p>}
-              <button type="submit" disabled={loading} className="w-full flex items-center justify-center py-3.5 rounded-full font-semibold text-white transition-all hover:opacity-95 active:scale-[0.98] disabled:opacity-60 mt-1" style={{ background: p.accent, fontSize: "15px" }}>
+              <button type="submit" disabled={loading} className="w-full flex items-center justify-center py-3.5 font-semibold text-white transition-all hover:opacity-95 active:scale-[0.98] disabled:opacity-60 mt-1" style={{ background: p.accent, fontSize: "15px" }}>
                 {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Join the waitlist"}
               </button>
             </form>

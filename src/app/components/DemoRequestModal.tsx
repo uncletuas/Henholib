@@ -203,7 +203,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
             </p>
             <button
               onClick={onClose}
-              className="mt-6 rounded-full px-6 py-2.5 font-semibold text-white"
+              className="mt-6 px-6 py-2.5 font-semibold text-white"
               style={{ background: p.accent, fontSize: "14px" }}
             >
               Done
@@ -270,7 +270,7 @@ export function DemoRequestModal({ product, onClose }: { product: ProductId; onC
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-full px-6 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+                className="px-6 py-3 font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:opacity-60"
                 style={{ background: p.accent, fontSize: "14.5px" }}
               >
                 {busy ? "Sending…" : "Request a demo"}
