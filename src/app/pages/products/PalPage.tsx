@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { Reveal } from "../../components/Reveal";
 import { colors, shadow } from "../../lib/brand";
@@ -115,7 +116,10 @@ export function PalPage() {
             </p>
             <WaitlistButton onClick={join} size="lg" />
             <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px", marginTop: 14 }}>
-              Be first in when Pal opens up.
+              Be first in when Pal opens up.{" "}
+              <Link to="/products/pal/pricing" style={{ color: "rgba(255,255,255,0.82)", textDecoration: "underline", textUnderlineOffset: 3 }}>
+                See plans and pricing
+              </Link>
             </p>
           </Reveal>
 

@@ -11,6 +11,8 @@ import { ModusPage } from "./pages/products/ModusPage";
 import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { ContributePage } from "./pages/ContributePage";
+import { RefundPolicyPage } from "./pages/RefundPolicyPage";
+import { PalPricingPage } from "./pages/products/PalPricingPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
@@ -30,6 +32,7 @@ export const router = createBrowserRouter([
       // and in the company profile PDF, and a dead link is a worse outcome than
       // an old one that forwards.
       { path: "products/pal", Component: PalPage },
+      { path: "products/pal/pricing", Component: PalPricingPage },
       { path: "products/modus", Component: ModusPage },
       { path: "products/beacon", Component: Edm73Page },
       { path: "products/henholib", Component: HenholibPage },
@@ -50,6 +53,7 @@ export const router = createBrowserRouter([
       { path: "insights", Component: InsightsPage },
       { path: "privacy", Component: PrivacyPage },
       { path: "terms", Component: TermsPage },
+      { path: "refund-policy", Component: RefundPolicyPage },
       { path: "tuamene.bestgod", Component: FounderPage },
       { path: "*", Component: NotFoundPage },
     ],

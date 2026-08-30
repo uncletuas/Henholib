@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, Check, Loader2, Minus, Plus } from "lucide-react";
 import { palApi, type PalPlan } from "../lib/api";
 import { colors, gradientBrand } from "../lib/brand";
+import { PAL_PLANS as PAL_PLAN_PRICING } from "../config/pal-plans";
 
 interface PalPlansModalProps {
   token: string | null;
@@ -16,8 +17,21 @@ type Currency = "NGN" | "USD";
 const fmtNgn = (n: number) => "₦" + n.toLocaleString("en-NG");
 const fmtUsd = (n: number) => "$" + n;
 
-/** Pal pricing: Free / Pro / Business. Prices are display values; Paystack charges
- *  the NGN amount (foreign cards pay the NGN equivalent). Business is per-seat. */
+/**
+ * Pal pricing: Free / Pro / Business.
+ *
+ * The copy is local because this modal talks to someone already inside Pal, who
+ * needs different emphasis than a visitor reading the marketing page. The
+ * numbers are not local: they come from config/pal-plans.ts, which is checked
+ * against server/app.js on every build. Two places describing a plan is fine.
+ * Two places naming its price is how a customer gets quoted one figure in the
+ * app and charged another by Paystack.
+ */
+const money = (key: string) => {
+  const p = PAL_PLAN_PRICING.find((x) => x.key === key);
+  if (!p) throw new Error("no pricing for plan " + key);
+  return { ngn: p.amountKobo / 100, usd: p.usd ?? 0, minSeats: p.minSeats };
+};
 const PLANS: Array<{
   key: PalPlan;
   name: string;
@@ -32,8 +46,8 @@ const PLANS: Array<{
   {
     key: "free",
     name: "Free",
-    ngn: 0,
-    usd: 0,
+    ngn: money("free").ngn,
+    usd: money("free").usd,
     tagline: "The full workspace, on us.",
     features: [
       "Docs, Sheets, Slides, Files, Systems & more",
@@ -45,8 +59,8 @@ const PLANS: Array<{
   {
     key: "pro",
     name: "Pro",
-    ngn: 35000,
-    usd: 25,
+    ngn: money("pro").ngn,
+    usd: money("pro").usd,
     tagline: "Your full AI coworker.",
     highlight: true,
     features: [
@@ -60,10 +74,10 @@ const PLANS: Array<{
   {
     key: "business",
     name: "Business",
-    ngn: 42000,
-    usd: 30,
+    ngn: money("business").ngn,
+    usd: money("business").usd,
     perSeat: true,
-    minSeats: 3,
+    minSeats: money("business").minSeats,
     tagline: "For teams that run on Pal.",
     features: [
       "Everything in Pro, per user",

@@ -99,6 +99,29 @@ export const pageSeo: Record<string, PageSeo> = {
   },
   // The Henholib research questionnaire. Indexed on purpose: we want people to
   // find it and answer it, and it is linked from campaigns that run off-site.
+  // Pricing carries real prices, so it is indexed and described precisely:
+  // people search for what a thing costs, and a vague description wastes the
+  // one line we get in the result.
+  "/products/pal/pricing": {
+    title: "Pal Pricing and Plans",
+    description:
+      "What Pal costs: a free plan, Pro at NGN 35,000 a month, and Business at NGN 42,000 per person. Credits for ads and publishing are bought separately.",
+    jsonLd: breadcrumbLd([
+      { name: "Home", path: "/" },
+      { name: "Products", path: "/products" },
+      { name: "Pal", path: "/products/pal" },
+      { name: "Pricing", path: "/products/pal/pricing" },
+    ]),
+  },
+  "/refund-policy": {
+    title: "Refund Policy",
+    description:
+      "When Loopital refunds you, how long it takes, and the few cases we cannot. Covers subscriptions, unused credits, duplicate charges and cancellations.",
+    jsonLd: breadcrumbLd([
+      { name: "Home", path: "/" },
+      { name: "Refund Policy", path: "/refund-policy" },
+    ]),
+  },
   "/contribute": {
     title: "Help Us Build Henholib",
     description:
