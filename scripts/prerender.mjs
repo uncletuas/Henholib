@@ -137,7 +137,13 @@ async function writeSitemap(pageSeo) {
     '/products/henholib': { priority: '0.9', changefreq: 'monthly' },
     '/products/hms7': { priority: '0.9', changefreq: 'monthly' },
     '/products/beacon': { priority: '0.7', changefreq: 'monthly' },
+    '/products/modus': { priority: '0.7', changefreq: 'monthly' },
     '/products/pal': { priority: '0.7', changefreq: 'monthly' },
+    '/products/pal/pricing': { priority: '0.7', changefreq: 'monthly' },
+    // Ranked above the legal pages: it is a page we actively want answered,
+    // and it is linked from campaigns that run off-site.
+    '/contribute': { priority: '0.8', changefreq: 'monthly' },
+    '/refund-policy': { priority: '0.3', changefreq: 'yearly' },
     '/about': { priority: '0.6', changefreq: 'monthly' },
     '/insights': { priority: '0.6', changefreq: 'weekly' },
     '/contact': { priority: '0.6', changefreq: 'yearly' },
@@ -146,9 +152,13 @@ async function writeSitemap(pageSeo) {
     '/terms': { priority: '0.2', changefreq: 'yearly' },
   };
 
-  // The live apps on their own subdomains. Only Henholib now: Modus, Pal, Zina
-  // and Swift are no longer hosted, and advertising a URL that does not resolve
-  // is worse than omitting it.
+  // The live apps on their own subdomains.
+  //
+  // Only Henholib. Pal, Modus and Zina are hosted again, but they are not
+  // pages: Pal and Modus open on a sign-in wall and Zina is the admin console,
+  // so there is nothing for a crawler to index and a login screen in the
+  // results helps nobody. Their marketing pages under /products are what should
+  // rank. Swift no longer exists at all.
   const SUBDOMAINS = [
     { loc: 'https://henholib.loopital.com/', priority: '0.8', changefreq: 'weekly' },
   ];

@@ -1,18 +1,14 @@
 User-agent: *
 Allow: /
 
-# Legacy Swift paths. They 302 to /products and hold no content of their own.
-Disallow: /products/swift
-Disallow: /products/sart34
-
-# Codename paths kept alive for old links and the company profile PDF. They
-# redirect to the real product pages, so there is nothing here to index.
-Disallow: /products/stack62
-Disallow: /products/fms13
-Disallow: /products/edm73
-
-# Payment return leg. Never a landing page, and it carries a reference in the
-# query string.
-Disallow: /payment/callback
+# Nothing is Disallow-ed here, and that is on purpose.
+#
+# The redirect paths (/products/swift, /sart34, /stack62, /fms13, /edm73) and
+# the payment return leg used to be blocked. Blocking was the wrong tool: a
+# crawler that cannot fetch a page also cannot read the "noindex" on it, so a
+# Disallow-ed URL that someone links to gets indexed anyway, with no title and
+# no description. Those pages now serve "noindex, follow" instead, which drops
+# them from results properly and still passes link equity to the pages they
+# redirect to.
 
 Sitemap: https://www.loopital.com/sitemap.xml

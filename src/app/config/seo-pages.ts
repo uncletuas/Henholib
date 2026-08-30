@@ -4,6 +4,14 @@
 
 import { organizationLd, websiteLd, softwareApplicationLd, breadcrumbLd, personLd, faqLd } from "./structured-data";
 import { FOUNDER_IMAGE, FOUNDER_SOCIALS } from "./site";
+import { PAL_PLANS } from "./pal-plans";
+
+// Pal is the one product with published prices, so it is the one product
+// whose schema can state them. Derived from the same array the pricing page
+// renders, which is itself checked against the server on every build.
+const PAL_PRICE_HIGH = String(
+  Math.max(...PAL_PLANS.map((p) => p.amountKobo)) / 100,
+);
 
 export interface PageSeo {
   title: string;
@@ -24,21 +32,25 @@ const productCrumb = (name: string, path: string) =>
 
 export const pageSeo: Record<string, PageSeo> = {
   "/": {
-    title: "Health Technology for Hospitals and Patients in Africa",
+    // Health leads the title because it is what we rank for and what most of
+    // the search volume is, but the description now names the whole portfolio.
+    // The homepage stopped being a healthcare-only page; its metadata followed.
+    title: "Software for Hospitals, Schools and the Teams Behind Them",
     description:
-      "Loopital builds HMS7, the hospital management system, and Henholib, the patient health app. Book consultations, hold your records and raise emergency alerts.",
+      "Loopital builds HMS7 for hospitals, Henholib for patients, Beacon for schools, Modus for facilities and Pal, the office of your AI coworker. Built in Nigeria.",
     jsonLd: [organizationLd, websiteLd],
   },
   "/products": {
-    title: "Products: Hospital, Health, Facility and School Software",
+    title: "Products: Hospital, Health, School and Facility Software",
     description:
-      "Henholib for patients, HMS7 for hospitals, Modus for facilities, Beacon for schools and Pal, the office of your AI coworker. One account opens all of them.",
+      "Five products, one account: HMS7 for hospitals, Henholib for patients, Beacon for schools, Modus for facilities and Pal, the office of your AI coworker.",
     jsonLd: breadcrumbLd([{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]),
   },
   "/products/hms7": {
     title: "HMS7, Hospital Management System Software",
     description:
       "Hospital management software for patient records, appointments, billing, pharmacy and staff. Connected to the Henholib patient app. Free for 3 months.",
+    image: "/media/clinic-team.jpg",
     jsonLd: [
       softwareApplicationLd({
         name: "HMS7",
@@ -46,6 +58,8 @@ export const pageSeo: Record<string, PageSeo> = {
         description:
           "Enterprise hospital management system for patient records, appointments, billing, staff, pharmacy, and compliance, connected to the Henholib patient app.",
         path: "/products/hms7",
+        // No public price: HMS7 is sold on a contract after onboarding. An
+        // invented one here would be the figure Google shows.
       }),
       productCrumb("HMS7", "/products/hms7"),
       faqLd([
@@ -68,6 +82,7 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "Henholib, Book Doctors, Hospital Search & Emergency Alerts",
     description:
       "Find a hospital, book a doctor, hold your records and raise an emergency alert from your phone. Free health app for patients in Nigeria and beyond.",
+    image: "/media/family-newborn.jpg",
     jsonLd: [
       softwareApplicationLd({
         name: "Henholib",
@@ -75,6 +90,8 @@ export const pageSeo: Record<string, PageSeo> = {
         description:
           "Personal health app for hospital search, doctor consultations, care-team messaging, and emergency alerts, connected to hospitals running HMS7.",
         path: "/products/henholib",
+        operatingSystem: "Android, iOS, Web",
+        offer: { price: "0", currency: "NGN", description: "Free for patients. No card required." },
       }),
       productCrumb("Henholib", "/products/henholib"),
       faqLd([
@@ -126,6 +143,7 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "Help Us Build Henholib",
     description:
       "Tell us how you get healthcare today, or how your hospital runs. A few minutes of answers shape what Henholib and HMS7 become.",
+    image: "/media/care-ward.jpg",
     jsonLd: breadcrumbLd([
       { name: "Home", path: "/" },
       { name: "Contribute", path: "/contribute" },
@@ -135,6 +153,7 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "Pal, the Office of Your AI Coworker",
     description:
       "Pal Workspace is where your AI coworker works. A member of your team, not a tool you operate. Join the waitlist for early access.",
+    image: "/media/pal-hero.png",
     jsonLd: [
       softwareApplicationLd({
         name: "Pal",
@@ -142,6 +161,7 @@ export const pageSeo: Record<string, PageSeo> = {
         description:
           "The office of your AI coworker. A member of your team that drafts, researches, answers the inbox and runs the work you hand it.",
         path: "/products/pal",
+        offerRange: { low: "0", high: PAL_PRICE_HIGH, currency: "NGN" },
       }),
       productCrumb("Pal", "/products/pal"),
     ],
@@ -150,6 +170,7 @@ export const pageSeo: Record<string, PageSeo> = {
     title: "Beacon, School Management Software for Africa",
     description:
       "Beacon is a complete educational-organization management system for admissions, students, staff, classes, timetables, grades, fees, and communication, for schools, colleges, and training institutions. Request a demo to see it with your own data.",
+    image: "/media/school-students.jpg",
     jsonLd: [
       softwareApplicationLd({
         name: "Beacon",
@@ -161,10 +182,30 @@ export const pageSeo: Record<string, PageSeo> = {
       productCrumb("Beacon", "/products/beacon"),
     ],
   },
-  "/about": {
-    title: "About Loopital, a Health Technology Company",
+  // Modus had no entry here at all, which meant the default applied: noindex,
+  // and absent from the generated sitemap. A whole product page invisible to
+  // search for as long as that was true.
+  "/products/modus": {
+    title: "Modus, Facility and Asset Management Software",
     description:
-      "Loopital is a Nigerian health technology company using software and AI to solve Africa's most important problems, starting with how care is delivered.",
+      "Modus runs assets, maintenance, work orders, vendors and compliance across every site you operate. One register, one queue, one record. Join the waitlist.",
+    image: "/media/tower-lagos.jpg",
+    jsonLd: [
+      softwareApplicationLd({
+        name: "Modus",
+        category: "BusinessApplication",
+        description:
+          "Facility management system for asset registers, planned and reactive maintenance, work orders, vendors and contracts, compliance and multi-site operations.",
+        path: "/products/modus",
+      }),
+      productCrumb("Modus", "/products/modus"),
+    ],
+  },
+  "/about": {
+    title: "About Loopital, a Software Company Built in Nigeria",
+    description:
+      "Loopital is a Nigerian software company using technology and AI to solve Africa's most important problems, starting with how healthcare is delivered.",
+    image: "/media/office-meeting.jpg",
     jsonLd: organizationLd,
   },
   "/insights": {
@@ -201,6 +242,36 @@ export const pageSeo: Record<string, PageSeo> = {
       ]),
     ],
   },
+  // Paths that hold no content: the payment return leg, and the codename URLs
+  // kept alive for old links and the printed company profile, which redirect to
+  // the real product pages.
+  //
+  // These need an entry precisely because they have nothing to say. Without one
+  // the default applies and they serve the raw index.html, which carries
+  // "index, follow" and the homepage's title — five near-duplicate homepages
+  // competing with the real one. "noindex, follow" drops them while still
+  // passing any link equity through to where they redirect.
+  //
+  // They are no longer Disallow-ed in robots.txt, and that is deliberate: a
+  // blocked crawl cannot read the noindex it is being asked to obey, so
+  // Disallow is how a URL ends up indexed with no description at all.
+  ...Object.fromEntries(
+    [
+      ["/payment/callback", "Payment"],
+      ["/products/swift", "Swift"],
+      ["/products/sart34", "Swift"],
+      ["/products/stack62", "Pal"],
+      ["/products/fms13", "Modus"],
+      ["/products/edm73", "Beacon"],
+    ].map(([path, name]) => [
+      path,
+      {
+        title: name,
+        description: "This page has moved. You are being redirected.",
+        noindex: true,
+      } satisfies PageSeo,
+    ]),
+  ),
   "/privacy": {
     title: "Privacy Policy",
     description: "How Loopital collects, uses and protects your information, including health data held in Henholib and HMS7.",
