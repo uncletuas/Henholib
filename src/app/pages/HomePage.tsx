@@ -20,12 +20,22 @@ import { RealLifeSection } from "../components/home/RealLifeSection";
  * blocks. The app does the persuading, so the copy stays out of the way.
  */
 
+// One phrase per thing we actually build: HMS7, Henholib, the HMO side of the
+// platform, Beacon, Modus, and Pal. Health leads because it is the largest part
+// of the business and because the first phrase is what shows under
+// reduced-motion, but the cycle is no longer healthcare-only.
+//
+// Each has to read as a sentence after "The intelligent infrastructure for",
+// and TypeCycle renders with `white-space: nowrap` — a phrase longer than the
+// ~20 characters here cannot wrap and will push the headline sideways on a
+// narrow screen. Keep them short.
 const AUDIENCES = [
-  "modern healthcare",
   "hospitals & clinics",
-  "doctors & care teams",
   "patients everywhere",
-  "health across Africa",
+  "health plans & HMOs",
+  "schools & campuses",
+  "buildings & estates",
+  "the work you do",
 ];
 
 export function HomePage() {
@@ -52,9 +62,9 @@ export function HomePage() {
               className="mx-auto lg:mx-0"
               style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.6, maxWidth: "500px", marginBottom: "32px" }}
             >
-              We build the software that hospitals, health plans and patients
-              run on, so getting care is faster and delivering it is simpler.
-              One network, from the clinic to the phone in your hand.
+              We build the software that hospitals, health plans, schools and
+              facilities teams run on, and the AI coworker that works beside
+              them. Less time fighting systems, more time doing the work.
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
