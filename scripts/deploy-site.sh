@@ -11,8 +11,14 @@ set -uo pipefail
 
 BUCKET="$1"; DIST="$2"; COMMENT="$3"; DOMAIN="${4:-}"
 ACCOUNT=703592322789
-WIN_SP='C:\Users\USER\AppData\Local\Temp\claude\c--Users-USER-Downloads-loopital-com\cd4e7f79-5a01-4ea6-a892-d81e9d5b44ab\scratchpad'
-SP="/c/Users/USER/AppData/Local/Temp/claude/c--Users-USER-Downloads-loopital-com/cd4e7f79-5a01-4ea6-a892-d81e9d5b44ab/scratchpad"
+# Scratch space for the CloudFront and bucket-policy JSON. Derived, not
+# hardcoded: this used to point at one session's scratchpad directory, which
+# stops existing the moment that session ends, and the script then failed on a
+# redirect into a missing folder. The AWS CLI needs a Windows path for
+# file:// arguments even under Git Bash, hence the second form.
+SP="${TMPDIR:-/tmp}/loopital-deploy"
+mkdir -p "$SP"
+WIN_SP=$(cygpath -w "$SP" 2>/dev/null || printf '%s' "$SP")
 
 export AWS_DEFAULT_REGION=us-east-1
 export AWS_MAX_ATTEMPTS=10
@@ -117,6 +123,14 @@ if [ -n "$DOMAIN" ]; then
   VALNAME=$(printf '%s' "$REC" | python -c "import sys,json;print(json.load(sys.stdin)['Name'])" 2>/dev/null)
   VALVALUE=$(printf '%s' "$REC" | python -c "import sys,json;print(json.load(sys.stdin)['Value'])" 2>/dev/null)
   say "cert $CERTARN"
+
+  # Attach the alias + cert. Non-fatal on purpose: CloudFront refuses an alias
+  # whose DNS record still points at a different (or deleted) distribution, so a
+  # restore legitimately fails here until the CNAME is repointed. Say what to do
+  # rather than aborting a deploy that otherwise succeeded.
+  if ! python "$(dirname "$0")/cf-attach-domain.py" "$DISTID" "$DOMAIN" "$CERTARN" 2>&1 | sed 's/^/  /'; then
+    say "alias not attached yet — point $DOMAIN at $CFDOMAIN, then re-run"
+  fi
 fi
 
 echo "$BUCKET|$DISTID|$CFDOMAIN|$DOMAIN|$VALNAME|$VALVALUE|$CERTARN" >> "$SP/deployed.txt"

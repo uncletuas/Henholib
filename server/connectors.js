@@ -87,7 +87,7 @@ const SEED_APPS = [
     id: "fms13",
     name: "Modus",
     tagline: "Facility and fleet operations",
-    app_url: "https://fms13.loopital.com",
+    app_url: "https://modus.loopital.com",
     admin_url: "https://ministry.loopital.com",
     ops_base_url: process.env.OPS_URL_MODUS || "",
     accent: "#c2410c",

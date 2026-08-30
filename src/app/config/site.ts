@@ -10,9 +10,9 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 //
 // Named after the products, not the codenames they shipped under. The codenames
 // still exist as ids in the database and in the SSO handshake — renaming those
-// would break federation — but nothing a visitor can click should carry one,
-// because those subdomains are gone. fms13.loopital.com in particular is dead:
-// Modus moved to modus.loopital.com and the old host now serves nothing.
+// would break federation — but nothing a visitor can click should carry one.
+// fms13.loopital.com in particular is dead and has no DNS record at all: Modus
+// lives at modus.loopital.com.
 export const PAL_URL = "https://pal.loopital.com";
 export const HENHOLIB_URL = "https://henholib.loopital.com";
 // Beacon has a subdomain but no deployment behind it yet, so it is deliberately

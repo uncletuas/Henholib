@@ -37,7 +37,7 @@ const APP_BRANDING = {
   // Swift was folded into Pal. Kept so historical notifications still resolve
   // a label, but pointed at Pal — swift.loopital.com no longer exists.
   sart34: { name: "Swift", accent: "#4f46e5", url: "https://pal.loopital.com" },
-  fms13: { name: "Modus", accent: "#c2410c", url: "https://fms13.loopital.com" },
+  fms13: { name: "Modus", accent: "#c2410c", url: "https://modus.loopital.com" },
   edm73: { name: "Beacon", accent: "#a3122b", url: "https://beacon.loopital.com" },
   hms7: { name: "Henholib", accent: "#0369a1", url: "https://henholib.loopital.com" },
 };
