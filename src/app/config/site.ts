@@ -46,6 +46,13 @@ export const FOUNDER_SOCIALS = [
   { network: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@btuamene" },
 ] as const;
 
+// The fundraiser, on Crowdr. Named here rather than pasted at each call site:
+// it appears on the homepage and at the end of the contribute questionnaire,
+// and a donation link that rots in one of two places is worse than one that
+// rots in both, because only one of them gets noticed.
+export const DONATE_URL =
+  "https://www.oncrowdr.com/explore/c/help-us-bring-one-free-health-record-to-every-nigerian-hospital";
+
 export const CONTACT_EMAIL = "info@loopital.com";
 // No public office address for now — the company is registered in Nigeria but
 // does not publish a street address. Anything that needs to reach us uses the

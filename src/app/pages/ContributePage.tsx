@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ArrowRight, Building2, Check, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Building2, Check, User } from "lucide-react";
 import { colors } from "../lib/brand";
 import { contributeApi } from "../lib/api";
+import { DONATE_URL } from "../config/site";
 import {
   INDIVIDUAL_STEPS,
   ORGANIZATION_STEPS,
@@ -376,6 +377,33 @@ export function ContributePage() {
             >
               Back to homepage
             </Link>
+          </div>
+
+          {/*
+            The donation ask, and deliberately after the thank-you rather than
+            beside it. Someone who has just given eighteen answers has already
+            contributed; leading with a request for money would make the whole
+            questionnaire read as a funnel to one.
+          */}
+          <div style={{ borderTop: `1px solid ${colors.hairline}`, marginTop: 40, paddingTop: 32 }}>
+            <p style={{ color: colors.heading, fontSize: "17px", fontWeight: 600, marginBottom: 8 }}>
+              Want to do more than answer questions?
+            </p>
+            <p style={{ color: colors.textSecondary, fontSize: "15.5px", lineHeight: 1.7, marginBottom: 20 }}>
+              Henholib and HMS7 are built and tested. Getting them into real
+              hospitals, clinics, pharmacies and laboratories is what we are
+              raising for. Any amount moves it forward.
+            </p>
+            <a
+              href={DONATE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("contribute_donate_click", { path })}
+              className="inline-flex items-center gap-2 font-semibold"
+              style={{ background: colors.heading, color: "#fff", padding: "13px 24px", fontSize: "15px" }}
+            >
+              Donate on Crowdr <ArrowUpRight size={16} />
+            </a>
           </div>
         </div>
       </div>
