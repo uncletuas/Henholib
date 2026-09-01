@@ -63,11 +63,11 @@ export function CommitmentSection() {
 
         <Reveal delay={0.15}>
           <Link
-            to="/about"
+            to="/contribute"
             className="inline-flex items-center gap-2 px-6 py-3 font-semibold transition-transform hover:-translate-y-0.5"
             style={{ background: "#FFFFFF", color: colors.onLight, fontSize: "14.5px", marginTop: "clamp(30px,3.5vw,44px)" }}
           >
-            How we build <ArrowRight size={16} />
+            We want your opinion <ArrowRight size={16} />
           </Link>
         </Reveal>
       </div>

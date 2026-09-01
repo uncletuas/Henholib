@@ -46,10 +46,10 @@ export const FOUNDER_SOCIALS = [
   { network: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@btuamene" },
 ] as const;
 
-// The fundraiser, on Crowdr. Named here rather than pasted at each call site:
-// it appears on the homepage and at the end of the contribute questionnaire,
-// and a donation link that rots in one of two places is worse than one that
-// rots in both, because only one of them gets noticed.
+// The fundraiser, on Crowdr. One call site now — the end of the contribute
+// questionnaire, offered to people who have just finished it. It stays named
+// here rather than inlined there because it is the kind of URL that is easier
+// to check and replace when it lives with the other external addresses.
 export const DONATE_URL =
   "https://www.oncrowdr.com/explore/c/help-us-bring-one-free-health-record-to-every-nigerian-hospital";
 

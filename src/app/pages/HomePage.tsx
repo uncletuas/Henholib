@@ -9,7 +9,6 @@ import { colors } from "../lib/brand";
 import { HenholibShowcase } from "../components/home/HenholibShowcase";
 import { ProductShowcase } from "../components/home/ProductShowcase";
 import { CommitmentSection } from "../components/home/CommitmentSection";
-import { DonateSection } from "../components/home/DonateSection";
 import { ProductGrid } from "../components/home/ProductGrid";
 import { RealLifeSection } from "../components/home/RealLifeSection";
 
@@ -115,8 +114,6 @@ export function HomePage() {
 
       {/* ── MISSION ── */}
       <CommitmentSection />
-
-      <DonateSection />
 
       {/* ── WHAT WE BUILD ── */}
       <Section background={colors.surface} pad="md" divided>
