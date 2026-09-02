@@ -140,6 +140,86 @@ export interface Invoice {
 
 const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
+/**
+ * The team onboarding portal.
+ *
+ * Every call carries the member's own bearer token, and the server re-checks
+ * the stage gates on each one — `state` is what the UI trusts to decide which
+ * screen to show, rather than anything it remembers locally, so a resumed
+ * session on a new device lands in the right place.
+ */
+export interface OnboardingState {
+  email: string;
+  name: string | null;
+  stage: "nda" | "form" | "done";
+  ndaSigned: boolean;
+  ndaSignedAt: string | null;
+  formComplete: boolean;
+  step: number;
+  answers: Record<string, unknown>;
+  roles: string[];
+}
+
+export interface NdaClause {
+  heading: string;
+  text?: string[];
+  bullets?: string[];
+}
+
+export interface NdaDocument {
+  version: string;
+  title: string;
+  subtitle: string;
+  preamble: string[];
+  clauses: NdaClause[];
+  footer: string;
+  company: { name: string; title: string; company: string };
+}
+
+export const onboardingApi = {
+  state: (token: string) =>
+    request<OnboardingState>("/onboarding/state", { headers: authHeader(token) }),
+
+  document: (token: string) =>
+    request<NdaDocument>("/onboarding/document", { headers: authHeader(token) }),
+
+  signNda: (
+    token: string,
+    input: {
+      fullName: string;
+      role: string;
+      method: "drawn" | "typed" | "uploaded";
+      /** PNG data URL. The date is deliberately not sent: the server stamps it. */
+      signature: string;
+      readConfirmed: boolean;
+      legalConsent: boolean;
+    },
+  ) =>
+    request<{ ok: boolean; signedAt: string }>("/onboarding/nda", {
+      method: "POST",
+      headers: authHeader(token),
+      body: JSON.stringify(input),
+    }),
+
+  saveForm: (token: string, step: number, answers: Record<string, unknown>) =>
+    request<{ ok: boolean; savedAt: string }>("/onboarding/form/save", {
+      method: "POST",
+      headers: authHeader(token),
+      body: JSON.stringify({ step, answers }),
+    }),
+
+  submitForm: (token: string, answers: Record<string, unknown>) =>
+    request<{ ok: boolean }>("/onboarding/form/submit", {
+      method: "POST",
+      headers: authHeader(token),
+      body: JSON.stringify({ answers }),
+    }),
+
+  /** Absolute URL for the signed PDF. Fetched with the token, not linked to
+   *  directly, because an <a href> cannot carry an Authorization header. */
+  ndaPdfUrl: () => `${API_BASE_URL}/onboarding/nda.pdf`,
+};
+
 export const accountApi = {
   getSubscriptions: (token: string) =>
     request<{ subscriptions: Subscription[] }>("/account/subscriptions", { headers: authHeader(token) }),

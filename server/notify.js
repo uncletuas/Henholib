@@ -159,6 +159,12 @@ async function sendNotification({
   template = null,
   replyTo = null,
   from = null,
+  // [{ filename, content }] where content is base64. Used by the onboarding
+  // portal to send a person their own signed agreement. Deliberately not
+  // rendered into the log: the row records that a file was attached and its
+  // name, never its bytes, because zina_notifications is read by people who
+  // should not automatically see the contents of everything ever sent.
+  attachments = null,
 }) {
   const recipients = (Array.isArray(to) ? to : [to]).filter(Boolean);
   if (!recipients.length) return { ok: false, error: "No recipient." };
@@ -209,6 +215,9 @@ async function sendNotification({
         text: body || undefined,
         html: html || renderHtml({ appId, subject, body, linkUrl, linkLabel, recipientName }),
         ...(replyTo ? { reply_to: replyTo } : {}),
+        ...(Array.isArray(attachments) && attachments.length
+          ? { attachments: attachments.map((a) => ({ filename: a.filename, content: a.content })) }
+          : {}),
       }),
     });
     const data = await res.json().catch(() => ({}));

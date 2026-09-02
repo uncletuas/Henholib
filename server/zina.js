@@ -32,6 +32,7 @@ const connectors = require("./connectors");
 const { SERVICES } = require("./service-catalog");
 const vault = require("./vault");
 const { sendNotification } = require("./notify");
+const onboarding = require("./onboarding");
 
 const TOKEN_TTL = "12h";
 const SWITCH_TOKEN_TTL = 120; // seconds — long enough to redirect, short enough to be useless if leaked
@@ -84,12 +85,18 @@ const PERMISSIONS = [
   "analytics:read",
   "staff:manage",
   "audit:read",
+  // The onboarding portal. Split in two on purpose: everyone operational needs
+  // to see who has signed and who has stalled, but payroll and identification
+  // are the Finance & Administration Lead's and the CEO's alone, per the spec.
+  "onboarding:read",
+  "onboarding:sensitive",
 ];
 
 const ROLE_PERMISSIONS = {
   superadmin: [...PERMISSIONS],
 
   operations: [
+    "onboarding:read",
     "app:read", "app:switch",
     "user:read", "user:manage",
     "billing:read",
@@ -100,7 +107,10 @@ const ROLE_PERMISSIONS = {
     "audit:read",
   ],
 
-  finance: ["app:read", "user:read", "billing:read", "billing:manage", "analytics:read", "audit:read"],
+  // Finance sees the sensitive sections. That is the whole reason the second
+  // permission exists.
+  finance: ["app:read", "user:read", "billing:read", "billing:manage", "analytics:read", "audit:read",
+            "onboarding:read", "onboarding:sensitive"],
 
   engineering: [
     "app:read", "app:manage", "app:switch",
@@ -112,7 +122,8 @@ const ROLE_PERMISSIONS = {
     "audit:read",
   ],
 
-  support: ["app:read", "user:read", "support:read", "support:respond", "notify:read", "billing:read"],
+  support: ["app:read", "user:read", "support:read", "support:respond", "notify:read", "billing:read",
+            "onboarding:read"],
 
   // Read-only by design: an analyst who can also change what they measure is
   // measuring something else.
@@ -2127,6 +2138,25 @@ async function route(ctx) {
   if (method === "POST" && /^\/zina\/staff\/[^/]+\/active$/.test(path)) {
     return setStaffActive(headers, decodeURIComponent(path.split("/")[3]), body);
   }
+  // ── Team onboarding ─────────────────────────────────────────────────
+  // `onboarding:sensitive` is resolved here and passed down as a boolean, so
+  // the redaction decision is made once, on the server, against the caller's
+  // actual role — never inferred from anything the client sent.
+  if (path.startsWith("/zina/onboarding")) {
+    const { staff, error } = await requireStaff(headers, "onboarding:read");
+    if (error) return error;
+    const canSeeSensitive = staff.permissions.has("onboarding:sensitive");
+
+    if (method === "GET" && path === "/zina/onboarding") return onboarding.adminList();
+    if (method === "GET" && path === "/zina/onboarding/export") return onboarding.adminCsv(canSeeSensitive);
+    const m = path.match(/^\/zina\/onboarding\/([0-9a-f-]{36})(\/nda\.pdf)?$/i);
+    if (method === "GET" && m) {
+      return m[2]
+        ? onboarding.adminNdaPdf(m[1])
+        : onboarding.adminDetail(m[1], canSeeSensitive);
+    }
+  }
+
   if (method === "GET" && path === "/zina/audit") return listAudit(headers, qs);
 
   return json(404, { error: "Not found." });

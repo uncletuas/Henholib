@@ -372,6 +372,66 @@ module.exports = [
      created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
    )`,
   `CREATE INDEX IF NOT EXISTS payments_user_idx ON payments (user_id, product)`,
+  // ── Team onboarding portal (/onboarding) ─────────────────────────────
+  // One row per team member, created when they first reach the NDA stage. The
+  // account itself is the existing `users` row, because the spec is explicit
+  // that this becomes their permanent Loopital account rather than a throwaway
+  // onboarding session.
+  //
+  // The three stage flags are the gate. They are checked server-side on every
+  // request, not just in the UI, so the sequence cannot be skipped by calling
+  // the API directly.
+  `CREATE TABLE IF NOT EXISTS onboarding_profiles (
+     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     user_id       UUID NOT NULL UNIQUE REFERENCES users (id) ON DELETE CASCADE,
+     nda_signed    BOOLEAN NOT NULL DEFAULT false,
+     nda_signed_at TIMESTAMPTZ,
+     form_complete BOOLEAN NOT NULL DEFAULT false,
+     form_done_at  TIMESTAMPTZ,
+     -- Where they left off, so a returning member resumes at the right step
+     -- rather than at the beginning. 1-indexed to match what the UI shows.
+     step          INTEGER NOT NULL DEFAULT 1,
+     -- Every answer, including partial ones. Written on each step transition,
+     -- which is what makes "close the browser, come back on another device"
+     -- work: the answers live here, not in that browser's local storage.
+     answers       JSONB NOT NULL DEFAULT '{}'::jsonb,
+     created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+     updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS onboarding_profiles_user_idx ON onboarding_profiles (user_id)`,
+
+  // The signed agreement, and the evidence that it was signed.
+  //
+  // The PDF is stored here as bytes rather than in S3 on purpose: the hub has
+  // no bucket and no AWS credentials configured, so an S3 write would fail at
+  // the exact moment a signature is captured and there would be nothing to
+  // show for it. These are a few hundred kilobytes each and there will be tens
+  // of them, not millions.
+  //
+  // Nothing updates this row. Clause 11.7 of the agreement gives an electronic
+  // signature the force of a handwritten one, and a signed agreement that can
+  // be edited afterwards is worth less than one that cannot. A correction means
+  // a new row; superseded_by points at it.
+  `CREATE TABLE IF NOT EXISTS onboarding_ndas (
+     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     user_id        UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+     full_name      TEXT NOT NULL,
+     role_title     TEXT,
+     email          TEXT NOT NULL,
+     -- drawn | typed | uploaded, per the three capture methods in the spec.
+     method         TEXT NOT NULL CHECK (method IN ('drawn','typed','uploaded')),
+     signature_png  BYTEA,
+     pdf            BYTEA,
+     -- Audit trail. The signing time is the server's clock, never the
+     -- browser's, because the browser's is whatever the signer set it to.
+     signed_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+     ip             TEXT,
+     user_agent     TEXT,
+     superseded_by  UUID REFERENCES onboarding_ndas (id),
+     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS onboarding_ndas_user_idx ON onboarding_ndas (user_id, signed_at DESC)`,
+
   // Widen the subscriptions product constraint for existing DBs (fresh ones get
   // it from CREATE above). Recreate the check idempotently.
   `ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS subscriptions_product_check`,

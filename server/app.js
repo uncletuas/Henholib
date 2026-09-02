@@ -29,6 +29,7 @@
 // contract the RDS Data API helper had, so no call site below changes.
 const { sql } = require("./db");
 const submissions = require("./submissions");
+const onboarding = require("./onboarding");
 const {
   S3Client,
   PutObjectCommand,
@@ -2144,6 +2145,22 @@ exports.handler = async (event) => {
       return await submissions.handleSubmissions(query);
     if (method === "POST" && route === "/waitlist") return await joinWaitlist(body);
     if (method === "POST" && route === "/contribute") return await handleContribute(body);
+
+    // ── Team onboarding portal ────────────────────────────────────────
+    // Every route below is authenticated as the team member themselves. The
+    // stage gates live in server/onboarding.js and are re-checked there on each
+    // call, so reaching the form endpoint without a signed NDA fails at the
+    // API, not just in the UI.
+    if (route.startsWith("/onboarding/")) {
+      const user = await authenticate(headers);
+      if (!user) return json(401, { error: "Please sign in to continue." });
+      if (method === "GET" && route === "/onboarding/state") return await onboarding.getState(user);
+      if (method === "GET" && route === "/onboarding/document") return onboarding.getDocument();
+      if (method === "POST" && route === "/onboarding/nda") return await onboarding.signNda(user, body, headers);
+      if (method === "GET" && route === "/onboarding/nda.pdf") return await onboarding.ownNda(user);
+      if (method === "POST" && route === "/onboarding/form/save") return await onboarding.saveForm(user, body);
+      if (method === "POST" && route === "/onboarding/form/submit") return await onboarding.submitForm(user, body);
+    }
     if (method === "POST" && route === "/contact") return await handleContact(body);
     if (method === "POST" && route === "/demo-request") return await handleDemoRequest(body);
     if (method === "GET" && route === "/auth/me") return await me(headers);

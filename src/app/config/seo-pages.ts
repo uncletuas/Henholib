@@ -242,6 +242,13 @@ export const pageSeo: Record<string, PageSeo> = {
       ]),
     ],
   },
+  // The team onboarding portal. Internal, behind a login, and holding NDAs and
+  // payroll data — indexing it would put a door to that in search results.
+  "/onboarding": {
+    title: "Team Onboarding",
+    description: "Loopital team onboarding. Sign in to continue.",
+    noindex: true,
+  },
   // Paths that hold no content: the payment return leg, and the codename URLs
   // kept alive for old links and the printed company profile, which redirect to
   // the real product pages.

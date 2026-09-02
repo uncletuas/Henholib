@@ -12,6 +12,7 @@ import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { ContributePage } from "./pages/ContributePage";
 import { RefundPolicyPage } from "./pages/RefundPolicyPage";
+import { OnboardingPage } from "./pages/OnboardingPage";
 import { PalPricingPage } from "./pages/products/PalPricingPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
@@ -54,6 +55,9 @@ export const router = createBrowserRouter([
       { path: "privacy", Component: PrivacyPage },
       { path: "terms", Component: TermsPage },
       { path: "refund-policy", Component: RefundPolicyPage },
+      // Internal. Noindex in seo-pages: a team onboarding portal in search
+      // results is an invitation to probe it.
+      { path: "onboarding", Component: OnboardingPage },
       { path: "tuamene.bestgod", Component: FounderPage },
       { path: "*", Component: NotFoundPage },
     ],
