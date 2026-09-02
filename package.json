@@ -4,13 +4,14 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "node scripts/check-pricing-sync.mjs && vite build && node scripts/prerender.mjs",
+    "build": "npm run typecheck && node scripts/check-pricing-sync.mjs && vite build && node scripts/prerender.mjs",
     "dev": "vite",
-    "build:zina": "vite build --config vite.zina.config.ts",
+    "build:zina": "tsc --noEmit -p zina/tsconfig.json && vite build --config vite.zina.config.ts",
     "dev:zina": "vite --config vite.zina.config.ts",
     "prerender": "node scripts/prerender.mjs",
     "deploy": "bash scripts/deploy-www.sh",
-    "check:pricing": "node scripts/check-pricing-sync.mjs"
+    "check:pricing": "node scripts/check-pricing-sync.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p zina/tsconfig.json"
   },
   "dependencies": {
     "@aws-sdk/client-acm": "^3.1073.0",
@@ -77,8 +78,10 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
+    "typescript": "^5.6.3",
     "vite": "6.3.5"
   },
   "peerDependencies": {

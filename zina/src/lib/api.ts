@@ -30,6 +30,34 @@ export function storeToken(token: string | null) {
   }
 }
 
+/**
+ * Fetch a file the API will only hand over with a bearer token.
+ *
+ * `request` cannot do this: it calls res.json() on every response, so a PDF or a
+ * CSV comes back as a parse failure. An <a href> cannot do it either, because an
+ * anchor carries no Authorization header — and these are signed agreements and
+ * payroll exports, so being reachable without one is the whole problem.
+ */
+export async function downloadFile(path: string, filename: string): Promise<void> {
+  const token = storedToken();
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (res.status === 401) throw new UnauthorizedError("Please sign in again.");
+  if (res.status === 404) throw new Error("Nothing on file for that person.");
+  if (!res.ok) throw new Error(`Download failed (${res.status}).`);
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 /** Thrown when the session is gone, so the shell can send the user to sign in. */
 export class UnauthorizedError extends Error {}
 
@@ -77,7 +105,12 @@ export type Permission =
   | "system:read" | "system:manage"
   | "analytics:read"
   | "staff:manage"
-  | "audit:read";
+  | "audit:read"
+  // Mirrors PERMISSIONS in server/zina.js. A permission the server grants but
+  // this union does not name is a nav item that never renders and a page nobody
+  // can reach — which is exactly how the onboarding screen shipped blank.
+  | "onboarding:read"
+  | "onboarding:sensitive";
 
 export interface Staff {
   id: string;

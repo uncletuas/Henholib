@@ -83,7 +83,7 @@ export function HomePage() {
             transition={{ duration: 0.85, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
             className="flex justify-center"
           >
-            <HenholibShowcase scale={0.78} />
+            <HenholibShowcase width={234} />
           </motion.div>
         </div>
       </section>

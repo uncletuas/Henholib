@@ -309,7 +309,9 @@ export function ContributePage() {
     setFailure(null);
     try {
       await contributeApi.send({
-        path,
+        // Narrowed, not asserted: the submit button only exists after a fork is
+        // chosen, but the compiler cannot see that from here.
+        path: path as "individual" | "organization",
         name: String(answers.name ?? ""),
         email: String(answers.email ?? ""),
         phone: String(answers.phone ?? ""),

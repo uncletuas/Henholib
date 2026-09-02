@@ -440,6 +440,29 @@ export function OnboardingPage() {
 
   // NDA stage
   const [scrolledToEnd, setScrolledToEnd] = useState(false);
+  const docRef = useRef<HTMLDivElement | null>(null);
+
+  /**
+   * Has the reader reached the end of the agreement?
+   *
+   * The first version only listened for scroll, which meant the consent boxes
+   * stayed disabled forever in the two cases where no scroll event ever fires:
+   * a viewport tall enough to show the whole document, and a document that
+   * failed to load and left a short "Loading…" box. Both left someone staring
+   * at a checkbox that would not tick.
+   *
+   * So: if there is nothing to scroll, there is nothing left to read. The
+   * tolerance is generous because sub-pixel rounding on zoomed and
+   * high-density displays routinely leaves scrollTop a point or two short of
+   * the arithmetic bottom.
+   */
+  const checkRead = useCallback(() => {
+    const el = docRef.current;
+    if (!el) return;
+    const nothingToScroll = el.scrollHeight <= el.clientHeight + 4;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 48;
+    if (nothingToScroll || atBottom) setScrolledToEnd(true);
+  }, []);
   const [readConfirmed, setReadConfirmed] = useState(false);
   const [legalConsent, setLegalConsent] = useState(false);
   const [legalName, setLegalName] = useState("");
@@ -470,6 +493,15 @@ export function OnboardingPage() {
     if (!token || state?.stage !== "nda" || doc) return;
     onboardingApi.document(token).then(setDoc).catch((e) => setError((e as Error).message));
   }, [token, state?.stage, doc]);
+
+  // Re-measure after the agreement paints. Without this the gate is decided
+  // against an empty box and never revisited.
+  useEffect(() => {
+    if (!doc) return;
+    const t = setTimeout(checkRead, 60);
+    window.addEventListener("resize", checkRead);
+    return () => { clearTimeout(t); window.removeEventListener("resize", checkRead); };
+  }, [doc, checkRead]);
 
   // ── Stage: account ────────────────────────────────────────────────────
   if (!user || !token) {
@@ -592,10 +624,8 @@ export function OnboardingPage() {
         </p>
 
         <div
-          onScroll={(e) => {
-            const el = e.currentTarget;
-            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) setScrolledToEnd(true);
-          }}
+          ref={docRef}
+          onScroll={checkRead}
           style={{
             height: 420, overflowY: "auto", background: "#fff",
             border: `1px solid ${LINE}`, padding: "22px 20px", marginBottom: 12,

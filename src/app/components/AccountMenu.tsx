@@ -78,10 +78,15 @@ export function AccountMenu() {
           <div className="p-3 pt-2">
             <p style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em", color: colors.textTertiary, marginBottom: "8px" }}>YOUR APPS</p>
             <div className="grid grid-cols-3 gap-1.5">
-              {apps.map((a) => a.onClick ? (
+              {/*
+                Every remaining app launches through SSO rather than a plain
+                link. The Link branch that used to sit here was for Swift, Modus
+                and Zina; it became unreachable when those left this menu, and
+                only a non-null assertion on a property that no longer exists
+                was keeping it compiling.
+              */}
+              {apps.map((a) => (
                 <button key={a.name} onClick={a.onClick} className="relative flex flex-col items-center gap-1.5 p-2.5  transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</button>
-              ) : (
-                <Link key={a.name} to={a.to!} onClick={() => setOpen(false)} className="relative flex flex-col items-center gap-1.5 p-2.5  transition-colors hover:bg-[#F5F5F7]">{tileInner(a)}</Link>
               ))}
             </div>
           </div>

@@ -1,10 +1,11 @@
 import { useState } from "react";
 
-import { api, API_BASE_URL, type OnboardingMember } from "../lib/api";
-import { useLoad, useSession } from "../lib/session";
+import { api, downloadFile, type OnboardingMember } from "../lib/api";
+import { useLoad } from "../lib/session";
 import { dateTime } from "../lib/format";
 import {
   Badge,
+  Button,
   Empty,
   ErrorNote,
   Loading,
@@ -20,34 +21,18 @@ import { ONBOARDING_LABELS, SENSITIVE_FIELDS } from "../lib/onboarding-fields";
 /**
  * Who has actually joined, and how far they got.
  *
- * The three status columns are the spec's, in order, because that order is the
- * gate: an account with no NDA cannot have a form, and a form cannot be complete
- * before the NDA is signed. Anyone stalled is stalled at a nameable place.
+ * The three status columns are the spec's, in the order the gate enforces them —
+ * account, NDA, form — so anyone stalled is stalled at a nameable place.
  *
- * Payroll and identification are withheld by the API, not hidden by this page.
+ * Payroll and identification are withheld by the API, not hidden here.
  * `sensitiveHidden` on the response is the server saying it dropped those fields
- * for this caller — finance and the superadmin get them, everyone else gets the
- * notice. A column blanked in the browser while the API still returns it is
+ * for this caller; the page reports that rather than rendering empty rows, so an
+ * operator knows the data exists and that they are not the one who may see it.
+ * A column blanked in the browser while the endpoint still returns it would be
  * styling, not access control.
  */
 
-/** Downloads that need an Authorization header, which an <a href> cannot carry. */
-async function authedDownload(path: string, filename: string, token: string | null) {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) throw new Error(res.status === 404 ? "Nothing on file for that person." : "Download failed.");
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 function MemberDetail({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const { token } = useSession();
   const { data, error, loading } = useLoad(() => api.onboardingMember(userId), [userId]);
   const [dlError, setDlError] = useState<string | null>(null);
 
@@ -56,71 +41,63 @@ function MemberDetail({ userId, onClose }: { userId: string; onClose: () => void
   if (!data) return null;
 
   const entries = Object.entries(data.answers).filter(
-    ([, v]) => v !== "" && v !== null && v !== undefined && !(Array.isArray(v) && !v.length),
+    ([, v]) => v !== "" && v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0),
   );
+
+  const grab = () =>
+    downloadFile(
+      `/zina/onboarding/${userId}/nda.pdf`,
+      `Loopital-NDA-${(data.name || "member").replace(/\s+/g, "-")}.pdf`,
+    ).catch((e: unknown) => setDlError((e as Error).message));
 
   return (
     <Panel
       title={data.name || data.email}
-      actions={
-        <button type="button" onClick={onClose} style={{ fontSize: 13, cursor: "pointer" }}>
-          Close
-        </button>
-      }
+      description={data.email}
+      action={<Button onClick={onClose}>Close</Button>}
     >
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
-        <Badge tone={data.ndaSigned ? "success" : "muted"}>
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Badge tone={data.ndaSigned ? "success" : "warning"}>
           {data.ndaSigned ? `NDA signed ${dateTime(data.ndaSignedAt)}` : "NDA not signed"}
         </Badge>
-        <Badge tone={data.formComplete ? "success" : "muted"}>
+        <Badge tone={data.formComplete ? "success" : "warning"}>
           {data.formComplete ? "Form complete" : `Form at step ${data.step} of 9`}
         </Badge>
       </div>
 
       {data.nda && (
-        <div style={{ marginBottom: 18, fontSize: 13, lineHeight: 1.7, opacity: 0.85 }}>
-          <strong>Signature record.</strong> Signed as “{data.nda.fullName}”
+        <div className="mb-5 text-[13px] leading-relaxed text-[color:var(--muted-foreground)]">
+          Signed as “{data.nda.fullName}”
           {data.nda.role ? `, ${data.nda.role}` : ""}, by {data.nda.method} signature, at{" "}
           {dateTime(data.nda.signedAt)}.
           {data.nda.ip ? ` From ${data.nda.ip}.` : ""}
-          <div style={{ marginTop: 10 }}>
-            <button
-              type="button"
-              style={{ fontSize: 13, cursor: "pointer" }}
-              onClick={() =>
-                authedDownload(
-                  `/zina/onboarding/${userId}/nda.pdf`,
-                  `Loopital-NDA-${(data.name || "member").replace(/\s+/g, "-")}.pdf`,
-                  token,
-                ).catch((e) => setDlError((e as Error).message))
-              }
-            >
-              Download signed NDA
-            </button>
+          <div className="mt-3">
+            <Button onClick={grab}>Download signed NDA</Button>
           </div>
-          {dlError && <ErrorNote message={dlError} />}
         </div>
       )}
 
+      {dlError && <ErrorNote message={dlError} />}
+
       {data.sensitiveHidden && (
-        <div style={{ marginBottom: 16, fontSize: 13, lineHeight: 1.65, opacity: 0.75 }}>
-          Payroll and identification details are recorded for this person but are
-          not shown to your role. The Finance &amp; Administration Lead and the
-          CEO can see them.
+        <div className="mb-4 text-[13px] leading-relaxed text-[color:var(--muted-foreground)]">
+          Payroll and identification details are on file for this person but are not
+          shown to your role. The Finance &amp; Administration Lead and the CEO can
+          see them.
         </div>
       )}
 
       {entries.length === 0 ? (
-        <Empty>Nothing filled in yet.</Empty>
+        <Empty title="Nothing filled in yet" description="They have not started the form." />
       ) : (
         <TableWrap>
           <tbody>
             {entries.map(([k, v]) => (
               <tr key={k}>
-                <Th style={{ width: 240, textAlign: "left" }}>
+                <Th>
                   {ONBOARDING_LABELS[k] || k}
                   {SENSITIVE_FIELDS.includes(k) && (
-                    <span style={{ marginLeft: 6, fontSize: 11, opacity: 0.6 }}>restricted</span>
+                    <span className="ml-1.5 text-[11px] opacity-60">restricted</span>
                   )}
                 </Th>
                 <Td>{Array.isArray(v) ? v.join(", ") : String(v)}</Td>
@@ -134,7 +111,6 @@ function MemberDetail({ userId, onClose }: { userId: string; onClose: () => void
 }
 
 export function OnboardingPage() {
-  const { token } = useSession();
   const { data, error, loading, reload } = useLoad(() => api.onboarding(), []);
   const [open, setOpen] = useState<string | null>(null);
   const [dlError, setDlError] = useState<string | null>(null);
@@ -143,78 +119,70 @@ export function OnboardingPage() {
   const signed = members.filter((m) => m.ndaSigned).length;
   const complete = members.filter((m) => m.formComplete).length;
 
+  const exportCsv = () =>
+    downloadFile("/zina/onboarding/export", "loopital-onboarding.csv").catch((e: unknown) =>
+      setDlError((e as Error).message),
+    );
+
   return (
     <>
       <PageHeader
         title="Team onboarding"
-        subtitle="Accounts created, agreements signed, and details submitted."
-        actions={
-          <button
-            type="button"
-            style={{ fontSize: 13, cursor: "pointer" }}
-            onClick={() =>
-              authedDownload("/zina/onboarding/export", "loopital-onboarding.csv", token).catch((e) =>
-                setDlError((e as Error).message),
-              )
-            }
-          >
-            Export CSV
-          </button>
-        }
+        description="Accounts created, agreements signed, and details submitted."
+        action={<Button onClick={exportCsv}>Export CSV</Button>}
       />
 
       {dlError && <ErrorNote message={dlError} />}
       {error && <ErrorNote message={error} onRetry={reload} />}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
-        <Stat label="Accounts" value={String(members.length)} />
-        <Stat label="NDA signed" value={`${signed} of ${members.length}`} />
-        <Stat label="Onboarding complete" value={`${complete} of ${members.length}`} />
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <Stat label="Accounts" value={members.length} />
+        <Stat label="NDA signed" value={`${signed} of ${members.length}`} tone={signed === members.length && members.length > 0 ? "success" : "neutral"} />
+        <Stat label="Onboarding complete" value={`${complete} of ${members.length}`} tone={complete === members.length && members.length > 0 ? "success" : "neutral"} />
       </div>
 
       {loading ? (
         <Loading />
       ) : members.length === 0 ? (
-        <Empty>Nobody has started onboarding yet.</Empty>
+        <Empty
+          title="Nobody has started onboarding yet"
+          description="Rows appear here as soon as someone creates an account at loopital.com/onboarding."
+        />
       ) : (
         <TableWrap>
           <thead>
             <tr>
               <Th>Name</Th>
               <Th>Role</Th>
-              <Th>Account</Th>
+              <Th>Account created</Th>
               <Th>NDA</Th>
               <Th>Form</Th>
-              <Th />
+              <Th align="right">Record</Th>
             </tr>
           </thead>
           <tbody>
             {members.map((m) => (
               <tr key={m.userId}>
                 <Td>
-                  <div style={{ fontWeight: 600 }}>{m.name}</div>
-                  <div style={{ fontSize: 12, opacity: 0.7 }}>{m.email}</div>
+                  <div className="font-medium">{m.name}</div>
+                  <div className="text-[12px] text-[color:var(--muted-foreground)]">{m.email}</div>
                 </Td>
                 <Td>{m.role || "—"}</Td>
                 <Td>{dateTime(m.accountCreated)}</Td>
                 <Td>
-                  <Badge tone={m.ndaSigned ? "success" : "muted"}>
+                  <Badge tone={m.ndaSigned ? "success" : "warning"}>
                     {m.ndaSigned ? "Signed" : "Not signed"}
                   </Badge>
                 </Td>
                 <Td>
-                  <Badge tone={m.formComplete ? "success" : "muted"}>
+                  <Badge tone={m.formComplete ? "success" : "warning"}>
                     {m.formComplete ? "Complete" : `Step ${m.step} of 9`}
                   </Badge>
                 </Td>
-                <Td>
-                  <button
-                    type="button"
-                    style={{ fontSize: 13, cursor: "pointer" }}
-                    onClick={() => setOpen(open === m.userId ? null : m.userId)}
-                  >
+                <Td align="right">
+                  <Button onClick={() => setOpen(open === m.userId ? null : m.userId)}>
                     {open === m.userId ? "Hide" : "View"}
-                  </button>
+                  </Button>
                 </Td>
               </tr>
             ))}
@@ -223,7 +191,7 @@ export function OnboardingPage() {
       )}
 
       {open && (
-        <div style={{ marginTop: 20 }}>
+        <div className="mt-5">
           <MemberDetail userId={open} onClose={() => setOpen(null)} />
         </div>
       )}
