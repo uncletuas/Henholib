@@ -1,14 +1,12 @@
-# Onboarding assets
+# Onboarding public assets
 
-## `Loopital-Team-Handbook.pdf` — required, not yet here
+Deliberately empty.
 
-The completion screen links to `/onboarding/Loopital-Team-Handbook.pdf`. Drop the
-handbook PDF in this folder under exactly that name and the download works; until
-then that link 404s.
+The handbook is **not** here. Anything in `public/` ships to CloudFront and is
+downloadable by anyone who guesses the URL, and the Loopital Handbook carries
+the salary and equity policy, the real SWOT, and the funding position. It lives
+in `server/assets/` and is served by `GET /onboarding/handbook.pdf`, which
+requires a signed-in team member whose onboarding form is complete.
 
-It is not generated. The handbook is a 42-page designed document written by the
-CEO, and a placeholder standing in for it on the screen that says "read this
-properly this week" would be worse than a missing file.
-
-Anything in this folder ships inside `dist/` and is therefore covered by the
-deploy, the same as `public/media`.
+Section 9 of the portal spec: "Private file storage with signed, expiring URLs.
+Files must never be publicly addressable."

@@ -22,6 +22,8 @@
  * few hundred kilobytes per row, tens of rows.
  */
 
+const fs = require("fs");
+const path = require("path");
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const { sql } = require("./db");
 const notify = require("./notify");
@@ -513,6 +515,35 @@ async function ownNda(user) {
   return pdfResponse(toBuffer(rows[0].pdf), "Loopital-NDA-Signed.pdf");
 }
 
+/**
+ * The Loopital Handbook, gated on having finished onboarding.
+ *
+ * Served from here rather than from public/ because public/ ships to CloudFront,
+ * where the only thing standing between this file and the open internet is
+ * nobody guessing the URL. The handbook carries the salary and equity policy,
+ * the real SWOT, and the funding position. Section 9 of the spec says files must
+ * never be publicly addressable, and the whole point of the last stage is that
+ * you receive it once your details are in.
+ */
+const HANDBOOK_PATH = path.join(__dirname, "assets", "loopital-team-handbook.pdf");
+
+async function handbook(user) {
+  const p = await loadProfile(user.sub);
+  if (!p.form_complete) {
+    return json(403, { error: "Finish your onboarding details first." });
+  }
+  let buf;
+  try {
+    buf = fs.readFileSync(HANDBOOK_PATH);
+  } catch {
+    // Say what is actually wrong. "Download failed" would send someone chasing
+    // their own connection for a file that is missing from the deploy.
+    console.error("onboarding: handbook missing at", HANDBOOK_PATH);
+    return json(503, { error: "The handbook is not available right now. Please tell info@loopital.com." });
+  }
+  return pdfResponse(buf, "The-Loopital-Handbook.pdf");
+}
+
 /** pg returns bytea as a Buffer; the Data API path returns base64. Accept both. */
 function toBuffer(v) {
   if (Buffer.isBuffer(v)) return v;
@@ -677,5 +708,6 @@ module.exports = {
   saveForm,
   submitForm,
   ownNda,
+  handbook,
   buildNdaPdf,
 };

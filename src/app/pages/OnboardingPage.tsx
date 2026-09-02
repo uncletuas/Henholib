@@ -867,9 +867,13 @@ export function OnboardingPage() {
         </p>
 
         <div className="flex flex-wrap gap-3">
-          <a href="/onboarding/Loopital-Team-Handbook.pdf" download style={{ ...btn(), textDecoration: "none" }}>
+          <button
+            type="button"
+            onClick={() => download(onboardingApi.handbookUrl(), "The-Loopital-Handbook.pdf")}
+            style={btn()}
+          >
             <Download size={16} /> Download the Loopital Handbook
-          </a>
+          </button>
           <button type="button" onClick={() => download(onboardingApi.ndaPdfUrl(), "Loopital-NDA-Signed.pdf")} style={btn("ghost")}>
             <Download size={16} /> Download my signed NDA
           </button>

@@ -215,9 +215,11 @@ export const onboardingApi = {
       body: JSON.stringify({ answers }),
     }),
 
-  /** Absolute URL for the signed PDF. Fetched with the token, not linked to
-   *  directly, because an <a href> cannot carry an Authorization header. */
+  /** Absolute URLs for the two gated PDFs. Both are fetched with the token
+   *  rather than linked to directly, because an <a href> cannot carry an
+   *  Authorization header — and neither file should be reachable without one. */
   ndaPdfUrl: () => `${API_BASE_URL}/onboarding/nda.pdf`,
+  handbookUrl: () => `${API_BASE_URL}/onboarding/handbook.pdf`,
 };
 
 export const accountApi = {

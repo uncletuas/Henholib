@@ -2158,6 +2158,7 @@ exports.handler = async (event) => {
       if (method === "GET" && route === "/onboarding/document") return onboarding.getDocument();
       if (method === "POST" && route === "/onboarding/nda") return await onboarding.signNda(user, body, headers);
       if (method === "GET" && route === "/onboarding/nda.pdf") return await onboarding.ownNda(user);
+      if (method === "GET" && route === "/onboarding/handbook.pdf") return await onboarding.handbook(user);
       if (method === "POST" && route === "/onboarding/form/save") return await onboarding.saveForm(user, body);
       if (method === "POST" && route === "/onboarding/form/submit") return await onboarding.submitForm(user, body);
     }
