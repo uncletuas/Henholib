@@ -108,6 +108,40 @@ export interface AppSummaryCard {
   summaryError: string | null;
 }
 
+export interface OnboardingMember {
+  userId: string;
+  name: string;
+  email: string;
+  role: string | null;
+  accountCreated: string;
+  ndaSigned: boolean;
+  ndaSignedAt: string | null;
+  formComplete: boolean;
+  formDoneAt: string | null;
+  step: number;
+}
+
+export interface OnboardingDetail {
+  name: string;
+  email: string;
+  ndaSigned: boolean;
+  ndaSignedAt: string | null;
+  formComplete: boolean;
+  formDoneAt: string | null;
+  step: number;
+  answers: Record<string, unknown>;
+  sensitiveHidden: boolean;
+  nda: {
+    id: string;
+    fullName: string;
+    role: string | null;
+    method: string;
+    signedAt: string;
+    ip: string | null;
+    userAgent: string | null;
+  } | null;
+}
+
 export interface Payment {
   reference: string;
   product: string;
@@ -452,6 +486,15 @@ export const api = {
       summary: { product: string; status: string; count: number; totalMinor: number }[];
     }>(`/zina/payments${query(params)}`),
   billingCatalog: () => get<BillingCatalog>("/zina/billing/catalog"),
+
+  // ── Team onboarding ─────────────────────────────────────────────────
+  // `sensitiveHidden` on a detail response is the server telling us it withheld
+  // the payroll and identification fields for this caller. The UI reports that
+  // rather than rendering empty boxes, so an operator knows the data exists and
+  // that they are not the one who may see it.
+  onboarding: () => get<{ members: OnboardingMember[] }>("/zina/onboarding"),
+  onboardingMember: (userId: string) =>
+    get<OnboardingDetail>(`/zina/onboarding/${encodeURIComponent(userId)}`),
 
   notifications: (params: { status?: string; appId?: string; q?: string; limit?: number } = {}) =>
     get<{

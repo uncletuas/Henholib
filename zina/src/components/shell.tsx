@@ -5,6 +5,7 @@ import {
   Activity,
   BarChart3,
   CreditCard,
+  UserCheck,
   Database,
   FileClock,
   Grid2x2,
@@ -54,6 +55,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
     items: [
       { to: "/users", label: "Users", icon: Users, permission: "user:read" },
       { to: "/payments", label: "Payments", icon: CreditCard, permission: "billing:read" },
+      { to: "/onboarding", label: "Onboarding", icon: UserCheck, permission: "onboarding:read" },
       { to: "/support", label: "Support", icon: LifeBuoy, permission: "support:read" },
       { to: "/notifications", label: "Notifications", icon: Mail, permission: "notify:read" },
     ],

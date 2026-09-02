@@ -11,6 +11,7 @@ import { AppDetailPage } from "./pages/app-detail";
 import { UsersPage } from "./pages/users";
 import { UserDetailPage } from "./pages/user-detail";
 import { PaymentsPage } from "./pages/payments";
+import { OnboardingPage } from "./pages/onboarding";
 import { NotificationsPage } from "./pages/notifications";
 import { SupportPage, TicketPage } from "./pages/support";
 import { KeysPage } from "./pages/keys";
@@ -50,6 +51,7 @@ function Routed() {
         <Route path="/users" element={<UsersPage />} />
         <Route path="/users/:id" element={<UserDetailPage />} />
         <Route path="/payments" element={<PaymentsPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/support" element={<SupportPage />} />
         <Route path="/support/:id" element={<TicketPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
