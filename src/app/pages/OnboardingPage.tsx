@@ -308,6 +308,21 @@ function SignaturePad({
   );
 }
 
+/**
+ * Has this field actually been answered?
+ *
+ * Written out rather than done inline with String(): a consent checkbox holds a
+ * boolean, and String(false) is "false", which is truthy. The inline version
+ * waved an unticked box past the client and left the server to refuse it, which
+ * is a dead end for whoever is filling the form.
+ */
+function isFilled(v: unknown): boolean {
+  if (v === true) return true;
+  if (v === false || v === null || v === undefined) return false;
+  if (Array.isArray(v)) return v.length > 0;
+  return String(v).trim().length > 0;
+}
+
 /** One form field. Shared by every step. */
 function FieldView({
   field,
@@ -347,6 +362,26 @@ function FieldView({
           onChange={(e) => onChange(e.target.value)}
           style={{ ...input, marginTop: field.help ? 0 : 8, resize: "vertical" }}
         />
+      )}
+
+      {field.kind === "consent" && (
+        <label
+          className="flex cursor-pointer gap-3"
+          style={{
+            minHeight: 44, padding: "12px 14px", alignItems: "flex-start",
+            border: `1px solid ${value === true ? CORAL : LINE}`,
+            background: value === true ? "rgba(255,122,89,0.06)" : "#fff",
+            marginTop: field.help ? 0 : 8,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={value === true}
+            onChange={(e) => onChange(e.target.checked)}
+            style={{ accentColor: CORAL, width: 18, height: 18, marginTop: 2, flexShrink: 0 }}
+          />
+          <span style={{ fontSize: "15px", color: INK, lineHeight: 1.5 }}>I agree</span>
+        </label>
       )}
 
       {field.kind === "single" && (
@@ -473,6 +508,8 @@ export function OnboardingPage() {
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const [stepIndex, setStepIndex] = useState(0);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  // Set the moment a person edits anything, so autosave never fires on load.
+  const [dirty, setDirty] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!token) return;
@@ -493,6 +530,37 @@ export function OnboardingPage() {
     if (!token || state?.stage !== "nda" || doc) return;
     onboardingApi.document(token).then(setDoc).catch((e) => setError((e as Error).message));
   }, [token, state?.stage, doc]);
+
+  /**
+   * Auto-save, debounced.
+   *
+   * The spec asks for a save on every field blur as well as on step changes.
+   * Step changes alone are not enough: someone who fills in step five and then
+   * closes the tab loses that step, and "close it and come back" is the thing
+   * this portal explicitly promises. Debounced rather than per-keystroke so a
+   * long text answer is one write, not sixty.
+   *
+   * `dirty` guards the first pass, so simply loading the page does not write
+   * back the answers it just read.
+   */
+  useEffect(() => {
+    if (state?.stage !== "form" || !token || !dirty) return;
+    const t = setTimeout(() => {
+      onboardingApi
+        .saveForm(token, stepIndex + 1, answers)
+        .then((r) => setSavedAt(r.savedAt))
+        .catch(() => { /* a failed autosave must not interrupt typing */ });
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [answers, stepIndex, state?.stage, token, dirty]);
+
+  // The "Saved" tick means "just saved", so it has to expire. A permanent tick
+  // says nothing about whether the last thing typed actually reached the server.
+  useEffect(() => {
+    if (!savedAt) return;
+    const t = setTimeout(() => setSavedAt(null), 2600);
+    return () => clearTimeout(t);
+  }, [savedAt]);
 
   // Re-measure after the agreement paints. Without this the gate is decided
   // against an empty box and never revisited.
@@ -735,7 +803,7 @@ export function OnboardingPage() {
     const visible = step.fields.filter(
       (f) => !f.showIf || f.showIf.anyOf.includes(String(answers[f.showIf.field] ?? "")),
     );
-    const missing = visible.filter((f) => f.required && !String(answers[f.name] ?? "").trim());
+    const missing = visible.filter((f) => f.required && !isFilled(answers[f.name]));
 
     const persist = async (nextStep: number) => {
       try {
@@ -798,7 +866,7 @@ export function OnboardingPage() {
           <div className="grid gap-5">
             {visible.map((f) => (
               <FieldView key={f.name} field={f} value={answers[f.name]}
-                onChange={(v) => setAnswers((a) => ({ ...a, [f.name]: v }))} />
+                onChange={(v) => { setDirty(true); setAnswers((a) => ({ ...a, [f.name]: v })); }} />
             ))}
           </div>
 

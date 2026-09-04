@@ -23,7 +23,12 @@ export type FieldKind =
   | "date"
   | "textarea"
   | "single"
-  | "multi";
+  | "multi"
+  // A single tick that stores boolean `true`. The acknowledgements were
+  // "single" selects with one option, which stored the string "I agree" while
+  // the server checked for `true` — so the form let you through and the API
+  // refused, with nothing the person could do about it.
+  | "consent";
 
 export interface Field {
   /** Key in the answers object. Stable — the server stores answers by this. */
@@ -183,23 +188,23 @@ export const ONBOARDING_STEPS: Step[] = [
       {
         name: "ackHandbook",
         label: "I understand I am expected to read the Loopital Handbook, and to raise anything in it I disagree with.",
-        kind: "single",
-        options: ["I agree"],
+        kind: "consent",
+        
         required: true,
       },
       {
         name: "ackAccurate",
         label: "The information I have given here is accurate to the best of my knowledge.",
-        kind: "single",
-        options: ["I agree"],
+        kind: "consent",
+        
         required: true,
       },
       {
         name: "ackDataConsent",
         label:
           "I consent to Loopital Limited holding and processing this information for employment and statutory purposes, under the Nigeria Data Protection Act 2023.",
-        kind: "single",
-        options: ["I agree"],
+        kind: "consent",
+        
         required: true,
       },
     ],

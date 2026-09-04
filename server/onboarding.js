@@ -421,6 +421,24 @@ async function saveForm(user, body) {
   return json(200, { ok: true, savedAt: new Date().toISOString() });
 }
 
+/**
+ * Did they agree?
+ *
+ * Accepts the boolean the consent checkbox now sends, and the string "I agree"
+ * that the acknowledgements used to store when they were single-option selects.
+ * The strict `=== true` check that was here rejected every submission the form
+ * could actually produce: the UI let people through and this refused them, with
+ * no way to satisfy it. Being liberal about the shape and strict about the
+ * meaning is the right way round, and it also means anyone who was midway
+ * through with the old value is not stuck.
+ */
+function agreed(v) {
+  if (v === true) return true;
+  if (typeof v !== "string") return false;
+  const t = v.trim().toLowerCase();
+  return t === "i agree" || t === "yes" || t === "true" || t === "agreed";
+}
+
 async function submitForm(user, body) {
   const p = await loadProfile(user.sub);
   if (!p.nda_signed) return json(403, { error: "The agreement has to be signed first." });
@@ -431,7 +449,10 @@ async function submitForm(user, body) {
   // Only the acknowledgements are hard-required. The rest is chased by a human
   // if it is missing, which is cheaper than blocking someone at step 6 over a
   // field they need to go and look up.
-  if (answers.ackHandbook !== true || answers.ackAccurate !== true || answers.ackDataConsent !== true) {
+  const missingAcks = ["ackHandbook", "ackAccurate", "ackDataConsent"].filter(
+    (k) => !agreed(answers[k]),
+  );
+  if (missingAcks.length) {
     return json(400, { error: "Please tick the three acknowledgements to finish." });
   }
 
