@@ -60,7 +60,7 @@ const ROLES = [
   "Chief Executive Officer",
   "Chief Operating Officer",
   "Finance & Administration Lead",
-  "Engineering Lead",
+  "Head of Engineering",
   "Software Engineer",
   "Product Designer",
   "Product Manager",
@@ -71,6 +71,22 @@ const ROLES = [
   "Intern",
   "Other",
 ];
+
+/**
+ * Titles that have been renamed, mapped to what they are called now.
+ *
+ * A role list is not append-only: correcting a title invalidates every page a
+ * person already has open, and the failure lands at the worst possible moment —
+ * they draw a signature, press Sign, and are told to choose a role that is
+ * already chosen. Normalising instead of rejecting closes that window, and it
+ * also means a half-finished form holding the old title comes back with the
+ * right one rather than an empty dropdown.
+ */
+const ROLE_ALIASES = {
+  "Engineering Lead": "Head of Engineering",
+};
+
+const canonicalRole = (v) => ROLE_ALIASES[String(v || "").trim()] || String(v || "").trim();
 
 // ── Profile and gating ───────────────────────────────────────────────────
 
@@ -303,7 +319,7 @@ async function signNda(user, body, headers) {
   if (p.nda_signed) return json(409, { error: "This agreement has already been signed." });
 
   const fullName = String((body && body.fullName) || "").trim();
-  const roleTitle = String((body && body.role) || "").trim();
+  const roleTitle = canonicalRole(body && body.role);
   const method = String((body && body.method) || "").trim();
 
   if (fullName.length < 2) return json(400, { error: "Please give your full legal name." });

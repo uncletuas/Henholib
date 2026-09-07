@@ -67,7 +67,7 @@ export const ROLES = [
   "Chief Executive Officer",
   "Chief Operating Officer",
   "Finance & Administration Lead",
-  "Engineering Lead",
+  "Head of Engineering",
   "Software Engineer",
   "Product Designer",
   "Product Manager",
