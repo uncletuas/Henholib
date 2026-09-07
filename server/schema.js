@@ -431,6 +431,11 @@ module.exports = [
      created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
    )`,
   `CREATE INDEX IF NOT EXISTS onboarding_ndas_user_idx ON onboarding_ndas (user_id, signed_at DESC)`,
+  // Which revision of the agreement this person actually executed. Added with
+  // v1.1; existing rows are v1.0 because that is the only text that existed
+  // when they signed. Without it, answering "who is still on the old terms"
+  // means opening every stored PDF one at a time.
+  `ALTER TABLE onboarding_ndas ADD COLUMN IF NOT EXISTS version TEXT NOT NULL DEFAULT '1.0'`,
 
   // Widen the subscriptions product constraint for existing DBs (fresh ones get
   // it from CREATE above). Recreate the check idempotently.

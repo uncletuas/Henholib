@@ -11,15 +11,23 @@
  * gives the force of a handwritten signature, that is not an acceptable class
  * of bug.
  *
- * Transcribed from Loopital_NDA.pdf (4 pages, Loopital letterhead). The text is
- * unchanged. If the agreement is ever amended, amend it here and the on-screen
- * copy, the generated PDF and the read-confirmation gate all move together.
+ * Transcribed from Loopital_NDA_v1.1.pdf (4 pages, Loopital letterhead), which
+ * amended Clause 10.2 to drop the bond waiver and Clause 11.8 to add Clause 2
+ * to the surviving provisions. Amend the agreement here and the on-screen copy,
+ * the generated PDF and the read-confirmation gate all move together.
+ *
+ * Agreements already signed are untouched by any edit here: those PDFs are
+ * stored as bytes and each one records the version it was executed under.
  */
 
-const NDA_VERSION = "2026-01";
+// The version printed on the document itself, and recorded against every
+// signature. Bump this in the same commit as any change to the text below:
+// a signed agreement whose version does not identify what was signed is
+// worth a great deal less than one that does.
+const NDA_VERSION = "1.1";
 
 const NDA_TITLE = "NON-DISCLOSURE AND CONFIDENTIALITY AGREEMENT";
-const NDA_SUBTITLE = "Loopital Limited · Team Member Agreement";
+const NDA_SUBTITLE = "Loopital Limited · Team Member Agreement · Version 1.1";
 
 const NDA_PREAMBLE = [
   'THIS AGREEMENT is made on the Effective Date stated at signature.',
@@ -117,7 +125,7 @@ const NDA_CLAUSES = [
     heading: "10. REMEDIES",
     text: [
       "10.1 The Recipient acknowledges that any breach of this Agreement may cause irreparable harm to the Company for which monetary damages alone would be an inadequate remedy.",
-      "10.2 Accordingly, the Company shall be entitled to seek injunctive relief and specific performance, in addition to any other remedies available at law or in equity, without the necessity of posting bond or proving actual damages.",
+      "10.2 Accordingly, the Company shall be entitled to seek injunctive relief and specific performance, in addition to any other remedies available at law or in equity, without the necessity of proving actual damages.",
     ],
   },
   {
@@ -130,7 +138,7 @@ const NDA_CLAUSES = [
       "11.5 Amendment. No amendment or variation of this Agreement shall be effective unless made in writing and signed by both Parties.",
       "11.6 No Waiver. Failure or delay by either Party in exercising any right under this Agreement shall not constitute a waiver of that right.",
       "11.7 Electronic Execution. The Parties agree that this Agreement may be executed electronically, and that an electronic signature, including a typed signature, drawn signature, or uploaded signature image applied through the Company's onboarding platform, shall have the same legal force and effect as a handwritten signature. The Parties further agree that an electronically stored copy of this Agreement shall be admissible as evidence of its terms.",
-      "11.8 Survival. Clauses 1, 3, 4, 5, 6, 7, 8, 10, and 11 shall survive the termination of this Agreement.",
+      "11.8 Survival. Clauses 1, 2, 3, 4, 5, 6, 7, 8, 10, and 11 shall survive the termination of this Agreement.",
     ],
   },
   {
@@ -140,6 +148,23 @@ const NDA_CLAUSES = [
       "12.2 The Recipient acknowledges that this Agreement is entered into freely and voluntarily.",
       "IN WITNESS WHEREOF the Parties have executed this Agreement on the date first written above.",
     ],
+  },
+];
+
+/**
+ * What changed, and when. Printed on the last page of the agreement.
+ *
+ * Kept in the document rather than only in git because the person signing is
+ * entitled to see that the terms have moved and how, and because a signed PDF
+ * that carries its own history is self-describing years later when nobody
+ * remembers which revision was current.
+ */
+const NDA_HISTORY = [
+  { version: "v1.0", note: "Initial issue." },
+  {
+    version: "v1.1",
+    note:
+      "Clause 10.2 amended to remove waiver of bond requirement. Clause 11.8 amended to include Clause 2 (Exclusions) among surviving provisions.",
   },
 ];
 
@@ -158,5 +183,6 @@ module.exports = {
   NDA_PREAMBLE,
   NDA_CLAUSES,
   NDA_FOOTER,
+  NDA_HISTORY,
   COMPANY_SIGNATORY,
 };

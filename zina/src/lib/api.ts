@@ -169,6 +169,8 @@ export interface OnboardingDetail {
     fullName: string;
     role: string | null;
     method: string;
+    /** Which revision of the agreement they executed, e.g. "1.1". */
+    version: string;
     signedAt: string;
     ip: string | null;
     userAgent: string | null;

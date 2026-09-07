@@ -34,6 +34,7 @@ const {
   NDA_PREAMBLE,
   NDA_CLAUSES,
   NDA_FOOTER,
+  NDA_HISTORY,
   COMPANY_SIGNATORY,
 } = require("./nda-document");
 
@@ -133,6 +134,7 @@ function getDocument() {
     preamble: NDA_PREAMBLE,
     clauses: NDA_CLAUSES,
     footer: NDA_FOOTER,
+    history: NDA_HISTORY,
     company: COMPANY_SIGNATORY,
   });
 }
@@ -262,8 +264,19 @@ async function buildNdaPdf({ fullName, roleTitle, email, signedAt, signaturePng 
   para(`Date: ${signedAt.toISOString().slice(0, 10)}`, { size: 9.5, gap: 3 });
   para(
     `Executed electronically through the Loopital onboarding platform under Clause 11.7. Agreement version ${NDA_VERSION}. Server timestamp ${signedAt.toISOString()}.`,
-    { size: 7.5, color: MUTED, gap: 0 }
+    { size: 7.5, color: MUTED, gap: 16 }
   );
+
+  // The version history, as the document itself now prints it. A signed copy
+  // that carries its own history explains, years later, exactly which revision
+  // this person agreed to without anyone having to find the source repository.
+  room(40);
+  para("DOCUMENT VERSION HISTORY", { font: bold, size: 8.5, gap: 6 });
+  for (const h of NDA_HISTORY) {
+    room(14);
+    page.drawText(h.version, { x: M, y, size: 8, font: bold, color: INK });
+    para(h.note, { size: 8, color: MUTED, gap: 3, indent: 44 });
+  }
 
   return Buffer.from(await pdf.save());
 }
@@ -328,13 +341,13 @@ async function signNda(user, body, headers) {
 
   const ins = await sql(
     `INSERT INTO onboarding_ndas
-       (user_id, full_name, role_title, email, method, signature_png, pdf, signed_at, ip, user_agent)
-     VALUES (:u::uuid, :n, :r, :e, :m, decode(:sig,'base64'), decode(:pdf,'base64'), :at, :ip, :ua)
+       (user_id, full_name, role_title, email, method, signature_png, pdf, signed_at, ip, user_agent, version)
+     VALUES (:u::uuid, :n, :r, :e, :m, decode(:sig,'base64'), decode(:pdf,'base64'), :at, :ip, :ua, :ver)
      RETURNING id`,
     {
       u: user.sub, n: fullName, r: roleTitle, e: user.email, m: method,
       sig: signaturePng.toString("base64"), pdf: pdf.toString("base64"),
-      at: signedAt.toISOString(), ip, ua,
+      at: signedAt.toISOString(), ip, ua, ver: NDA_VERSION,
     }
   );
 
@@ -635,7 +648,7 @@ async function adminDetail(userId, canSeeSensitive) {
   if (!rows.length) return json(404, { error: "No onboarding record for that person." });
   const r = rows[0];
   const nda = await sql(
-    `SELECT id, full_name, role_title, method, signed_at, ip, user_agent
+    `SELECT id, full_name, role_title, method, signed_at, ip, user_agent, version
        FROM onboarding_ndas WHERE user_id = :u::uuid AND superseded_by IS NULL
       ORDER BY signed_at DESC LIMIT 1`,
     { u: userId }
@@ -656,6 +669,7 @@ async function adminDetail(userId, canSeeSensitive) {
           fullName: nda[0].full_name,
           role: nda[0].role_title,
           method: nda[0].method,
+          version: nda[0].version || "1.0",
           signedAt: nda[0].signed_at,
           ip: nda[0].ip,
           userAgent: nda[0].user_agent,

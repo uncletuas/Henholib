@@ -69,7 +69,8 @@ function MemberDetail({ userId, onClose }: { userId: string; onClose: () => void
         <div className="mb-5 text-[13px] leading-relaxed text-[color:var(--muted-foreground)]">
           Signed as “{data.nda.fullName}”
           {data.nda.role ? `, ${data.nda.role}` : ""}, by {data.nda.method} signature, at{" "}
-          {dateTime(data.nda.signedAt)}.
+          {dateTime(data.nda.signedAt)}, under agreement{" "}
+          <strong>v{data.nda.version}</strong>.
           {data.nda.ip ? ` From ${data.nda.ip}.` : ""}
           <div className="mt-3">
             <Button onClick={grab}>Download signed NDA</Button>
