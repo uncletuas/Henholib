@@ -1,14 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /onboarding
+Disallow: /portal/
+Disallow: /hub/
+Disallow: /api/
 
-# Nothing is Disallow-ed here, and that is on purpose.
-#
-# The redirect paths (/products/swift, /sart34, /stack62, /fms13, /edm73) and
-# the payment return leg used to be blocked. Blocking was the wrong tool: a
-# crawler that cannot fetch a page also cannot read the "noindex" on it, so a
-# Disallow-ed URL that someone links to gets indexed anyway, with no title and
-# no description. Those pages now serve "noindex, follow" instead, which drops
-# them from results properly and still passes link equity to the pages they
-# redirect to.
-
-Sitemap: https://www.loopital.com/sitemap.xml
+Sitemap: https://loopital.com/sitemap.xml

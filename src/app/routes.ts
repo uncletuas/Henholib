@@ -1,64 +1,48 @@
 import { createBrowserRouter, redirect } from "react-router";
 import { RootLayout } from "./layouts/RootLayout";
-import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
-import { ProductsPage } from "./pages/ProductsPage";
-import { PalPage } from "./pages/products/PalPage";
-import { Hms7Page } from "./pages/products/Hms7Page";
-import { HenholibPage } from "./pages/products/HenholibPage";
-import { Edm73Page } from "./pages/products/Edm73Page";
-import { ModusPage } from "./pages/products/ModusPage";
-import { PaymentCallbackPage } from "./pages/PaymentCallbackPage";
 import { ContactPage } from "./pages/ContactPage";
 import { ContributePage } from "./pages/ContributePage";
 import { RefundPolicyPage } from "./pages/RefundPolicyPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
-import { PalPricingPage } from "./pages/products/PalPricingPage";
 import { InsightsPage } from "./pages/InsightsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
 import { FounderPage } from "./pages/FounderPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
+/**
+ * The company pages. The site root and everything under the app (/portal, /rx…)
+ * is served by the Loopital app on the same domain, so a client-side navigation
+ * to "/" hands over with a full page load instead of rendering anything here.
+ */
+function toApp(path: string) {
+  return () => {
+    if (typeof window !== "undefined") window.location.replace(path);
+    return null;
+  };
+}
+
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: RootLayout,
     children: [
-      { index: true, Component: HomePage },
+      { index: true, loader: toApp("/") },
       { path: "about", Component: AboutPage },
-      { path: "products", Component: ProductsPage },
-      // Product pages live at the product's name. The codename paths are kept
-      // as 301-style redirects rather than deleted: they are in search results
-      // and in the company profile PDF, and a dead link is a worse outcome than
-      // an old one that forwards.
-      { path: "products/pal", Component: PalPage },
-      { path: "products/pal/pricing", Component: PalPricingPage },
-      { path: "products/modus", Component: ModusPage },
-      { path: "products/beacon", Component: Edm73Page },
-      { path: "products/henholib", Component: HenholibPage },
-      { path: "products/hms7", Component: Hms7Page },
-
-      { path: "products/stack62", loader: () => redirect("/products/pal") },
-      // Swift was folded into Pal. Its old paths point at the portfolio
-      // rather than swift.loopital.com, which no longer resolves.
-      { path: "products/swift", loader: () => redirect("/products") },
-      { path: "products/sart34", loader: () => redirect("/products") },
-      { path: "products/fms13", loader: () => redirect("/products/modus") },
-      { path: "products/edm73", loader: () => redirect("/products/beacon") },
-      { path: "payment/callback", Component: PaymentCallbackPage },
+      // The old product pages are gone; anyone arriving on one lands in the app.
+      { path: "products", loader: toApp("/") },
+      { path: "products/*", loader: toApp("/") },
       { path: "contact", Component: ContactPage },
-      // The Henholib research questionnaire. Lives here rather than on the
-      // Henholib subdomain because this is where the traffic already lands.
       { path: "contribute", Component: ContributePage },
       { path: "insights", Component: InsightsPage },
       { path: "privacy", Component: PrivacyPage },
       { path: "terms", Component: TermsPage },
       { path: "refund-policy", Component: RefundPolicyPage },
-      // Internal. Noindex in seo-pages: a team onboarding portal in search
-      // results is an invitation to probe it.
+      // Internal. Noindex in seo-pages.
       { path: "onboarding", Component: OnboardingPage },
       { path: "tuamene.bestgod", Component: FounderPage },
+      { path: "payment/callback", loader: () => redirect("/contact") },
       { path: "*", Component: NotFoundPage },
     ],
   },

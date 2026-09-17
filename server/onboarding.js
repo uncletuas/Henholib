@@ -40,14 +40,9 @@ const {
 
 const ADMIN_EMAIL = "info@loopital.com";
 
-// Matches the shape server/index.js unwraps: `statusCode`, not `status`. The
-// CORS headers are the same set app.js sends, because the portal is served from
-// www.loopital.com and the API from onrender.com.
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type,Authorization",
-  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-};
+// Matches the shape server/index.js unwraps: `statusCode`, not `status`. The hub
+// is served same-origin (loopital.com/hub), so no cross-origin headers are sent.
+const CORS = {};
 
 const json = (statusCode, body) => ({
   statusCode,
@@ -408,10 +403,10 @@ async function signNda(user, body, headers) {
 /**
  * Never let a mail provider outage break a write that already succeeded.
  *
- * sendNotification already logs every attempt to zina_notifications, including
+ * sendNotification already logs every attempt to notification_log, including
  * the failures, and the hub currently has no RESEND_API_KEY — so today these
  * land as `failed` rows with "Email isn't configured yet." That is the correct
- * behaviour rather than a silent loss: the row is there to be resent from Zina
+ * behaviour rather than a silent loss: the row is there to be resent
  * the moment the key is set.
  */
 async function safeSend({ to, subject, heading, lines, attachments }) {
@@ -601,7 +596,7 @@ function toBuffer(v) {
   return Buffer.from(String(v), "base64");
 }
 
-// ── Zina admin ───────────────────────────────────────────────────────────
+// ── Admin (read from the Zina console) ───────────────────────────────────────────────────────────
 
 /**
  * Fields only Finance and the CEO may see.

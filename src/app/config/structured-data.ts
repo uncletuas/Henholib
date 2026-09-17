@@ -13,7 +13,7 @@ export const organizationLd: Record<string, unknown> = {
   image: OG_IMAGE,
   email: CONTACT_EMAIL,
   description:
-    "Loopital is a Nigerian software company. We build HMS7 for hospitals and Henholib for patients, connected as one care network, plus Beacon for schools, Modus for facilities, and Pal, the office of your AI coworker.",
+    "Loopital is a Nigerian health technology company building one connected health record: patients find care, book doctors and pay for treatment, and hospitals run their front desk on the same network.",
   // Where we operate. A knowledge-panel signal, and safe to state without a
   // published street address.
   areaServed: [
@@ -27,10 +27,7 @@ export const organizationLd: Record<string, unknown> = {
     "Digital health",
     "Patient engagement",
     "Health insurance and HMO administration",
-    "School management systems",
-    "Facility and asset management",
-    "AI agents for business",
-    "Enterprise software in Africa",
+    "Emergency response",
   ],
   sameAs: FOUNDER_SOCIALS.map((x) => x.href),
   // No PostalAddress: the company does not publish a street address at the

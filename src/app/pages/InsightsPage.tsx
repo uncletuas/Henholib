@@ -3,15 +3,13 @@ import { colors } from "../lib/brand";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 const posts = [
-  { title: "Introducing Pal: Your AI Coworker Platform", category: "Product", date: "Jun 5, 2026", image: "/media/office-focus.jpg", excerpt: "Today we're officially launching Pal, our AI-powered coworker platform designed to work alongside individuals, teams, and organizations on research, content, and automation tasks." },
-  { title: "Swift is now part of Pal", category: "Product", date: "Aug 25, 2026", image: "/media/support-desk.jpg", excerpt: "Ads, social publishing and the customer inbox have moved into the Pal workspace as Social. One login, one library, one messaging interface, and a coworker that can run a campaign without being asked twice. Fewer apps was always the point." },
-  { title: "The future of hospital management software in Africa", category: "Insights", date: "May 15, 2026", image: "/media/doctor-portrait.jpg", excerpt: "Healthcare institutions across Africa are still running on legacy systems or paper-based processes. We built HMS7 because we believe modern healthcare management software can and should be accessible everywhere." },
-  { title: "Facility management at scale: one system, every building", category: "Enterprise", date: "May 3, 2026", image: "/media/facility-engineer.jpg", excerpt: "Organizations running buildings at scale juggle assets, maintenance, vendors, and compliance across disconnected tools. This is why we built Modus, a complete facility management system." },
+  { title: "One product: Loopital", category: "Product", date: "Sep 16, 2026", image: "/media/care-ward.jpg", excerpt: "We are putting everything we have into one thing: a single health record for every Nigerian, and the network of hospitals, pharmacies and labs that uses it. Loopital now lives at loopital.com." },
+  { title: "The future of hospital management software in Africa", category: "Insights", date: "May 15, 2026", image: "/media/doctor-portrait.jpg", excerpt: "Healthcare institutions across Africa are still running on legacy systems or paper-based processes. We built Loopital because we believe modern healthcare software can and should be accessible everywhere." },
   { title: "Loopital's approach to product engineering", category: "Engineering", date: "Apr 20, 2026", image: "/media/office-meeting.jpg", excerpt: "Building software products that organizations actually depend on requires a different mindset than building apps. Here's how we think about reliability, performance, and long-term maintainability at Loopital." },
   { title: "Why we're based in Port Harcourt", category: "Company", date: "Apr 8, 2026", image: "/media/lagos-skyline.jpg", excerpt: "We're a global technology company built from Nigeria. Here's why Port Harcourt is the right base for what we're building, and what it means to build world-class software from this city." },
 ];
 
-const categories = ["All", "Product", "Engineering", "Insights", "Enterprise", "Company"];
+const categories = ["All", "Product", "Engineering", "Insights", "Company"];
 
 export function InsightsPage() {
   return (
@@ -21,7 +19,7 @@ export function InsightsPage() {
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
             <h1 style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)", fontWeight: 800, color: colors.heading, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "20px" }}>
-              Thoughts on technology, products, and what we're building.
+              Thoughts on health technology and what we're building.
             </h1>
           </motion.div>
         </div>

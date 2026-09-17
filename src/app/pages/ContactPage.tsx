@@ -50,7 +50,7 @@ export function ContactPage() {
               Let's talk.
             </h1>
             <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.8 }}>
-              Whether you have a question about our products, want to discuss a project, or are exploring a partnership, we're ready to hear from you.
+              Whether you have a question about Loopital, want to bring your hospital on board, or are exploring a partnership, we're ready to hear from you.
             </p>
           </motion.div>
         </div>
@@ -79,9 +79,9 @@ export function ContactPage() {
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-col gap-4">
                 <h2 style={{ fontWeight: 700, fontSize: "20px", color: colors.heading }}>What we help with</h2>
                 {[
-                  { tag: "Product inquiries", desc: "Questions about Henholib, HMS7, Pal, Beacon, or Modus" },
+                  { tag: "Hospitals & partners", desc: "Bringing your hospital, pharmacy, lab or HMO onto Loopital" },
                   { tag: "Partnership opportunities", desc: "Business partnerships, reseller arrangements, and integrations" },
-                  { tag: "Support", desc: "Technical support for existing products or accounts" },
+                  { tag: "Support", desc: "Help with your Loopital account or your facility's workspace" },
                 ].map(item => (
                   <div key={item.tag} className="flex flex-col gap-1 p-4 " style={{ background: colors.surfaceMuted, border: "1px solid rgba(0,0,0,0.06)" }}>
                     <p style={{ fontWeight: 600, fontSize: "14px", color: colors.blue }}>{item.tag}</p>

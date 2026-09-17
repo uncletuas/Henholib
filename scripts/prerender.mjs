@@ -15,16 +15,9 @@
  * file per route with the right tags already in the markup. The SPA still boots
  * and takes over exactly as before; the difference is only what a fetch sees.
  *
- * The output goes to `dist-seo/` with flattened filenames plus a manifest, not
- * into `dist/` at the route path. S3 has a flat keyspace, so the keys
- * `products` and `products/hms7` can happily coexist; a local filesystem cannot
- * hold `dist/products` as a file and a directory at once. Staging sidesteps that
- * entirely, and the manifest tells the deploy which key each file belongs at.
- *
- * Keys are extensionless because CloudFront maps `/products/henholib` to the S3
- * key `products/henholib` and does not append `index.html` for sub-paths. The
- * deploy therefore uploads them with an explicit `text/html` content type,
- * since there is no extension to infer one from.
+ * Output: dist/pages/<route>.html (e.g. dist/pages/about.html). nginx serves the
+ * company routes from those files and falls back to dist/index.html; the site
+ * root "/" belongs to the Loopital app and is never served from here.
  */
 import { build } from 'esbuild';
 import { mkdtemp, readFile, writeFile, mkdir, rm } from 'node:fs/promises';
@@ -34,8 +27,8 @@ import { join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const DIST = 'dist';
-const STAGE = 'dist-seo';
-const SITE = 'https://www.loopital.com';
+const PAGES = join(DIST, 'pages');
+const SITE = 'https://loopital.com';
 const OG_IMAGE = `${SITE}/og-image.png`;
 
 /**
@@ -132,14 +125,6 @@ async function writeSitemap(pageSeo) {
   const today = new Date().toISOString().slice(0, 10);
 
   const WEIGHT = {
-    '/': { priority: '1.0', changefreq: 'weekly' },
-    '/products': { priority: '0.9', changefreq: 'weekly' },
-    '/products/henholib': { priority: '0.9', changefreq: 'monthly' },
-    '/products/hms7': { priority: '0.9', changefreq: 'monthly' },
-    '/products/beacon': { priority: '0.7', changefreq: 'monthly' },
-    '/products/modus': { priority: '0.7', changefreq: 'monthly' },
-    '/products/pal': { priority: '0.7', changefreq: 'monthly' },
-    '/products/pal/pricing': { priority: '0.7', changefreq: 'monthly' },
     // Ranked above the legal pages: it is a page we actively want answered,
     // and it is linked from campaigns that run off-site.
     '/contribute': { priority: '0.8', changefreq: 'monthly' },
@@ -152,15 +137,9 @@ async function writeSitemap(pageSeo) {
     '/terms': { priority: '0.2', changefreq: 'yearly' },
   };
 
-  // The live apps on their own subdomains.
-  //
-  // Only Henholib. Pal, Modus and Zina are hosted again, but they are not
-  // pages: Pal and Modus open on a sign-in wall and Zina is the admin console,
-  // so there is nothing for a crawler to index and a login screen in the
-  // results helps nobody. Their marketing pages under /products are what should
-  // rank. Swift no longer exists at all.
-  const SUBDOMAINS = [
-    { loc: 'https://henholib.loopital.com/', priority: '0.8', changefreq: 'weekly' },
+  // The Loopital app owns the root; it is the page we most want ranked.
+  const APP_PAGES = [
+    { loc: `${SITE}/`, priority: '1.0', changefreq: 'weekly' },
   ];
 
   const rows = [];
@@ -173,7 +152,7 @@ async function writeSitemap(pageSeo) {
         `<changefreq>${w.changefreq}</changefreq><priority>${w.priority}</priority></url>`,
     );
   }
-  for (const s of SUBDOMAINS) {
+  for (const s of APP_PAGES) {
     rows.push(
       `  <url><loc>${s.loc}</loc><lastmod>${today}</lastmod>` +
         `<changefreq>${s.changefreq}</changefreq><priority>${s.priority}</priority></url>`,
@@ -201,35 +180,19 @@ async function main() {
   const template = await readFile(join(DIST, 'index.html'), 'utf8');
   const pageSeo = await loadRoutes();
 
-  await rm(STAGE, { recursive: true, force: true });
-  await mkdir(STAGE, { recursive: true });
+  await rm(PAGES, { recursive: true, force: true });
+  await mkdir(PAGES, { recursive: true });
 
-  const manifest = [];
+  let count = 0;
   for (const [path, seo] of Object.entries(pageSeo)) {
-    const html = render(template, path, seo);
-
-    if (path === '/') {
-      // The root is also the SPA fallback, so it stays dist/index.html and
-      // ships with the ordinary sync.
-      await writeFile(join(DIST, 'index.html'), html, 'utf8');
-      continue;
-    }
-
-    const key = path.replace(/^\//, '');
-    const file = key.replace(/\//g, '__');
-    await writeFile(join(STAGE, file), html, 'utf8');
-    manifest.push({ file, key });
+    if (path === '/') continue; // the app's page, not ours
+    await writeFile(join(PAGES, `${path.replace(/^\//, '')}.html`), render(template, path, seo), 'utf8');
+    count++;
   }
-
-  await writeFile(
-    join(STAGE, 'manifest.json'),
-    JSON.stringify(manifest, null, 2),
-    'utf8',
-  );
 
   await writeSitemap(pageSeo);
   console.log(
-    `prerender: dist/index.html + ${manifest.length} route file(s) staged in ${STAGE}/.`,
+    `prerender: ${count} route file(s) written to ${PAGES}/.`,
   );
 }
 

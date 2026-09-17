@@ -1,29 +1,26 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
-import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { ProductLink } from "./ProductLink";
-import { AccountMenu } from "./AccountMenu";
-import { products } from "../config/products";
 import { colors, gradientBrand } from "../lib/brand";
-import { useAuth } from "../context/AuthContext";
-import { openPalWorkspace } from "../lib/pal";
 import loopitalMark from "../../imports/loopital-mark.png";
 
-const company = [
-  { label: "About Loopital", href: "/about" },
-  { label: "News & Insights", href: "/insights" },
-  { label: "Contact Us", href: "/contact" },
+// The Loopital app lives at the site root, served by the app itself rather than
+// this site, so links to it are plain anchors (a full page load), never router links.
+const APP_HOME = "/";
+const APP_SIGN_IN = "/portal/login";
+
+const links = [
+  { label: "About", href: "/about" },
+  { label: "Insights", href: "/insights" },
+  { label: "Contribute", href: "/contribute" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
   const location = useLocation();
-  const { user, token, setShowAuth, signOut, setShowPalOnboarding, setPendingPal , setShowPalWaitlist } = useAuth();
-  const tryPal = () => openPalWorkspace({ user, token, setShowAuth, setShowPalOnboarding, setPendingPal, setShowPalWaitlist });
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const menuTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 10);
@@ -31,24 +28,11 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  useEffect(() => { setMobileOpen(false); setActiveMenu(null); }, [location]);
-
-  const openMenu = (name: string) => {
-    if (menuTimeout.current) clearTimeout(menuTimeout.current);
-    setActiveMenu(name);
-  };
-  const closeMenu = () => {
-    menuTimeout.current = setTimeout(() => setActiveMenu(null), 120);
-  };
-
-  const linkColor = (name: string) => (activeMenu === name ? colors.heading : colors.textSecondary);
+  useEffect(() => { setMobileOpen(false); }, [location]);
 
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      // Solid white with a real rule under it, the way an enterprise header
-      // sits. The frosted translucent bar was doing a lot of work to look
-      // modern and mostly just made the page behind it muddy.
       style={{
         background: "#FFFFFF",
         borderBottom: `1px solid ${colors.hairline}`,
@@ -57,115 +41,45 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-[72px]">
-          {/* Logo */}
-          <Link to="/" className="flex items-center flex-shrink-0">
+          <a href={APP_HOME} className="flex items-center flex-shrink-0">
             <span className="flex items-center gap-2">
               <ImageWithFallback src={loopitalMark} alt="" className="h-8 w-8 object-contain" />
               <span style={{ fontSize: "20px", fontWeight: 700, color: colors.heading, letterSpacing: "-0.02em" }}>Loopital</span>
             </span>
-          </Link>
+          </a>
 
-          {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
-            {/* Products */}
-            <div onMouseEnter={() => openMenu("products")} onMouseLeave={closeMenu} className="relative">
-              <button className="flex items-center gap-1 px-4 py-2 text-[13px] font-medium uppercase tracking-[0.06em] transition-colors" style={{ color: linkColor("products") }}>
-                Products <ChevronDown size={14} className={`transition-transform ${activeMenu === "products" ? "rotate-180" : ""}`} />
-              </button>
-              {activeMenu === "products" && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-[660px]" onMouseEnter={() => openMenu("products")} onMouseLeave={closeMenu}>
-                  <div className="overflow-hidden" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 8px 28px rgba(10,10,11,0.10)" }}>
-                    <div className="p-3 grid grid-cols-2 gap-1">
-                      {products.map((p) => (
-                        <ProductLink key={p.id} product={p} className="flex items-start gap-3.5 p-4 transition-colors hover:bg-[#F7F7F8] group">
-                          <div className="w-11 h-11 overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
-                            <ImageWithFallback src={p.logo} alt={p.name} className="w-8 h-8 object-contain" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold" style={{ color: colors.heading }}>{p.name}</span>
-                              <span className="text-xs px-1.5 py-0.5 " style={{ background: `${p.accent}14`, color: p.accent }}>{p.category}</span>
-                            </div>
-                            <p className="text-xs mt-1 leading-relaxed" style={{ color: colors.textSecondary }}>{p.theme}</p>
-                          </div>
-                        </ProductLink>
-                      ))}
-                    </div>
-                    <div className="px-5 py-3.5 flex items-center justify-end" style={{ borderTop: `1px solid ${colors.hairline}`, background: colors.surfaceMuted }}>
-                      <Link to="/products" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: colors.blue }}>
-                        View all products <ArrowRight size={12} />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Company */}
-            <div onMouseEnter={() => openMenu("company")} onMouseLeave={closeMenu} className="relative">
-              <button className="flex items-center gap-1 px-4 py-2 text-[13px] font-medium uppercase tracking-[0.06em] transition-colors" style={{ color: linkColor("company") }}>
-                Company <ChevronDown size={14} className={`transition-transform ${activeMenu === "company" ? "rotate-180" : ""}`} />
-              </button>
-              {activeMenu === "company" && (
-                <div className="absolute top-full left-0 pt-3 w-52" onMouseEnter={() => openMenu("company")} onMouseLeave={closeMenu}>
-                  <div className="overflow-hidden p-2" style={{ background: colors.surface, border: `1px solid ${colors.hairline}`, boxShadow: "0 8px 28px rgba(10,10,11,0.10)" }}>
-                    {company.map((c) => (
-                      <Link key={c.label} to={c.href} className="block px-4 py-2.5 text-sm transition-colors hover:bg-[#F7F7F8]" style={{ color: colors.textSecondary }}>{c.label}</Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                to={l.href}
+                className="px-4 py-2 text-[13px] font-medium uppercase tracking-[0.06em] transition-colors"
+                style={{ color: location.pathname === l.href ? colors.heading : colors.textSecondary }}
+              >
+                {l.label}
+              </Link>
+            ))}
           </div>
 
-          {/* CTA */}
           <div className="hidden lg:flex items-center gap-2.5">
-            <button onClick={tryPal} className="inline-flex items-center gap-1.5 px-5 py-3 text-[13px] font-semibold uppercase tracking-[0.05em] text-white transition-opacity hover:opacity-90" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
-            {user ? (
-              <AccountMenu />
-            ) : (
-              <button onClick={() => setShowAuth("signin")} className="px-4 py-3 text-[13px] font-semibold uppercase tracking-[0.05em] transition-colors hover:bg-[#F7F7F8]" style={{ color: colors.heading, border: `1px solid ${colors.hairline}` }}>Sign in</button>
-            )}
+            <a href={APP_SIGN_IN} className="px-4 py-3 text-[13px] font-semibold uppercase tracking-[0.05em] transition-colors hover:bg-[#F7F7F8]" style={{ color: colors.heading, border: `1px solid ${colors.hairline}` }}>Sign in</a>
+            <a href={APP_HOME} className="inline-flex items-center gap-1.5 px-5 py-3 text-[13px] font-semibold uppercase tracking-[0.05em] text-white transition-opacity hover:opacity-90" style={{ background: gradientBrand }}>Open Loopital <ArrowRight size={15} /></a>
           </div>
 
-          {/* Mobile toggle */}
-          <button className="lg:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} style={{ color: colors.heading }}>
+          <button className="lg:hidden p-2" aria-label={mobileOpen ? "Close menu" : "Open menu"} onClick={() => setMobileOpen(!mobileOpen)} style={{ color: colors.heading }}>
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile drawer */}
       {mobileOpen && (
         <div className="lg:hidden px-6 py-4 flex flex-col gap-1" style={{ background: colors.bg, borderTop: `1px solid ${colors.hairline}`, maxHeight: "82vh", overflowY: "auto" }}>
-          <p className="text-xs font-semibold px-3 py-2" style={{ color: colors.textTertiary, letterSpacing: "0.06em" }}>PRODUCTS</p>
-          {products.map((p) => (
-            <ProductLink key={p.id} product={p} className="flex items-center gap-3 px-3 py-2.5  hover:bg-[#F5F5F7]">
-              <div className="w-9 h-9  overflow-hidden flex items-center justify-center flex-shrink-0" style={{ background: colors.surfaceMuted, border: `1px solid ${colors.hairline}` }}>
-                <ImageWithFallback src={p.logo} alt={p.name} className="w-7 h-7 object-contain" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold" style={{ color: colors.heading }}>{p.name}</p>
-                <p className="text-xs" style={{ color: colors.textSecondary }}>{p.category}</p>
-              </div>
-            </ProductLink>
+          {links.map((l) => (
+            <Link key={l.href} to={l.href} className="block px-3 py-2.5 text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{l.label}</Link>
           ))}
           <div className="h-px my-2" style={{ background: colors.hairline }} />
-          {company.map((c) => (
-            <Link key={c.label} to={c.href} className="block px-3 py-2.5  text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>{c.label}</Link>
-          ))}
-          <div className="h-px my-2" style={{ background: colors.hairline }} />
-          <div className="flex flex-col gap-2 mt-2">
-            <button onClick={() => { setMobileOpen(false); tryPal(); }} className="py-3 text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>{user ? "Pal Workspace" : "Try Pal Workspace"} <ArrowRight size={15} /></button>
-            {user ? (
-              <>
-                <button onClick={() => { setShowAuth("dashboard"); setMobileOpen(false); }} className="text-left px-3 py-2.5  text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Manage account</button>
-                <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-left px-3 py-2.5  text-sm hover:bg-[#F5F5F7]" style={{ color: colors.textSecondary }}>Sign out</button>
-              </>
-            ) : (
-              <button onClick={() => { setShowAuth("signin"); setMobileOpen(false); }} className="py-3 text-sm font-semibold text-white text-center" style={{ background: gradientBrand }}>Sign in</button>
-            )}
-          </div>
+          <a href={APP_HOME} className="py-3 text-sm font-semibold text-white text-center inline-flex items-center justify-center gap-1.5" style={{ background: gradientBrand }}>Open Loopital <ArrowRight size={15} /></a>
+          <a href={APP_SIGN_IN} className="py-3 text-sm font-semibold text-center" style={{ color: colors.heading, border: `1px solid ${colors.hairline}` }}>Sign in</a>
         </div>
       )}
     </nav>

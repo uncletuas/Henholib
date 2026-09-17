@@ -1,5 +1,5 @@
 /**
- * The "Contribute to Henholib" question set.
+ * The "Contribute to Loopital" question set.
  *
  * Kept as data rather than JSX so the form renders itself. The question set
  * will change as we learn what people actually answer, and editing a table is
@@ -143,7 +143,7 @@ export const INDIVIDUAL_STEPS: Step[] = [
       },
       {
         name: "likelihood",
-        label: "How likely are you to use an app like Henholib?",
+        label: "How likely are you to use an app like Loopital?",
         kind: "single",
         options: ["Very likely", "Somewhat likely", "Not sure yet", "Unlikely"],
       },
@@ -162,7 +162,7 @@ export const INDIVIDUAL_STEPS: Step[] = [
       { name: "willTest", label: "Would you test the app and give feedback before public launch?", kind: "single", options: ["Yes", "No"] },
       {
         name: "heardVia",
-        label: "How did you hear about Henholib?",
+        label: "How did you hear about Loopital?",
         kind: "single",
         options: ["Social media", "Friend or family", "An event", "A hospital or clinic", "Search engine", "Other"],
         otherFor: "Other",
@@ -252,11 +252,11 @@ export const ORGANIZATION_STEPS: Step[] = [
     ],
   },
   {
-    title: "Interest in HMS7",
+    title: "Interest in Loopital for your facility",
     fields: [
       {
         name: "interest",
-        label: "How interested are you in a system like HMS7?",
+        label: "How interested are you in running your facility on Loopital?",
         kind: "single",
         options: ["Very interested, we need this now", "Interested, show me a demo", "Not sure yet", "Not interested"],
       },
@@ -277,7 +277,7 @@ export const ORGANIZATION_STEPS: Step[] = [
         ],
       },
       { name: "freeTrial", label: "Would you be open to a free trial with hands-on support from our team?", kind: "single", options: ["Yes, definitely", "Maybe, tell me more", "Not right now"] },
-      { name: "commitNeeds", label: "What would you need to see to commit to HMS7 long-term?", kind: "textarea" },
+      { name: "commitNeeds", label: "What would you need to see to commit to Loopital long-term?", kind: "textarea" },
       { name: "decisionMakers", label: "Who else at your facility should be part of this decision?", kind: "textarea", placeholder: "e.g. Medical Director and IT lead" },
     ],
   },

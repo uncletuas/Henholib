@@ -1,9 +1,6 @@
-// Postgres data layer for the loopital API on Render.
+// Postgres data layer for the Loopital hub.
 //
-// The original handler ran on AWS Lambda and talked to Aurora via the RDS Data
-// API through a `sql(statement, params)` helper that used NAMED parameters
-// (`:email`, `:id::uuid`). This module reproduces that exact contract on top of
-// node-postgres (`pg`) so every call site in app.js keeps working unchanged:
+// `sql(statement, params)` takes NAMED parameters (`:email`, `:id::uuid`):
 //   - named `:param` placeholders are rewritten to positional `$1..$n`
 //   - `::type` casts (e.g. `:id::uuid`) are preserved
 //   - rows come back as plain objects (like `formatRecordsAs: "JSON"` did)
@@ -14,14 +11,11 @@ if (!connectionString) {
   console.error("FATAL: DATABASE_URL is not set.");
 }
 
-// Render's INTERNAL database URL needs no TLS (same private network). Only turn
-// SSL on for external/managed hosts that require it.
+// A local database needs no TLS. Only turn SSL on for hosts that require it.
 const needsSsl = /sslmode=require/.test(connectionString || "") ||
   /[?&]ssl=true/.test(connectionString || "");
 
-// loopital shares the pal-db instance but lives in its OWN schema so its tables
-// (users, subscriptions, payments, …) never collide with Pal's public tables.
-// Setting search_path at connection startup scopes every query to that schema.
+// Every query is scoped to the hub's own schema via search_path.
 const SCHEMA = process.env.DB_SCHEMA || "loopital";
 
 const pool = new Pool({

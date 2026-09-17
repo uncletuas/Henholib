@@ -1,10 +1,7 @@
-// Idempotent schema migration for the loopital API on Render.
-// Runs the DDL from schema.js against Postgres. Safe to run on every boot —
-// every statement is CREATE ... IF NOT EXISTS / ALTER ... IF NOT EXISTS.
+// Idempotent schema migration for the Loopital hub. Runs the DDL from schema.js
+// against Postgres on every boot — every statement is IF NOT EXISTS.
 const { pool, SCHEMA } = require("./db");
-// The original ecosystem DDL, plus Zina's control-plane tables, kept in
-// separate files so the historical schema stays untouched as Zina's grows.
-const statements = [...require("./schema"), ...require("./zina-schema")];
+const statements = require("./schema");
 
 async function migrate() {
   // Fail fast if the database is unreachable, rather than retrying 59 DDL
@@ -15,8 +12,7 @@ async function migrate() {
     console.error(`migrate: database unreachable, skipping schema (${err.message}).`);
     return;
   }
-  // Ensure loopital's dedicated schema exists (search_path points every
-  // connection at it, so the DDL below lands here — isolated from Pal's tables).
+  // search_path points every connection at this schema, so the DDL lands here.
   await pool.query(`CREATE SCHEMA IF NOT EXISTS ${SCHEMA}`);
   for (const statement of statements) {
     const label = statement.split("\n")[0].slice(0, 64);

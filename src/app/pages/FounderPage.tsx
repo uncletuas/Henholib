@@ -10,7 +10,7 @@ import { CONTACT_EMAIL, FOUNDER_IMAGE } from "../config/site";
 
 const glance = [
   { icon: Briefcase, label: "Role", value: "Founder & CEO, Loopital" },
-  { icon: HeartPulse, label: "Building", value: "Henholib, connected healthcare for Nigeria" },
+  { icon: HeartPulse, label: "Building", value: "Loopital, connected healthcare for Nigeria" },
   { icon: Award, label: "Recognition", value: "Camper of the Year at 16, CITY Camp" },
   { icon: Landmark, label: "Policy", value: "Contributor, National Research-to-Commercialization Policy (Zero Draft)" },
   { icon: GraduationCap, label: "Education", value: "B.Tech, Electrical/Electronics, Rivers State University" },
@@ -79,7 +79,7 @@ export function FounderPage() {
             </h2>
             <div className="flex flex-col gap-6" style={{ color: colors.textSecondary, fontSize: "18.5px", lineHeight: 1.85 }}>
               <p>
-                My current focus is <strong style={{ color: colors.heading }}>Henholib</strong>, a platform tackling one of Nigeria's most urgent problems: disconnected healthcare. We're building the infrastructure that links hospitals together and gives every patient a single health identity, one record that travels with them wherever they seek care.
+                My current focus is <strong style={{ color: colors.heading }}>Loopital</strong>, a platform tackling one of Nigeria's most urgent problems: disconnected healthcare. We're building the infrastructure that links hospitals together and gives every patient a single health identity, one record that travels with them wherever they seek care.
               </p>
               <p>
                 Beyond building Loopital, I'm a public speaker and a volunteer on projects driving positive change across innovation, education, environmental protection, climate action, and healthcare. I regularly share perspectives on public issues, and I train young people in schools across Nigeria to think, build, and lead with impact. I've also had the privilege of contributing to national policy, including the <strong style={{ color: colors.heading }}>Zero Draft of the National Research to Commercialization Policy</strong>, a joint initiative of the Federal Ministry of Education and the Federal Ministry of Innovation, Science and Technology.
@@ -89,7 +89,7 @@ export function FounderPage() {
               </p>
             </div>
             <div className="mt-9">
-              <CTAButton to="/products/henholib" variant="outline">Learn about Henholib <ArrowRight size={15} /></CTAButton>
+              <CTAButton href="/" variant="outline">Open Loopital <ArrowRight size={15} /></CTAButton>
             </div>
           </Reveal>
 
@@ -134,7 +134,7 @@ export function FounderPage() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center mb-10">
             <CTAButton href={`mailto:${CONTACT_EMAIL}`} variant="solid" size="lg" style={{ background: "#fff", color: colors.blue }}>Get in touch</CTAButton>
-            <CTAButton to="/products" variant="ghost-light" size="lg">See what we're building</CTAButton>
+            <CTAButton href="/" variant="ghost-light" size="lg">See what we're building</CTAButton>
           </div>
           <div className="flex justify-center">
             <SocialLinks size={18} chip="rgba(255,255,255,0.16)" color="#fff" />

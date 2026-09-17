@@ -12,7 +12,7 @@ import {
 } from "../config/contribute-questions";
 
 /**
- * Contribute to Henholib.
+ * Contribute to Loopital.
  *
  * A guided conversation rather than a long form, which is the whole point of
  * the spec. Three decisions carry that:
@@ -355,30 +355,30 @@ export function ContributePage() {
           <p style={{ color: colors.textSecondary, fontSize: "17.5px", lineHeight: 1.7, marginBottom: 30 }}>
             {org
               ? "Our team personally reviews every facility response. If there is a fit for an early pilot, we will reach out directly within five business days."
-              : "We're reading every response as we finish building Henholib. If you asked for early access, we'll reach out when we're ready for you."}
+              : "We're reading every response as we build Loopital. If you asked for early access, we'll reach out when we're ready for you."}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {!org && (
               <button
                 type="button"
                 onClick={() => {
-                  const url = "https://www.loopital.com/products/henholib";
-                  if (navigator.share) void navigator.share({ title: "Henholib", url });
+                  const url = "https://loopital.com/";
+                  if (navigator.share) void navigator.share({ title: "Loopital", url });
                   else void navigator.clipboard?.writeText(url);
                 }}
                 className="inline-flex items-center gap-2 font-semibold"
                 style={{ background: ORANGE, color: "#fff", padding: "13px 24px", fontSize: "15px" }}
               >
-                Share Henholib with someone
+                Share Loopital with someone
               </button>
             )}
-            <Link
-              to="/"
+            <a
+              href="/"
               className="inline-flex items-center gap-2 font-semibold"
               style={{ border: `1px solid ${colors.hairlineStrong}`, color: colors.heading, padding: "13px 24px", fontSize: "15px" }}
             >
-              Back to homepage
-            </Link>
+              Open Loopital
+            </a>
           </div>
 
           {/*
@@ -392,7 +392,7 @@ export function ContributePage() {
               Want to do more than answer questions?
             </p>
             <p style={{ color: colors.textSecondary, fontSize: "15.5px", lineHeight: 1.7, marginBottom: 20 }}>
-              Henholib and HMS7 are built and tested. Getting them into real
+              Loopital is built and tested. Getting it into real
               hospitals, clinics, pharmacies and laboratories is what we are
               raising for. Any amount moves it forward.
             </p>
@@ -417,7 +417,7 @@ export function ContributePage() {
     return (
       <div style={{ background: colors.surface, padding: "clamp(56px,7vw,100px) 24px" }}>
         <div className="mx-auto" style={{ maxWidth: 760 }}>
-          <h1 style={{ marginBottom: 16 }}>Help us build Henholib right.</h1>
+          <h1 style={{ marginBottom: 16 }}>Help us build Loopital right.</h1>
           <p style={{ color: colors.textSecondary, fontSize: "18px", lineHeight: 1.7, marginBottom: 36 }}>
             Whether you're a patient tired of starting over at every hospital, or
             a facility looking for a better way to run, your answers directly
@@ -513,12 +513,12 @@ export function ContributePage() {
                 style={{ accentColor: ORANGE, width: 17, height: 17, marginTop: 2 }}
               />
               <span style={{ fontSize: "15px", color: colors.heading, lineHeight: 1.5 }}>
-                I'm okay with Loopital contacting me about Henholib and HMS7 updates.
+                I'm okay with Loopital contacting me about Loopital updates.
               </span>
             </label>
             {errors.consent && <p style={{ color: "#C2410C", fontSize: "13.5px" }}>{errors.consent}</p>}
             <p style={{ fontSize: "13.5px", color: colors.textTertiary, lineHeight: 1.6 }}>
-              We'll only use this to improve Henholib and reach out about next
+              We'll only use this to improve Loopital and reach out about next
               steps. Read our <Link to="/privacy" style={{ textDecoration: "underline" }}>Privacy Policy</Link>.
             </p>
             {failure && <p style={{ color: "#C2410C", fontSize: "14px" }}>{failure}</p>}

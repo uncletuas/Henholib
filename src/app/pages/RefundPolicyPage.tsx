@@ -26,14 +26,14 @@ interface Section {
   body: string[];
 }
 
-const EFFECTIVE = "30 August 2026";
+const EFFECTIVE = "17 September 2026";
 
 const sections: Section[] = [
   {
     title: "What this covers",
     body: [
-      "This policy applies to everything you can pay Loopital Limited for directly: Pal subscriptions, Pal credits, and any plan bought through our website. Payments are processed by Paystack and charged in Nigerian naira.",
-      "Where you have signed a separate written agreement with us — as hospitals on HMS7 and institutions on our enterprise products normally do — that agreement governs, and this policy fills any gap it leaves silent.",
+      "This policy applies to everything you can pay Loopital Limited for directly, including care payments, wallet top-ups and plans bought in the Loopital app. Payments are processed by Paystack and charged in Nigerian naira.",
+      "Where you have signed a separate written agreement with us — as hospitals and other institutions on Loopital normally do — that agreement governs, and this policy fills any gap it leaves silent.",
       "Nothing here takes away rights you have under the Federal Competition and Consumer Protection Act 2018 or any other Nigerian law.",
     ],
   },
@@ -47,13 +47,11 @@ const sections: Section[] = [
     ],
   },
   {
-    id: "credits",
-    title: "Credits",
+    id: "care",
+    title: "Payments for care",
     body: [
-      "Credits pay for actions that cost money outside Loopital — putting an ad live, publishing to a platform, generating media. That distinction decides how they are refunded.",
-      "Unspent credits can be refunded within 30 days of purchase. We refund the unused balance at the price you paid for it.",
-      "Spent credits cannot be refunded. By the time a credit is spent, we have already paid a third party for the thing it bought, and that money is not coming back to us either.",
-      "Credits do not expire, and we do not take them back if you cancel a subscription.",
+      "When you pay a hospital, pharmacy or lab through Loopital, you are paying that facility for its care; Loopital carries the payment. If a visit, test or prescription you paid for did not happen, the facility refunds it, and we make sure the refund reaches you.",
+      "Tell us through the app or by email and we will follow it up with the facility. Where a facility does not respond within 10 business days, we step in.",
     ],
   },
   {
@@ -66,7 +64,7 @@ const sections: Section[] = [
   {
     title: "What we do not refund",
     body: [
-      "Credits you have already spent. Time on a subscription month you chose to cancel partway through. Fees a bank or card issuer charges you, which never reach us. And onboarding, migration or training work under an enterprise agreement once that work has started — though we will always talk about what is fair if something has gone wrong.",
+      "Time on a subscription month you chose to cancel partway through. Fees a bank or card issuer charges you, which never reach us. And onboarding, migration or training work under an enterprise agreement once that work has started — though we will always talk about what is fair if something has gone wrong.",
     ],
   },
   {
@@ -151,10 +149,6 @@ export function RefundPolicyPage() {
               and{" "}
               <Link to="/privacy" style={{ color: colors.heading, fontWeight: 600 }}>
                 Privacy Policy
-              </Link>
-              . For what each plan costs, see{" "}
-              <Link to="/products/pal/pricing" style={{ color: colors.heading, fontWeight: 600 }}>
-                Pal pricing
               </Link>
               .
             </p>

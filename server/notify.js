@@ -1,49 +1,23 @@
 "use strict";
 
 /**
- * One notification system for the whole ecosystem.
+ * Outbound email for the hub, through Resend.
  *
- * Before this, each app sent its own mail: Beacon through its own Resend
- * client, loopital through Resend-or-SES, Modus through SES. Four senders meant
- * four reputations, four sets of provider logs, and no way to answer "did that
- * customer actually get the email?" without knowing which app to go and look in.
- *
- * Now every app POSTs to /notify/send on this API and nothing else holds the
- * Resend key. The send is logged to `zina_notifications` either way — including
- * the failures, which are the rows that matter — so Zina's notifications screen
- * is the whole picture rather than this API's slice of it.
- *
- * Sending is best-effort by design. A welcome email that fails must not fail the
- * signup that triggered it; the row records what happened and the operator can
- * resend from the portal.
+ * Every send is logged to `notification_log` either way, including the failures,
+ * which are the rows that matter. Sending is best-effort by design: a confirmation
+ * email that fails must not fail the submission that triggered it.
  */
 
 const { sql } = require("./db");
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
-/**
- * Per-app sender identity. Falls back to the ecosystem default.
- *
- * Read on each send rather than captured at import: Zina overlays the hub's
- * vault onto the environment after this module has loaded, so a sender address
- * changed in the portal would otherwise not take effect until a redeploy.
- */
 const defaultFrom = () => process.env.RESEND_FROM_EMAIL || "Loopital <no-reply@loopital.com>";
 
-const APP_BRANDING = {
-  loopital: { name: "Loopital", accent: "#0f766e", url: "https://www.loopital.com" },
-  stack62: { name: "Pal", accent: "#4f46e5", url: "https://pal.loopital.com" },
-  // Swift was folded into Pal. Kept so historical notifications still resolve
-  // a label, but pointed at Pal — swift.loopital.com no longer exists.
-  sart34: { name: "Swift", accent: "#4f46e5", url: "https://pal.loopital.com" },
-  fms13: { name: "Modus", accent: "#c2410c", url: "https://modus.loopital.com" },
-  edm73: { name: "Beacon", accent: "#a3122b", url: "https://beacon.loopital.com" },
-  hms7: { name: "Henholib", accent: "#0369a1", url: "https://henholib.loopital.com" },
-};
+const BRAND = { name: "Loopital", accent: "#0f766e", url: "https://loopital.com" };
 
-function brandingFor(appId) {
-  return APP_BRANDING[appId] || APP_BRANDING.loopital;
+function brandingFor() {
+  return BRAND;
 }
 
 function esc(value) {
@@ -178,9 +152,9 @@ async function sendNotification({
   const logged = [];
   for (const recipient of recipients) {
     const rows = await sql(
-      `INSERT INTO zina_notifications (app_id, template, to_email, subject, status)
-       VALUES (:app, :template, :to, :subject, 'queued') RETURNING id`,
-      { app: appId, template, to: recipient, subject }
+      `INSERT INTO notification_log (template, to_email, subject, status)
+       VALUES (:template, :to, :subject, 'queued') RETURNING id`,
+      { template, to: recipient, subject }
     ).catch(() => []);
     if (rows[0]) logged.push(rows[0].id);
   }
@@ -192,7 +166,7 @@ async function sendNotification({
   async function finish(status, { providerId = null, error = null } = {}) {
     for (const id of logged) {
       await sql(
-        `UPDATE zina_notifications SET status = :status, provider_id = :pid, error = :err
+        `UPDATE notification_log SET status = :status, provider_id = :pid, error = :err
           WHERE id = :id::uuid`,
         { status, pid: providerId, err: error, id }
       ).catch(() => {});
@@ -235,4 +209,4 @@ async function sendNotification({
   }
 }
 
-module.exports = { sendNotification, renderHtml, brandingFor, APP_BRANDING, defaultFrom };
+module.exports = { sendNotification, renderHtml, brandingFor, defaultFrom };

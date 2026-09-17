@@ -4,14 +4,10 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "npm run typecheck && node scripts/check-pricing-sync.mjs && vite build && node scripts/prerender.mjs",
+    "build": "npm run typecheck && vite build && node scripts/prerender.mjs",
     "dev": "vite",
-    "build:zina": "tsc --noEmit -p zina/tsconfig.json && vite build --config vite.zina.config.ts",
-    "dev:zina": "vite --config vite.zina.config.ts",
     "prerender": "node scripts/prerender.mjs",
-    "deploy": "bash scripts/deploy-www.sh",
-    "check:pricing": "node scripts/check-pricing-sync.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p zina/tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@aws-sdk/client-acm": "^3.1073.0",

@@ -1,35 +1,15 @@
-// Central site configuration, single source of truth for external app URLs,
-// API endpoint, and brand contact details. Keeps references consistent across
+// Central site configuration: canonical URL, API endpoint, and brand contact
+// details. Keeps references consistent across
 // the marketing site so launch-time changes happen in one place.
 
-// Canonical site origin for SEO (apex 301-redirects here, so www is canonical).
-export const SITE_URL = "https://www.loopital.com";
+// Canonical site origin for SEO (www 301-redirects to the apex).
+export const SITE_URL = "https://loopital.com";
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
-// Externally-hosted product apps (their own landing pages live on subdomains).
-//
-// Named after the products, not the codenames they shipped under. The codenames
-// still exist as ids in the database and in the SSO handshake — renaming those
-// would break federation — but nothing a visitor can click should carry one.
-// fms13.loopital.com in particular is dead and has no DNS record at all: Modus
-// lives at modus.loopital.com.
-export const PAL_URL = "https://pal.loopital.com";
-export const HENHOLIB_URL = "https://henholib.loopital.com";
-// Beacon has a subdomain but no deployment behind it yet, so it is deliberately
-// not linked from anywhere on the marketing site — a live link to a placeholder
-// is worse than no link. Add it to the Beacon product entry once it serves.
-export const BEACON_URL = "https://beacon.loopital.com";
-
-// Google Sign-In client ID (public, safe to expose). The Google button uses it
-// to obtain an ID token that the backend verifies. Configure loopital.com +
-// www.loopital.com as authorized JavaScript origins in the Google console.
-export const GOOGLE_CLIENT_ID =
-  "673117866604-4f0h5o89jdnams4h7aqej09lqsl3ngqk.apps.googleusercontent.com";
-
-// Backend API base. Injected at build time via Vite env (VITE_API_BASE_URL);
-// falls back to same-origin "/api" for local dev behind a proxy.
+// The hub API, served same-origin at /hub. Overridable at build time
+// (VITE_API_BASE_URL) for local development against another host.
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "/api"
+  import.meta.env.VITE_API_BASE_URL || "/hub"
 ).replace(/\/$/, "");
 
 // Founder portrait, used on the founder profile page and Academy instructor

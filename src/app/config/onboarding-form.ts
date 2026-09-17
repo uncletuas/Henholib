@@ -176,7 +176,7 @@ export const ONBOARDING_STEPS: Step[] = [
         name: "toolsNeeded",
         label: "Which tools will you need access to?",
         kind: "multi",
-        options: ["GitHub", "Zina admin portal", "Pal Workspace", "Design tools", "Analytics", "Customer support inbox", "Social accounts", "Accounting"],
+        options: ["GitHub", "Zina admin portal", "Design tools", "Analytics", "Customer support inbox", "Social accounts", "Accounting"],
       },
       { name: "accessibility", label: "Anything we should set up to make work easier for you?", kind: "textarea", help: "Equipment, software, working arrangements. Optional, and it stays with the admin team." },
     ],
