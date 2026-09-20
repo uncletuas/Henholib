@@ -12,7 +12,7 @@ export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || "/hub"
 ).replace(/\/$/, "");
 
-// Founder portrait, used on the founder profile page and Academy instructor
+// Founder portrait, used on the founder profile page
 // blocks. Swap this single constant (and the file in /public) to change it
 // everywhere.
 export const FOUNDER_IMAGE = "/tuamene.jpg";

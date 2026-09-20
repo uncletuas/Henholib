@@ -112,65 +112,12 @@ function render(template, path, seo) {
 }
 
 /**
- * Write the sitemap from the same route table the pages come from.
+ * The sitemap is no longer written here.
  *
- * Hand-maintaining it is how a sitemap ends up advertising URLs that redirect
- * (both Swift paths did) and omitting ones that exist. Generating it means the
- * two can no longer disagree.
- *
- * Priority follows depth and intent rather than being flat: the homepage and
- * the two health products are what we want ranked, legal pages are not.
+ * The app generates it from what actually exists — the category and location pages, and
+ * every facility on the network — so a second, hand-weighted copy of eight company URLs
+ * could only disagree with it. The company pages are listed there too.
  */
-async function writeSitemap(pageSeo) {
-  const today = new Date().toISOString().slice(0, 10);
-
-  const WEIGHT = {
-    // Ranked above the legal pages: it is a page we actively want answered,
-    // and it is linked from campaigns that run off-site.
-    '/contribute': { priority: '0.8', changefreq: 'monthly' },
-    '/refund-policy': { priority: '0.3', changefreq: 'yearly' },
-    '/about': { priority: '0.6', changefreq: 'monthly' },
-    '/insights': { priority: '0.6', changefreq: 'weekly' },
-    '/contact': { priority: '0.6', changefreq: 'yearly' },
-    '/tuamene.bestgod': { priority: '0.5', changefreq: 'monthly' },
-    '/privacy': { priority: '0.2', changefreq: 'yearly' },
-    '/terms': { priority: '0.2', changefreq: 'yearly' },
-  };
-
-  // The Loopital app owns the root; it is the page we most want ranked.
-  const APP_PAGES = [
-    { loc: `${SITE}/`, priority: '1.0', changefreq: 'weekly' },
-  ];
-
-  const rows = [];
-  for (const [path, seo] of Object.entries(pageSeo)) {
-    if (seo.noindex) continue; // never advertise what we ask not to index
-    const w = WEIGHT[path] ?? { priority: '0.5', changefreq: 'monthly' };
-    const loc = `${SITE}${path === '/' ? '/' : path}`;
-    rows.push(
-      `  <url><loc>${loc}</loc><lastmod>${today}</lastmod>` +
-        `<changefreq>${w.changefreq}</changefreq><priority>${w.priority}</priority></url>`,
-    );
-  }
-  for (const s of APP_PAGES) {
-    rows.push(
-      `  <url><loc>${s.loc}</loc><lastmod>${today}</lastmod>` +
-        `<changefreq>${s.changefreq}</changefreq><priority>${s.priority}</priority></url>`,
-    );
-  }
-
-  const xml = [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...rows,
-    '</urlset>',
-    '',
-  ].join('\n');
-
-  await writeFile(join(DIST, 'sitemap.xml'), xml, 'utf8');
-  await writeFile('public/sitemap.xml', xml, 'utf8');
-  console.log(`prerender: sitemap.xml written with ${rows.length} URLs.`);
-}
 
 async function main() {
   if (!existsSync(join(DIST, 'index.html'))) {
@@ -190,7 +137,6 @@ async function main() {
     count++;
   }
 
-  await writeSitemap(pageSeo);
   console.log(
     `prerender: ${count} route file(s) written to ${PAGES}/.`,
   );

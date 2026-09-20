@@ -25,9 +25,10 @@ export const pageSeo: Record<string, PageSeo> = {
       { name: "Refund Policy", path: "/refund-policy" },
     ]),
   },
-  // The research questionnaire. Indexed on purpose: we want people to find it
-  // and answer it, and it is linked from campaigns that run off-site.
+  // The research questionnaire. Reachable by link, kept out of search: it is a form we
+  // send people to, not a page anyone should land on from Google.
   "/contribute": {
+    noindex: true,
     title: "Help Us Build Loopital",
     description:
       "Tell us how you get healthcare today, or how your hospital runs. A few minutes of answers shape what Loopital becomes.",
