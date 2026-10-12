@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Loopital Voice Health</title>
+<style>
+  :root {
+    --bg: #0b1020; --panel: #121a30; --ink: #eaf0ff; --muted: #9fb0d0;
+    --accent: #3ddc97; --accent2: #5b8cff; --line: #233150; --warn: #ffb020;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+  h1 { font-size: 22px; margin: 0; }
+  .sub { color: var(--muted); font-size: 14px; margin: 4px 0 20px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  select {
+    width: 100%; padding: 10px 12px; border-radius: 10px; background: #0e1526;
+    color: var(--ink); border: 1px solid var(--line); font-size: 15px;
+  }
+  .mic {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; margin-top: 14px; padding: 16px; font-size: 17px; font-weight: 600;
+    border: none; border-radius: 12px; color: #04140d; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  }
+  .mic[disabled] { opacity: .5; cursor: progress; }
+  .mic.rec { background: linear-gradient(135deg, #ff6b6b, #ff3b3b); color: #fff; }
+  .turn { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+  .you { color: var(--accent2); font-weight: 600; font-size: 13px; }
+  .atlas { color: var(--accent); font-weight: 600; font-size: 13px; }
+  .bubble { margin: 4px 0 2px; white-space: pre-wrap; }
+  .meta { color: var(--muted); font-size: 12px; }
+  .stats { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stat b { font-size: 24px; display: block; }
+  .stat span { color: var(--muted); font-size: 12px; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 22px; line-height: 1.6; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span class="dot"></span><h1>Loopital Voice Health</h1></header>
+  <p class="sub">Ask a health question by voice in your language. Powered by N-ATLaS.</p>
+
+  <div class="panel">
+    <label for="lang">Your language</label>
+    <select id="lang">
+      <option value="en">Nigerian English</option>
+      <option value="yo">Yoruba</option>
+      <option value="ha">Hausa</option>
+      <option value="ig">Igbo</option>
+      <option value="pcm">Nigerian Pidgin</option>
+    </select>
+    <button id="mic" class="mic">Hold to speak</button>
+    <p class="meta" id="status">Tap and hold the button, then speak.</p>
+  </div>
+
+  <div class="panel" id="convo" style="display:none"></div>
+
+  <div class="panel">
+    <div class="stats">
+      <div class="stat"><b id="n-total">0</b><span>interactions logged</span></div>
+      <div class="stat"><b id="n-live"><span class="pill">checking</span></b><span>N-ATLaS status</span></div>
+    </div>
+  </div>
+
+  <footer>
+    A National AI Innovation Challenge (NAIC) 2026 entry, built on Loopital.
+    Powered by N-ATLaS, Awarri Technologies and the Federal Ministry of
+    Communications, Innovation and Digital Economy. General guidance only, not
+    medical advice.
+  </footer>
+</div>
+
+<script>
+const API = (window.NAIC_API_BASE || "").replace(/\/$/, "");
+const micBtn = document.getElementById("mic");
+const statusEl = document.getElementById("status");
+const convo = document.getElementById("convo");
+const langSel = document.getElementById("lang");
+
+let mediaRecorder, chunks = [], recording = false;
+
+async function refreshHealth() {
+  try {
+    const r = await fetch(API + "/healthz");
+    const h = await r.json();
+    document.getElementById("n-total").textContent = h.interactions ?? 0;
+    const mode = h?.natlas?.mode === "live" ? "live" : "stub";
+    document.getElementById("n-live").innerHTML =
+      '<span class="pill" style="color:' + (mode === "live" ? "var(--accent)" : "var(--warn)") + '">' + mode + "</span>";
+  } catch (e) { /* offline is fine for the demo shell */ }
+}
+
+function wavFromBuffer(buffer) {
+  // Downmix to mono, resample to 16 kHz, encode 16-bit PCM WAV.
+  const target = 16000;
+  const ch = buffer.numberOfChannels;
+  let data = buffer.getChannelData(0);
+  if (ch > 1) {
+    const mix = new Float32Array(data.length);
+    for (let c = 0; c < ch; c++) {
+      const d = buffer.getChannelData(c);
+      for (let i = 0; i < d.length; i++) mix[i] += d[i] / ch;
+    }
+    data = mix;
+  }
+  const ratio = buffer.sampleRate / target;
+  const outLen = Math.floor(data.length / ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) out[i] = data[Math.floor(i * ratio)];
+
+  const bytes = 44 + out.length * 2;
+  const ab = new ArrayBuffer(bytes);
+  const dv = new DataView(ab);
+  const wr = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+  wr(0, "RIFF"); dv.setUint32(4, bytes - 8, true); wr(8, "WAVE"); wr(12, "fmt ");
+  dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+  dv.setUint32(24, target, true); dv.setUint32(28, target * 2, true);
+  dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); wr(36, "data");
+  dv.setUint32(40, out.length * 2, true);
+  let o = 44;
+  for (let i = 0; i < out.length; i++, o += 2) {
+    const s = Math.max(-1, Math.min(1, out[i]));
+    dv.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([ab], { type: "audio/wav" });
+}
+
+async function send(blob) {
+  micBtn.disabled = true;
+  statusEl.textContent = "Listening to N-ATLaS...";
+  const ac = new (window.AudioContext || window.webkitAudioContext)();
+  const wav = wavFromBuffer(await ac.decodeAudioData(await blob.arrayBuffer()));
+  const fd = new FormData();
+  fd.append("audio", wav, "speech.wav");
+  fd.append("language", langSel.value);
+  try {
+    const r = await fetch(API + "/api/voice", { method: "POST", body: fd });
+    const j = await r.json();
+    addTurn(j.transcript, j.reply, j.latency_ms);
+    statusEl.textContent = "Ask another question.";
+  } catch (e) {
+    statusEl.textContent = "Could not reach the service. Try again.";
+  } finally {
+    micBtn.disabled = false;
+    refreshHealth();
+  }
+}
+
+function addTurn(transcript, reply, ms) {
+  convo.style.display = "block";
+  const el = document.createElement("div");
+  el.className = "turn";
+  el.innerHTML =
+    '<div class="you">You</div><div class="bubble"></div>' +
+    '<div class="atlas">N-ATLaS</div><div class="bubble reply"></div>' +
+    '<div class="meta"></div>';
+  el.querySelectorAll(".bubble")[0].textContent = transcript || "(no speech detected)";
+  el.querySelector(".reply").textContent = reply || "";
+  el.querySelector(".meta").textContent = ms ? (ms + " ms") : "";
+  convo.prepend(el);
+}
+
+async function start() {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  chunks = [];
+  mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+  mediaRecorder.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    send(new Blob(chunks, { type: chunks[0]?.type || "audio/webm" }));
+  };
+  mediaRecorder.start();
+  recording = true;
+  micBtn.classList.add("rec");
+  micBtn.textContent = "Release to send";
+  statusEl.textContent = "Listening...";
+}
+
+function stop() {
+  if (recording && mediaRecorder) {
+    mediaRecorder.stop();
+    recording = false;
+    micBtn.classList.remove("rec");
+    micBtn.textContent = "Hold to speak";
+  }
+}
+
+["mousedown", "touchstart"].forEach((ev) =>
+  micBtn.addEventListener(ev, (e) => { e.preventDefault(); start().catch(() => statusEl.textContent = "Microphone blocked. Allow access and retry."); }));
+["mouseup", "mouseleave", "touchend"].forEach((ev) =>
+  micBtn.addEventListener(ev, (e) => { e.preventDefault(); stop(); }));
+
+refreshHealth();
+</script>
+</body>
+</html>
