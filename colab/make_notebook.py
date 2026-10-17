@@ -189,6 +189,24 @@ print("NCAIR_SPEECH_PROVIDER=self")
 print(f"NCAIR_HF_TOKEN={NAIC_API_KEY}")
 print(f"NCAIR_ASR_URLS=en={URL}/asr/en,pcm={URL}/asr/en,yo={URL}/asr/yo,ig={URL}/asr/ig,ha={URL}/asr/ha")
 print(f"NCAIR_TTS_URL={URL}/tts")
+
+# The link changes every session. On the Loopital operator's own Hugging Face
+# account, save it (with the key) to a private repo so henholib.loopital.com can
+# be pointed here without copying anything. Anyone else running this skips it.
+OPERATOR_ACCOUNT = "henholib"
+try:
+    from huggingface_hub import HfApi
+    api = HfApi(token=HF_TOKEN)
+    me = api.whoami()["name"]
+    if me == OPERATOR_ACCOUNT:
+        repo = f"{me}/naic-gpu-endpoint"
+        api.create_repo(repo, private=True, exist_ok=True)
+        api.upload_file(
+            path_or_fileobj=json.dumps({"url": URL, "key": NAIC_API_KEY, "at": time.time()}).encode(),
+            path_in_repo="endpoint.json", repo_id=repo, commit_message="current GPU endpoint")
+        print(f"\nSaved privately to {repo}: the operator can connect henholib now.")
+except Exception as e:
+    print("\nCould not save the link privately (" + str(e)[:120] + "); send the lines above instead.")
 """)
 
 code(r"""
