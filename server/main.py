@@ -337,7 +337,34 @@ def admin_log(lines: int = 200) -> Response:
 async def admin_tts(request: Request) -> dict:
     """Switch the voice model's compiled decode path on or off without a restart."""
     body = await request.json()
-    return {"compiled": tts.set_compile(bool(body.get("compile")))}
+    mode = str(body.get("mode") or "cudagraphs")
+    return {"compiled": tts.set_compile(bool(body.get("compile")), mode), "mode": mode}
+
+
+@app.post("/admin/update", dependencies=[Depends(_require_key)])
+def admin_update() -> dict:
+    """Pull the latest code from this repository and restart the server in place.
+
+    The process replaces itself, so the tunnel and its URL stay up while the
+    models reload from the local cache (a few minutes). Only the repository the
+    notebook cloned is pulled; nothing else can be fetched or run.
+    """
+    import subprocess
+    import sys
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pull = subprocess.run(["git", "-C", root, "pull", "--ff-only"], capture_output=True, text=True, timeout=120)
+    if pull.returncode != 0:
+        raise HTTPException(status_code=500, detail="git pull failed: " + (pull.stderr or pull.stdout)[-400:])
+    head = subprocess.run(["git", "-C", root, "log", "--oneline", "-1"], capture_output=True, text=True).stdout.strip()
+
+    def restart() -> None:
+        time.sleep(1.0)  # let this response reach the caller first
+        print(f"[admin] restarting on {head}", flush=True)
+        os.execv(sys.executable, [sys.executable, "-m", "uvicorn", *sys.argv[1:]])
+
+    threading.Thread(target=restart, daemon=True).start()
+    return {"pulled": pull.stdout.strip()[-400:], "head": head, "restarting": True}
 
 
 def _xml_escape(text: str) -> str:

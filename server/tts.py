@@ -78,17 +78,36 @@ _eager_forward = None
 _compiled = False
 
 
+def _compile_mode() -> str:
+    """off | cudagraphs (fastest, replays each decode step) | fused (no CUDA graphs)."""
+    m = os.environ.get("TTS_COMPILE", "0").strip().lower()
+    return {"0": "off", "": "off", "1": "cudagraphs"}.get(m, m)
+
+
 def _enable_compile() -> None:
     global _eager_forward, _compiled
-    if os.environ.get("TTS_COMPILE", "0") != "1" or _audio_tokenizer.device.type != "cuda":
+    mode = _compile_mode()
+    if mode == "off" or _audio_tokenizer.device.type != "cuda":
         return
     import torch  # type: ignore
 
     try:
         _eager_forward = _model.forward
-        _model.generation_config.cache_implementation = "static"
-        _model.forward = torch.compile(_model.forward, mode="reduce-overhead")
+        if mode == "cudagraphs":
+            _model.generation_config.cache_implementation = "static"
+            graphed = torch.compile(_eager_forward, mode="reduce-overhead")
+
+            def forward(*args, **kwargs):
+                # Each decode step is a new graph run; without this mark the static
+                # cache reads an output the next replay has already overwritten.
+                torch.compiler.cudagraph_mark_step_begin()
+                return graphed(*args, **kwargs)
+
+            _model.forward = forward
+        else:
+            _model.forward = torch.compile(_eager_forward, mode="max-autotune-no-cudagraphs", dynamic=True)
         _compiled = True
+        print(f"[tts] voice model compiled ({mode})", flush=True)
     except Exception as exc:
         log.warning("could not compile the voice model (%s); using it uncompiled", exc)
         _disable_compile()
@@ -147,7 +166,7 @@ def _tone() -> bytes:
     return header + frames
 
 
-def set_compile(on: bool) -> bool:
+def set_compile(on: bool, mode: str = "cudagraphs") -> bool:
     """Switch the compiled decode path at runtime (the admin endpoint); returns the new state."""
     import torch  # type: ignore
 
@@ -157,7 +176,7 @@ def set_compile(on: bool) -> bool:
         if hasattr(torch, "_dynamo"):
             torch._dynamo.reset()
         if on:
-            os.environ["TTS_COMPILE"] = "1"
+            os.environ["TTS_COMPILE"] = mode if mode in ("cudagraphs", "fused") else "cudagraphs"
             _enable_compile()
         else:
             os.environ["TTS_COMPILE"] = "0"
@@ -208,7 +227,7 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
     samples = audio.squeeze().float().numpy()
     took = time.monotonic() - started
     print(f"[tts] {len(spoken)} chars, {len(texts)} chunk(s), {len(samples) / SAMPLE_RATE:.1f}s audio in {took:.1f}s "
-          f"(compiled={_compiled})", flush=True)
+          f"(compiled={_compile_mode() if _compiled else 'off'})", flush=True)
     return _wav(samples, SAMPLE_RATE), speaker
 
 
