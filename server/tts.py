@@ -14,6 +14,7 @@ from __future__ import annotations
 import io
 import logging
 import math
+import os
 import re
 import struct
 import sys
@@ -65,6 +66,39 @@ def load() -> None:
     tok = _audio_tokenizer.tokenizer
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
+    _enable_compile()
+
+
+# Measured on a T4: two short sentences took ~14 s, mostly Python overhead per
+# generated step of a small (360M) model. A static KV cache keeps each decode
+# step the same shape, so torch.compile can replay it as a CUDA graph. If
+# compiling fails on a given runtime, the eager path is restored and used.
+_eager_forward = None
+_compiled = False
+
+
+def _enable_compile() -> None:
+    global _eager_forward, _compiled
+    if os.environ.get("TTS_COMPILE", "1") != "1" or _audio_tokenizer.device.type != "cuda":
+        return
+    import torch  # type: ignore
+
+    try:
+        _eager_forward = _model.forward
+        _model.generation_config.cache_implementation = "static"
+        _model.forward = torch.compile(_model.forward, mode="reduce-overhead")
+        _compiled = True
+    except Exception as exc:
+        log.warning("could not compile the voice model (%s); using it uncompiled", exc)
+        _disable_compile()
+
+
+def _disable_compile() -> None:
+    global _compiled
+    if _eager_forward is not None:
+        _model.forward = _eager_forward
+    _model.generation_config.cache_implementation = None
+    _compiled = False
 
 
 def _chunks(text: str) -> list[str]:
@@ -134,8 +168,17 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
             try:
                 per_chunk = _generate_batch(texts, lang, speaker)
             except Exception as exc:
-                log.warning("batched synthesis failed (%s); voicing one sentence at a time", exc)
-                per_chunk = [_generate_one(t, lang, speaker) for t in texts]
+                if _compiled:
+                    log.warning("compiled voice failed (%s); switching to uncompiled", exc)
+                    _disable_compile()
+                    if hasattr(torch, "_dynamo"):
+                        torch._dynamo.reset()
+                else:
+                    log.warning("batched synthesis failed (%s); voicing one sentence at a time", exc)
+                try:
+                    per_chunk = _generate_batch(texts, lang, speaker)
+                except Exception:
+                    per_chunk = [_generate_one(t, lang, speaker) for t in texts]
             codes: list[int] = []
             remaining = iter(per_chunk)
             for chunk in chunks:
