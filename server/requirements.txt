@@ -1,0 +1,14 @@
+# API
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# NCAIR ASR (Whisper-based). torch is CPU by default; on the GPU box install the
+# CUDA build per the deploy guide.
+transformers==4.48.0
+torch==2.5.1
+soundfile==0.12.1
+librosa==0.10.2.post1
+
+# N-ATLaS is reached over HTTP (vLLM / HF endpoint), so no LLM runtime is needed
+# in this process. vLLM itself is installed only on the GPU box (see deploy).
