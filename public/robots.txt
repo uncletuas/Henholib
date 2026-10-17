@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /onboarding
-Disallow: /contribute
-Disallow: /portal/
-Disallow: /hub/
-Disallow: /api/
-
-Sitemap: https://loopital.com/sitemap.xml
