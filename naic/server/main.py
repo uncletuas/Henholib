@@ -88,9 +88,15 @@ def _warm_up() -> None:
 
             llm_local.load()
         if not settings.asr_stub:
-            asr.transcribe_warm("en")
+            # All four: the first Yoruba clip on a cold model took 58 s, almost
+            # all of it downloading and loading the model rather than listening.
+            for code in ("en", "yo", "ig", "ha"):
+                asr.transcribe_warm(code)
         if settings.tts_enabled and not settings.tts_stub:
             tts.load()
+            # One short phrase compiles the GPU kernels, so the first real
+            # reply does not pay for it.
+            tts.synthesize("Hello.", "en")
         _warm["state"] = "ready"
     except Exception as exc:  # surfaced on /healthz rather than killing the server
         _warm["state"] = "failed"

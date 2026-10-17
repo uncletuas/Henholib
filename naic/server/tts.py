@@ -12,6 +12,7 @@ the notebook (see colab/); their paths come from config.
 from __future__ import annotations
 
 import io
+import logging
 import math
 import re
 import struct
@@ -30,6 +31,7 @@ _WORDS_PER_CHUNK = 25
 LANGUAGES = {"en": "english", "pcm": "english", "yo": "yoruba", "ig": "igbo", "ha": "hausa"}
 VOICES = {"english": "idera", "yoruba": "yoruba_female2", "igbo": "igbo_female2", "hausa": "hausa_female1"}
 
+log = logging.getLogger("tts")
 _lock = threading.Lock()
 _audio_tokenizer = None
 _model = None
@@ -51,10 +53,18 @@ def load() -> None:
     _audio_tokenizer = AudioTokenizerV2(
         "saheedniyi/YarnGPT2b", settings.wavtokenizer_ckpt, settings.wavtokenizer_config
     )
-    _model = AutoModelForCausalLM.from_pretrained("saheedniyi/YarnGPT2b", torch_dtype="auto").to(
-        _audio_tokenizer.device
-    )
+    import torch  # type: ignore
+
+    # Half precision on a GPU: the measured first run spent 35 s voicing two
+    # sentences in the checkpoint's 32-bit weights. The codec stays 32-bit.
+    on_gpu = _audio_tokenizer.device.type == "cuda"
+    _model = AutoModelForCausalLM.from_pretrained(
+        "saheedniyi/YarnGPT2b", torch_dtype=torch.float16 if on_gpu else "auto"
+    ).to(_audio_tokenizer.device)
     _model.eval()
+    tok = _audio_tokenizer.tokenizer
+    if tok.pad_token_id is None:
+        tok.pad_token = tok.eos_token
 
 
 def _chunks(text: str) -> list[str]:
@@ -117,23 +127,67 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
     import torch  # type: ignore
 
     load()
+    chunks = _chunks(spoken)
+    texts = [c for c in chunks if c != "."]
     try:
-        codes: list[int] = []
         with _lock, torch.inference_mode():
-            for chunk in _chunks(spoken):
-                if chunk == ".":
-                    codes.extend(_PAUSE)
-                    continue
-                prompt = _audio_tokenizer.create_prompt(chunk, lang=lang, speaker_name=speaker)
-                ids = _audio_tokenizer.tokenize_prompt(prompt)
-                out = _model.generate(
-                    input_ids=ids, temperature=0.1, repetition_penalty=1.1, max_length=4000
-                )
-                codes.extend(_audio_tokenizer.get_codes(out))
+            try:
+                per_chunk = _generate_batch(texts, lang, speaker)
+            except Exception as exc:
+                log.warning("batched synthesis failed (%s); voicing one sentence at a time", exc)
+                per_chunk = [_generate_one(t, lang, speaker) for t in texts]
+            codes: list[int] = []
+            remaining = iter(per_chunk)
+            for chunk in chunks:
+                codes.extend(_PAUSE if chunk == "." else next(remaining))
             audio = _audio_tokenizer.get_audio(codes)
     except Exception as exc:  # the caller falls back to captions
         raise TTSError(f"synthesis failed: {exc}") from exc
     return _wav(audio.squeeze().float().numpy(), SAMPLE_RATE), speaker
+
+
+_GEN = dict(temperature=0.1, repetition_penalty=1.1, max_length=4000)
+
+
+def _generate_one(text: str, lang: str, speaker: str) -> list[int]:
+    """The model card's own path: one sentence per generate call."""
+    prompt = _audio_tokenizer.create_prompt(text, lang=lang, speaker_name=speaker)
+    out = _model.generate(input_ids=_audio_tokenizer.tokenize_prompt(prompt), **_GEN)
+    return _audio_tokenizer.get_codes(out)
+
+
+def _pad_id(tok) -> int:
+    """A padding token that is not an end-of-speech token.
+
+    Repetition penalty also counts padding, so padding with the stop token
+    would make the shorter rows less willing to stop, and they ramble on.
+    """
+    stops = _model.generation_config.eos_token_id
+    stops = set(stops if isinstance(stops, list) else [stops]) | {tok.eos_token_id}
+    for candidate in ("<|endoftext|>", "<|text_sep|>", tok.pad_token):
+        tid = tok.convert_tokens_to_ids(candidate) if candidate else None
+        if isinstance(tid, int) and tid != tok.unk_token_id and tid not in stops:
+            return tid
+    return tok.pad_token_id
+
+
+def _generate_batch(texts: list[str], lang: str, speaker: str) -> list[list[int]]:
+    """All sentences in one generate call: they decode side by side, so a reply
+    takes about as long as its longest sentence instead of the sum of them."""
+    if len(texts) == 1:
+        return [_generate_one(texts[0], lang, speaker)]
+    tok = _audio_tokenizer.tokenizer
+    prompts = [_audio_tokenizer.create_prompt(t, lang=lang, speaker_name=speaker) for t in texts]
+    pad = _pad_id(tok)
+    rows = [tok.encode(p, add_special_tokens=False) for p in prompts]
+    width = max(len(r) for r in rows)
+
+    import torch  # type: ignore
+
+    ids = torch.tensor([[pad] * (width - len(r)) + r for r in rows], device=_audio_tokenizer.device)
+    mask = torch.tensor([[0] * (width - len(r)) + [1] * len(r) for r in rows], device=_audio_tokenizer.device)
+    out = _model.generate(input_ids=ids, attention_mask=mask, pad_token_id=pad, **_GEN)
+    return [_audio_tokenizer.extract_integers(tok.decode(row[width:])) for row in out]
 
 
 def loaded() -> bool:
