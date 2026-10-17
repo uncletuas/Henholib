@@ -282,6 +282,15 @@ async def chat_completions(request: Request) -> dict:
     }
 
 
+@app.post("/asr/auto", dependencies=[Depends(_require_key)])
+async def asr_auto(request: Request, hint: str = "en") -> dict:
+    """Whichever NCAIR language is being spoken: {text, language, score, tried}."""
+    audio = await request.body()
+    if not audio:
+        raise HTTPException(status_code=400, detail="send the audio as the request body")
+    return asr.transcribe_auto(audio, hint)
+
+
 @app.post("/asr/{lang}", dependencies=[Depends(_require_key)])
 async def asr_endpoint(lang: str, request: Request) -> dict:
     audio = await request.body()
