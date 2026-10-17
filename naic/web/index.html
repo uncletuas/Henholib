@@ -137,7 +137,7 @@ function wavFromBuffer(buffer) {
 
 async function send(blob) {
   micBtn.disabled = true;
-  statusEl.textContent = "Listening to N-ATLaS...";
+  statusEl.textContent = "N-ATLaS is thinking. On a free GPU this can take up to a minute.";
   const ac = new (window.AudioContext || window.webkitAudioContext)();
   const wav = wavFromBuffer(await ac.decodeAudioData(await blob.arrayBuffer()));
   const fd = new FormData();
@@ -146,8 +146,19 @@ async function send(blob) {
   try {
     const r = await fetch(API + "/api/voice", { method: "POST", body: fd });
     const j = await r.json();
-    addTurn(j.transcript, j.reply, j.latency_ms);
-    statusEl.textContent = "Ask another question.";
+    if (!r.ok) {
+      statusEl.textContent = "Something went wrong: " + (j.error || j.detail || r.status);
+      return;
+    }
+    addTurn(j.transcript, j.reply, j.latency_ms, j.spoken);
+    if (j.audio) {
+      statusEl.textContent = "Speaking...";
+      const player = new Audio("data:audio/wav;base64," + j.audio);
+      player.onended = () => { statusEl.textContent = "Ask another question."; };
+      await player.play().catch(() => { statusEl.textContent = "Tap the page to allow audio, then ask again."; });
+    } else {
+      statusEl.textContent = "Ask another question.";
+    }
   } catch (e) {
     statusEl.textContent = "Could not reach the service. Try again.";
   } finally {
@@ -156,7 +167,7 @@ async function send(blob) {
   }
 }
 
-function addTurn(transcript, reply, ms) {
+function addTurn(transcript, reply, ms, spoken) {
   convo.style.display = "block";
   const el = document.createElement("div");
   el.className = "turn";
@@ -166,7 +177,8 @@ function addTurn(transcript, reply, ms) {
     '<div class="meta"></div>';
   el.querySelectorAll(".bubble")[0].textContent = transcript || "(no speech detected)";
   el.querySelector(".reply").textContent = reply || "";
-  el.querySelector(".meta").textContent = ms ? (ms + " ms") : "";
+  el.querySelector(".meta").textContent =
+    (ms ? (Math.round(ms / 100) / 10) + " s" : "") + (spoken === false ? " · captions only" : spoken ? " · spoken" : "");
   convo.prepend(el);
 }
 

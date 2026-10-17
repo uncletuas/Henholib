@@ -1,0 +1,22 @@
+# The free-GPU stack (Colab / Kaggle T4). torch, torchaudio and transformers come
+# preinstalled there and are deliberately not reinstalled: replacing the CUDA
+# build of torch is the usual way these notebooks break.
+
+# API
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# N-ATLaS in 4-bit on one GPU
+bitsandbytes>=0.43.0
+accelerate>=0.33.0
+
+# NCAIR ASR decoding (WebM/Opus goes through ffmpeg via librosa)
+soundfile
+librosa
+
+# YarnGPT2b voice: the versions its repository pins
+outetts==0.2.3
+uroman
+inflect
+gdown

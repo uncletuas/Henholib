@@ -9,6 +9,22 @@ No typing, no English required.
 > Communications, Innovation and Digital Economy. General guidance only, not
 > medical advice.
 
+## Run it yourself, free, on a GPU
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uncletuas/Henholib/blob/consolidate-loopital/naic/colab/NAIC_N-ATLaS_Voice.ipynb)
+
+`colab/NAIC_N-ATLaS_Voice.ipynb` runs the whole pipeline on a free Colab or
+Kaggle T4: it loads NCAIR's official N-ATLaS weights in 4-bit, the four NCAIR
+ASR models and the Nigerian voice, then prints a public URL with a hold-to-speak
+demo. You need a Hugging Face token whose account has accepted the N-ATLaS and
+NCAIR ASR licences. The last cell proves the loop: N-ATLaS answers a Yoruba
+question in Yoruba, the voice speaks it, and NCAIR's Yoruba ASR transcribes the
+spoken answer back, with timings.
+
+The same URL also serves the endpoints the Loopital app calls
+(`/v1/chat/completions`, `/asr/{lang}`, `/tts`), so henholib.loopital.com can use
+this GPU with configuration only.
+
 ## Why this fits the track
 
 Millions of Nigerians do not type fluently in English but speak Yoruba, Hausa,
@@ -24,10 +40,12 @@ end on NCAIR's own models.
 | Speech to text (Igbo) | Igbo-ASR | `NCAIR1/Igbo-ASR` |
 | Speech to text (English/Pidgin) | NigerianAccentedEnglish | `NCAIR1/NigerianAccentedEnglish` |
 | Understanding + answer | **N-ATLaS 8B** | `NCAIR1/N-ATLaS` |
+| Speaking the answer | YarnGPT2b (Nigerian-accented, Apache 2.0) | `saheedniyi/YarnGPT2b` |
 
-The only non-NCAIR pieces are the transport (WhatsApp via Twilio) and the GPU
-host. NCAIR publishes no TTS model, so replies are returned as text on the web
-and as a WhatsApp message; voice-out can be layered on later.
+NCAIR publishes no text-to-speech model, so the finished N-ATLaS sentence is
+voiced by YarnGPT2b, a Nigerian model. No understanding or answering happens
+there. Other non-NCAIR pieces are the transport (WhatsApp via Twilio) and the
+GPU host.
 
 ## Architecture
 

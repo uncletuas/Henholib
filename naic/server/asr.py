@@ -23,12 +23,18 @@ def _pipeline(model_id: str):
     # Imported lazily so the module (and the stub path) load without torch.
     from transformers import pipeline  # type: ignore
 
-    device = 0 if settings.asr_device.startswith("cuda") else -1
+    on_gpu = settings.asr_device.startswith("cuda")
+    kwargs = {}
+    if on_gpu:
+        import torch  # type: ignore
+
+        kwargs["torch_dtype"] = torch.float16
     return pipeline(
         "automatic-speech-recognition",
         model=model_id,
         token=settings.hf_token or None,
-        device=device,
+        device=0 if on_gpu else -1,
+        **kwargs,
     )
 
 
@@ -37,7 +43,21 @@ def _decode_to_array(audio_bytes: bytes):
     import soundfile as sf  # type: ignore
     import librosa  # type: ignore
 
-    data, sr = sf.read(io.BytesIO(audio_bytes), dtype="float32", always_2d=False)
+    try:
+        data, sr = sf.read(io.BytesIO(audio_bytes), dtype="float32", always_2d=False)
+    except Exception:
+        # soundfile reads WAV/FLAC/OGG but not the WebM/Opus most browsers record
+        # and WhatsApp sends; librosa hands those to ffmpeg via a temp file.
+        import os
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".audio", delete=False) as fh:
+            fh.write(audio_bytes)
+            path = fh.name
+        try:
+            data, sr = librosa.load(path, sr=16000, mono=True)
+        finally:
+            os.unlink(path)
     if getattr(data, "ndim", 1) > 1:
         data = data.mean(axis=1)  # downmix to mono
     if sr != 16000:
@@ -62,6 +82,11 @@ def transcribe(audio_bytes: bytes, language: str) -> str:
     if not text:
         raise ASRError("ASR returned empty text")
     return text
+
+
+def transcribe_warm(language: str) -> None:
+    """Load a language's model ahead of the first real request."""
+    _pipeline(ASR_MODELS.get(language) or ASR_MODELS["en"])
 
 
 def health() -> dict:

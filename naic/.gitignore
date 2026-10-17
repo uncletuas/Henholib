@@ -4,3 +4,5 @@ server/.venv/
 **/__pycache__/
 *.pyc
 evidence.csv
+server/vendor/
+server/naic-data/
