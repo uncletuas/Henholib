@@ -122,6 +122,7 @@ env = dict(os.environ,
     ASR_DEVICE="cuda:0", NAIC_PRELOAD="1",
     YARNGPT_DIR=VENDOR, WAVTOKENIZER_CONFIG=CODEC_CFG, WAVTOKENIZER_CKPT=CODEC_CKPT,
     NAIC_DATA_DIR=os.path.join(WORK, "naic-data"),
+    NAIC_LOG_PATH=os.path.join(WORK, "server.log"),
 )
 subprocess.run("pkill -f 'uvicorn main:app'", shell=True)
 time.sleep(2)

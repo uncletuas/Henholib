@@ -19,6 +19,7 @@ import re
 import struct
 import sys
 import threading
+import time
 
 from config import settings
 
@@ -79,7 +80,7 @@ _compiled = False
 
 def _enable_compile() -> None:
     global _eager_forward, _compiled
-    if os.environ.get("TTS_COMPILE", "1") != "1" or _audio_tokenizer.device.type != "cuda":
+    if os.environ.get("TTS_COMPILE", "0") != "1" or _audio_tokenizer.device.type != "cuda":
         return
     import torch  # type: ignore
 
@@ -146,6 +147,23 @@ def _tone() -> bytes:
     return header + frames
 
 
+def set_compile(on: bool) -> bool:
+    """Switch the compiled decode path at runtime (the admin endpoint); returns the new state."""
+    import torch  # type: ignore
+
+    load()
+    with _lock:
+        _disable_compile()
+        if hasattr(torch, "_dynamo"):
+            torch._dynamo.reset()
+        if on:
+            os.environ["TTS_COMPILE"] = "1"
+            _enable_compile()
+        else:
+            os.environ["TTS_COMPILE"] = "0"
+    return _compiled
+
+
 def synthesize(text: str, language: str = "en", voice: str | None = None) -> tuple[bytes, str]:
     """Return (wav_bytes, voice) for the text in the given language code."""
     if not settings.tts_enabled:
@@ -161,6 +179,7 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
     import torch  # type: ignore
 
     load()
+    started = time.monotonic()
     chunks = _chunks(spoken)
     texts = [c for c in chunks if c != "."]
     try:
@@ -186,7 +205,11 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
             audio = _audio_tokenizer.get_audio(codes)
     except Exception as exc:  # the caller falls back to captions
         raise TTSError(f"synthesis failed: {exc}") from exc
-    return _wav(audio.squeeze().float().numpy(), SAMPLE_RATE), speaker
+    samples = audio.squeeze().float().numpy()
+    took = time.monotonic() - started
+    print(f"[tts] {len(spoken)} chars, {len(texts)} chunk(s), {len(samples) / SAMPLE_RATE:.1f}s audio in {took:.1f}s "
+          f"(compiled={_compiled})", flush=True)
+    return _wav(samples, SAMPLE_RATE), speaker
 
 
 _GEN = dict(temperature=0.1, repetition_penalty=1.1, max_length=4000)

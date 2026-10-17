@@ -267,11 +267,13 @@ async def chat_completions(request: Request) -> dict:
         raise HTTPException(status_code=400, detail="messages is empty")
     # `tools` is ignored rather than refused: N-ATLaS answers in plain text and
     # the caller treats a reply with no tool calls as a normal answer.
+    started = time.monotonic()
     reply, p_tok, c_tok = natlas.complete(
         messages,
         max_tokens=body.get("max_tokens"),
         temperature=float(body.get("temperature", 0.3)),
     )
+    print(f"[natlas] {p_tok} prompt + {c_tok} reply tokens in {time.monotonic() - started:.1f}s", flush=True)
     return {
         "id": "chatcmpl-" + uuid.uuid4().hex[:24],
         "object": "chat.completion",
@@ -288,7 +290,11 @@ async def asr_auto(request: Request, hint: str = "en") -> dict:
     audio = await request.body()
     if not audio:
         raise HTTPException(status_code=400, detail="send the audio as the request body")
-    return asr.transcribe_auto(audio, hint)
+    started = time.monotonic()
+    out = asr.transcribe_auto(audio, hint)
+    print(f"[asr] auto hint={hint} -> {out['language']} (score {out['score']}, tried {out['tried']}) "
+          f"in {time.monotonic() - started:.1f}s", flush=True)
+    return out
 
 
 @app.post("/asr/{lang}", dependencies=[Depends(_require_key)])
@@ -314,6 +320,24 @@ async def tts_endpoint(request: Request) -> dict:
         "voice": voice,
         "language": language,
     }
+
+
+@app.get("/admin/log", dependencies=[Depends(_require_key)])
+def admin_log(lines: int = 200) -> Response:
+    """The tail of this server's log, so the operator can diagnose without the notebook."""
+    path = os.environ.get("NAIC_LOG_PATH", "")
+    if not path or not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="no log file (NAIC_LOG_PATH unset)")
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        tail = fh.readlines()[-max(1, min(lines, 2000)):]
+    return Response(content="".join(tail), media_type="text/plain")
+
+
+@app.post("/admin/tts", dependencies=[Depends(_require_key)])
+async def admin_tts(request: Request) -> dict:
+    """Switch the voice model's compiled decode path on or off without a restart."""
+    body = await request.json()
+    return {"compiled": tts.set_compile(bool(body.get("compile")))}
 
 
 def _xml_escape(text: str) -> str:
