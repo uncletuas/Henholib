@@ -124,13 +124,24 @@ env = dict(os.environ,
     NAIC_DATA_DIR=os.path.join(WORK, "naic-data"),
 )
 subprocess.run("pkill -f 'uvicorn main:app'", shell=True)
+time.sleep(2)
+
+# Colab's own Jupyter server owns 8080, so take the first free port from a list.
+import socket
+def free(port):
+    with socket.socket() as s:
+        return s.connect_ex(("127.0.0.1", port)) != 0
+PORT = next(p for p in (7860, 7861, 8765, 9000, 9100) if free(p))
+BASE = f"http://127.0.0.1:{PORT}"
+print("server port", PORT)
+
 LOG = os.path.join(WORK, "server.log")
-server = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"],
+server = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", str(PORT)],
                           cwd=SERVER, env=env, stdout=open(LOG, "w"), stderr=subprocess.STDOUT)
 
 def health():
     try:
-        return json.load(urllib.request.urlopen("http://127.0.0.1:8080/healthz", timeout=5))
+        return json.load(urllib.request.urlopen(BASE + "/healthz", timeout=5))
     except Exception:
         return None
 
@@ -157,7 +168,7 @@ if not os.path.exists(CF):
     sh(f"wget -q -O {CF} https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 && chmod +x {CF}")
 subprocess.run("pkill -f 'cloudflared tunnel'", shell=True)
 CF_LOG = os.path.join(WORK, "tunnel.log")
-tunnel = subprocess.Popen(f"{CF} tunnel --no-autoupdate --url http://127.0.0.1:8080 > {CF_LOG} 2>&1", shell=True)
+tunnel = subprocess.Popen(f"{CF} tunnel --no-autoupdate --url {BASE} > {CF_LOG} 2>&1", shell=True)
 URL = None
 for _ in range(60):
     time.sleep(2)
@@ -188,7 +199,7 @@ import IPython.display as ipd
 
 def post(path, payload=None, raw=None, ctype="application/json"):
     data = raw if raw is not None else json.dumps(payload).encode()
-    req = urllib.request.Request("http://127.0.0.1:8080" + path, data=data,
+    req = urllib.request.Request(BASE + path, data=data,
                                  headers={"Authorization": f"Bearer {NAIC_API_KEY}", "Content-Type": ctype})
     t = time.time()
     out = json.load(urllib.request.urlopen(req, timeout=300))
