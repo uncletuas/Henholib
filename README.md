@@ -101,6 +101,10 @@ NATLAS_STUB=1 ASR_STUB=1 TTS_STUB=1 uvicorn main:app --port 7860
 
 On a GPU, `pip install -r requirements-gpu.txt` and follow the notebook's steps.
 
+## Always-on deployment (Modal)
+
+`deploy/modal_app.py` runs the same service on [Modal](https://modal.com) as a serverless endpoint: one stable URL that scales to zero when idle and wakes on the first request, so it needs no notebook kept open. All NCAIR weights are baked into the image, so a cold start loads from local disk. Deploy with `modal deploy deploy/modal_app.py` after creating the two secrets the file documents.
+
 ## Validation evidence
 
 Every real voice turn is appended to `naic-data/interactions.jsonl` with its
