@@ -19,6 +19,7 @@ import re
 import struct
 import sys
 import threading
+from collections import OrderedDict
 import time
 
 from config import settings
@@ -183,6 +184,12 @@ def set_compile(on: bool, mode: str = "cudagraphs") -> bool:
     return _compiled
 
 
+# Fixed phrases (greetings, "one moment") repeat a lot; keep the last few so they
+# come back instantly instead of being synthesised again.
+_cache: "OrderedDict[tuple, tuple[bytes, str]]" = OrderedDict()
+_CACHE_MAX = 64
+
+
 def synthesize(text: str, language: str = "en", voice: str | None = None) -> tuple[bytes, str]:
     """Return (wav_bytes, voice) for the text in the given language code."""
     if not settings.tts_enabled:
@@ -194,6 +201,12 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
     spoken = _spoken_part(text)
     if not spoken.strip():
         raise TTSError("no text to speak")
+
+    key = (spoken, lang, speaker)
+    cached = _cache.get(key)
+    if cached is not None:
+        _cache.move_to_end(key)
+        return cached
 
     import torch  # type: ignore
 
@@ -224,11 +237,23 @@ def synthesize(text: str, language: str = "en", voice: str | None = None) -> tup
             audio = _audio_tokenizer.get_audio(codes)
     except Exception as exc:  # the caller falls back to captions
         raise TTSError(f"synthesis failed: {exc}") from exc
+    import numpy as np  # type: ignore
+
     samples = audio.squeeze().float().numpy()
+    # YarnGPT output is quiet and varies in level between clips; lift the peak to a
+    # fixed loud-but-unclipped target so every reply plays at the same clear volume.
+    peak = float(np.max(np.abs(samples))) if samples.size else 0.0
+    if peak > 0:
+        samples = samples * (0.97 / peak)
     took = time.monotonic() - started
     print(f"[tts] {len(spoken)} chars, {len(texts)} chunk(s), {len(samples) / SAMPLE_RATE:.1f}s audio in {took:.1f}s "
           f"(compiled={_compile_mode() if _compiled else 'off'})", flush=True)
-    return _wav(samples, SAMPLE_RATE), speaker
+    out = (_wav(samples, SAMPLE_RATE), speaker)
+    _cache[key] = out
+    _cache.move_to_end(key)
+    while len(_cache) > _CACHE_MAX:
+        _cache.popitem(last=False)
+    return out
 
 
 _GEN = dict(temperature=0.1, repetition_penalty=1.1, max_length=4000)
