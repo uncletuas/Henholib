@@ -74,7 +74,7 @@ image = (
     image=image,
     gpu="L4",  # 24 GB, about twice a free T4, fits N-ATLaS + the four ASR models + the voice
     secrets=[hf, naic],
-    scaledown_window=300,  # stay warm 5 min after the last request, so a session is not all cold starts
+    scaledown_window=1200,  # stay warm 20 min after the last request, so an active judging session stays warm
     timeout=900,
     max_containers=1,  # one GPU; the server serialises model use with its own locks
 )
